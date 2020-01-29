@@ -7,4 +7,4 @@ Using FEMM with Matlab requires FEMM files to be included into Matlab's search p
 addpath('c:\\femm42\\mfiles');
 savepath;
 ```
-to add the FEMM mfiles path to the search path. 
+to add the FEMM mfiles path to Matlab's search path. 
