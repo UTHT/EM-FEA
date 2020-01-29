@@ -156,7 +156,7 @@ mi_saveas('SimulationData\DLIMSimulations.fem');
 mi_analyze;
 mi_loadsolution;
 
-mo_selectblock(0,0)
-force = mo_blockintegral(11)
+mo_selectblock(0,0);
+force = mo_blockintegral(11);
 
 end
