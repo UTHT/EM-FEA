@@ -1,35 +1,10 @@
+function force = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH)
+
 unit = 'millimeters';
 
 EnableBavg = false;
 EnableBn = true;
 EnableTorque = false;
-
-%Define LIM Parameters (Parallel to ANSYS rmXprt LinearMCore definition)
-WIDTH_CORE = 460;
-THICK_CORE = 50;
-LENGTH = 50;
-GAP = 17.5;
-SLOT_PITCH = 40;
-SLOTS = 11;
-Hs0 = 0;
-Hs01 = 0;
-Hs1 = 0;
-Hs2 = 20;
-Bs0 = 20;
-Bs1 = 20;
-Bs2 = 20;
-Rs = 0;
-Layers = 2;
-COIL_PITCH = 2;
-
-%Define Simulation Specific Parameters
-inputCurrent = 200;
-freq = 60;
-coilTurns = 30;
-trackThickness = 8;
-copperMaterial = '10 AWG';
-coreMaterial = '1010 Steel';
-trackMaterial = 'Aluminum, 6061-T6';
 
 %Open FEMM and resize window
 openfemm(0);
@@ -37,7 +12,7 @@ main_resize(1000,590);
 
 %Create new document and define problem solution
 newdocument(0);
-mi_probdef(freq,unit,'planar',1e-8,LENGTH,30); 
+mi_probdef(freq,unit,'planar',1e-8,LENGTH,30);
 %Get Lim Materials
 Air = 'Air';
 mi_getmaterial(Air);
@@ -65,7 +40,7 @@ for i=0:SLOTS-1
     mi_drawline(-slotTeethWidth/2+delta,0,-slotTeethWidth/2+delta,Hs2);
     mi_drawline(-slotTeethWidth/2+slotGap+delta,0,-slotTeethWidth/2+slotGap+delta,Hs2);
     mi_addsegment(-slotTeethWidth/2+delta,Hs2,-slotTeethWidth/2+delta+slotGap,Hs2);
-    
+
 end
 
 for i=0:SLOTS-2
@@ -87,12 +62,12 @@ mi_addcircprop('WindingC',phaseC,1);
 %Create and Label Coils
 for i=0:SLOTS-1
    delta=SLOT_PITCH*i;
-   
+
    bPhase = mod(i,3);
    tPhase = mod(i+1,3);
    bWinding = '';
    tWinding = '';
-   
+
    if(bPhase==0)
        bWinding='WindingA';
    elseif(bPhase==1)
@@ -100,7 +75,7 @@ for i=0:SLOTS-1
    elseif(bPhase==2)
        bWinding='WindingC';
    end
-   
+
    if(tPhase==0)
        tWinding='WindingA';
    elseif(tPhase==1)
@@ -109,7 +84,7 @@ for i=0:SLOTS-1
        tWinding='WindingC';
    end
    %disp(bPhase)
-   
+
    mi_drawline(-slotTeethWidth/2+delta,Hs2/2,-slotTeethWidth/2+slotGap+delta,Hs2/2);
    if(~(i==0||i==1))
         mi_addblocklabel(-slotTeethWidth/2+slotGap/2+delta,Hs2*3/4);
@@ -119,10 +94,10 @@ for i=0:SLOTS-1
    end
    if(~(i==SLOTS-1||i==SLOTS-2))
         mi_addblocklabel(-slotTeethWidth/2+slotGap/2+delta,Hs2*1/4);
-        mi_selectlabel(-slotTeethWidth/2+slotGap/2+delta,Hs2*1/4);  
+        mi_selectlabel(-slotTeethWidth/2+slotGap/2+delta,Hs2*1/4);
         mi_setblockprop(copperMaterial,1,0,bWinding,0,1,coilTurns);
         mi_clearselected;
-   end   
+   end
 end
 
 %Fill remaining core gaps with air
@@ -177,6 +152,11 @@ mi_addblocklabel(0,THICK_CORE*2);
 mi_selectlabel(0,THICK_CORE*2);
 mi_setblockprop(Air,1,0,'<None>',0,0,0);
 mi_makeABC;
-mi_saveas('DLIMSimulations.fem');
+mi_saveas('SimulationData\DLIMSimulations.fem');
 mi_analyze;
 mi_loadsolution;
+
+mo_selectblock(0,0)
+force = mo_blockintegral(11)
+
+end
