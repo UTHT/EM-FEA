@@ -1,4 +1,4 @@
-function force = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH)
+function [force,phaseAvol,phaseBvol,phaseCvol,phaseAcur,phaseBcur,phaseCcur] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH)
 
 unit = 'millimeters';
 
@@ -66,6 +66,8 @@ for i=0:SLOTS-1
 
    bPhase = mod(i,3);
    tPhase = mod(i+1,3);
+   bmodulo = 2*mod(i+1,2)-1;
+   tmodulo = 2*mod(i+2,2)-1;
    bWinding = '';
    tWinding = '';
 
@@ -90,13 +92,13 @@ for i=0:SLOTS-1
    if(~(i==0||i==1))
         mi_addblocklabel(-slotTeethWidth/2+slotGap/2+delta,Hs2*3/4);
         mi_selectlabel(-slotTeethWidth/2+slotGap/2+delta,Hs2*3/4);
-        mi_setblockprop(copperMaterial,1,0,tWinding,0,1,-coilTurns);
+        mi_setblockprop(copperMaterial,1,0,tWinding,0,1,coilTurns*tmodulo);
         mi_clearselected;
    end
    if(~(i==SLOTS-1||i==SLOTS-2))
         mi_addblocklabel(-slotTeethWidth/2+slotGap/2+delta,Hs2*1/4);
         mi_selectlabel(-slotTeethWidth/2+slotGap/2+delta,Hs2*1/4);
-        mi_setblockprop(copperMaterial,1,0,bWinding,0,1,coilTurns);
+        mi_setblockprop(copperMaterial,1,0,bWinding,0,1,coilTurns*bmodulo);
         mi_clearselected;
    end
 end
@@ -125,12 +127,12 @@ mi_setblockprop(coreMaterial,1,0,'<None>',0,1,0);
 
 %Create Space for Air Gap and Track
 mi_selectgroup(1);
-mi_movetranslate(0,GAP+trackThickness/2);
+mi_movetranslate(0,GAP);
 
 %Create and Label Air Gap
 mi_addsegment(WIDTH_CORE/-2,GAP+trackThickness/2,WIDTH_CORE/2,GAP+trackThickness/2);
-%mi_selectrectangle(WIDTH_CORE/-2,trackThickness/2,WIDTH_CORE/2,GAP+trackThickness/2);
-%mi_setgroup(1);
+mi_selectrectangle(WIDTH_CORE/-2,trackThickness/2,WIDTH_CORE/2,GAP+trackThickness/2);
+mi_setgroup(1);
 %mi_addblocklabel(0,GAP/2);
 %mi_selectlabel(0,GAP/2);
 mi_setblockprop(Air,1,0,'<None>',0,1,0);
@@ -157,7 +159,18 @@ mi_saveas('SimulationData\DLIMSimulations.fem');
 mi_analyze;
 mi_loadsolution;
 
-%mo_selectblock(0,0);
-%force = mo_blockintegral(11);
+mo_selectblock(0,0);
+force = mo_blockintegral(11);
+phaseAprop = mo_getcircuitproperties('WindingA');
+phaseBprop = mo_getcircuitproperties('WindingB');
+phaseCprop = mo_getcircuitproperties('WindingC');
+
+phaseAcur = phaseAprop(1);
+phaseBcur = phaseBprop(1);
+phaseCcur = phaseCprop(1);
+
+phaseAvol = phaseAprop(2);
+phaseBvol = phaseBprop(2);
+phaseCvol = phaseCprop(2);
 
 end
