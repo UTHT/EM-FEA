@@ -43,14 +43,16 @@ for i=5:16
   awg = i*2;
   ind = find(Gauge==awg);
   copperMaterial = join([int2str(Gauge(ind)),' AWG'])
-  coilTurns = floor(coilArea/Area(ind)*0.9)
+  coilTurns = floor(coilArea/Area(ind)*PF)
   outputParams(1,i)=coilTurns;
   [force,vA,vB,vC,cA,cB,cC] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH)
   outputParams(2,i)=force;
-  outputVoltage(1,i)=resA;
-  outputVoltage(2,i)=resA;
-  outputVoltage(3,i)=resA;
-
+  outputVoltage(1,i)=vA;
+  outputVoltage(2,i)=vB;
+  outputVoltage(3,i)=vC;
+  outputCurrent(1,i)=cA;
+  outputCurrent(2,i)=cB;
+  outputCurrent(3,i)=cC;
 end
 
 
