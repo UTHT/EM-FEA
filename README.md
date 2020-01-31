@@ -1,6 +1,6 @@
 # FEMMSimulations
 
-Fast Simulation for Double-Sided Linear Induction Motors in FEMM/Matlab. 
+Fast magnetostatic simulations for double-sided linear induction motors in FEMM/Matlab. 
 
 ## Matlab Setup
 
