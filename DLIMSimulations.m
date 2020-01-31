@@ -52,9 +52,10 @@ mi_addsegment(WIDTH_CORE/-2,0,-slotTeethWidth/2,0);
 mi_addsegment(slotTeethWidth/2,0,WIDTH_CORE/2,0);
 
 %Define Coil Currents
-phaseA = inputCurrent*(cos(0)+sin(0)*j);
-phaseB = inputCurrent*(-cos(60*pi/180)+sin(60*pi/180)*j);
-phaseC = inputCurrent*(-cos(60*pi/180)-sin(60*pi/180)*j);
+wt = 2*pi*freq;%*time;
+phaseA = inputCurrent*exp(wt*j);
+phaseB = inputCurrent*exp(wt*j+2*pi/3*j);
+phaseC = inputCurrent*exp(wt*j+4*pi/3*j);
 mi_addcircprop('WindingA',phaseA,1);
 mi_addcircprop('WindingB',phaseB,1);
 mi_addcircprop('WindingC',phaseC,1);
@@ -127,11 +128,11 @@ mi_selectgroup(1);
 mi_movetranslate(0,GAP+trackThickness/2);
 
 %Create and Label Air Gap
-mi_drawrectangle(WIDTH_CORE/-2,trackThickness/2,WIDTH_CORE/2,GAP+trackThickness/2);
-mi_selectrectangle(WIDTH_CORE/-2,trackThickness/2,WIDTH_CORE/2,GAP+trackThickness/2);
-mi_setgroup(1);
-mi_addblocklabel(0,GAP/2);
-mi_selectlabel(0,GAP/2);
+mi_addsegment(WIDTH_CORE/-2,GAP+trackThickness/2,WIDTH_CORE/2,GAP+trackThickness/2);
+%mi_selectrectangle(WIDTH_CORE/-2,trackThickness/2,WIDTH_CORE/2,GAP+trackThickness/2);
+%mi_setgroup(1);
+%mi_addblocklabel(0,GAP/2);
+%mi_selectlabel(0,GAP/2);
 mi_setblockprop(Air,1,0,'<None>',0,1,0);
 
 mi_selectgroup(1);
@@ -156,7 +157,7 @@ mi_saveas('SimulationData\DLIMSimulations.fem');
 mi_analyze;
 mi_loadsolution;
 
-mo_selectblock(0,0);
-force = mo_blockintegral(11);
+%mo_selectblock(0,0);
+%force = mo_blockintegral(11);
 
 end
