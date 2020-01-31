@@ -2,7 +2,7 @@
 WIDTH_CORE = 460;
 THICK_CORE = 50;
 LENGTH = 50;
-GAP = 10;
+GAP = 17.5;
 SLOT_PITCH = 40;
 SLOTS = 11;
 Hs0 = 0;
@@ -31,22 +31,19 @@ sumSlotTeeth = SLOTS*2+1; %Number of Teeth + Slots
 slotGap = SLOT_PITCH-Bs1; %Width of an Individual Slot
 slotTeethWidth = (SLOTS-1)*SLOT_PITCH+slotGap;
 coilArea = slotGap*Hs2/2; %Area of coil for a single phase
-PF = 0.9; %Planar Packing Factor
 
-[Gauge,Diameter,opk,Ampacity,FtpLb,Area,Volt]=readvars('InputData/copperCoilData');
-
-outputParams = zeros(2,34);
+outputs = zeros(5,34);
 outputVoltage = zeros(3,34);
 outputCurrent = zeros(3,34);
 
-for i=5:16
-  awg = i*2;
-  ind = find(Gauge==awg);
-  copperMaterial = join([int2str(Gauge(ind)),' AWG'])
-  coilTurns = floor(coilArea/Area(ind)*PF)
-  outputParams(1,i)=coilTurns;
-  [force,vA,vB,vC,cA,cB,cC] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH)
-  outputParams(2,i)=force;
+for i=5:2000
+  inputCurrent = i*2
+  [losses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH)
+  outputs(1,i)=wstforcex;
+  outputs(2,i)=wstforcey;
+  outputs(3,i)=lforcex;
+  outputs(4,i)=lforcey
+  outputs(5,i)=losses;
   outputVoltage(1,i)=vA;
   outputVoltage(2,i)=vB;
   outputVoltage(3,i)=vC;
