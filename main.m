@@ -35,6 +35,7 @@ coilArea = slotGap*Hs2/2; %Area of coil for a single phase
 outputs = zeros(5,34);
 outputVoltage = zeros(3,34);
 outputCurrent = zeros(3,34);
+outputResistance = zeros(3,34);
 
 for i=5:2000
   inputCurrent = i*2
@@ -50,6 +51,9 @@ for i=5:2000
   outputCurrent(1,i)=cA;
   outputCurrent(2,i)=cB;
   outputCurrent(3,i)=cC;
+  outputResistance(1,i)=vA/cA;
+  outputResistance(2,i)=vB/cB;
+  outputResistance(3,i)=vC/cC;
 end
 
 

@@ -1,4 +1,4 @@
-function [force,phaseAvol,phaseBvol,phaseCvol,phaseAcur,phaseBcur,phaseCcur] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH)
+function [losses,lforcex,lforcey,wstforcex,wstforcey,phaseAvol,phaseBvol,phaseCvol,phaseAcur,phaseBcur,phaseCcur] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH)
 
 unit = 'millimeters';
 
@@ -160,7 +160,14 @@ mi_analyze;
 mi_loadsolution;
 
 mo_selectblock(0,0);
-force = mo_blockintegral(11);
+lforcex = mo_blockintegral(11);
+lforcey = mo_blockintegral(12);
+wstforcex = mo_blockintegral(18);
+wstforcey = mo_blockintegral(19);
+
+mo_selectblock(0,0,(Hs2+THICK_CORE)/2+GAP);
+losses = mo_blockintegral(3);
+
 phaseAprop = mo_getcircuitproperties('WindingA');
 phaseBprop = mo_getcircuitproperties('WindingB');
 phaseCprop = mo_getcircuitproperties('WindingC');
