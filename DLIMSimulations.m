@@ -1,4 +1,4 @@
-function [losses,lforcex,lforcey,wstforcex,wstforcey,phaseAvol,phaseBvol,phaseCvol,phaseAcur,phaseBcur,phaseCcur] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH)
+function [hysteresisLosses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,phaseAvol,phaseBvol,phaseCvol,phaseAcur,phaseBcur,phaseCcur] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH)
 
 unit = 'millimeters';
 
@@ -165,8 +165,11 @@ lforcey = mo_blockintegral(12);
 wstforcex = mo_blockintegral(18);
 wstforcey = mo_blockintegral(19);
 
-mo_selectblock(0,0,(Hs2+THICK_CORE)/2+GAP);
-losses = mo_blockintegral(3);
+mo_clearblock;
+
+mo_selectblock(0,(Hs2+THICK_CORE)/2+GAP);
+hysteresisLosses = mo_blockintegral(3);
+totalLosses= mo_blockintegral(6);
 
 phaseAprop = mo_getcircuitproperties('WindingA');
 phaseBprop = mo_getcircuitproperties('WindingB');

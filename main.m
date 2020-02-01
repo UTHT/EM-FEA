@@ -21,12 +21,11 @@ inputCurrent = 200;
 freq = 60;
 coilTurns = 30;
 trackThickness = 8;
-copperMaterial = '10 AWG';
+copperMaterial = '16 AWG';
 coreMaterial = 'M-19 Steel';%'1010 Steel';
 trackMaterial = 'Aluminum, 6061-T6';
 
 %Define Simulation Specific Parameters
-
 sumSlotTeeth = SLOTS*2+1; %Number of Teeth + Slots
 slotGap = SLOT_PITCH-Bs1; %Width of an Individual Slot
 slotTeethWidth = (SLOTS-1)*SLOT_PITCH+slotGap;
