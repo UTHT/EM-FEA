@@ -50,7 +50,7 @@
     <BHPoints> = 0
   <EndBlock>
   <BeginBlock>
-    <BlockName> = "10 AWG"
+    <BlockName> = "16 AWG"
     <Mu_x> = 1
     <Mu_y> = 1
     <H_c> = 0
@@ -65,7 +65,7 @@
     <LamType> = 3
     <LamFill> = 1
     <NStrands> = 1
-    <WireD> = 2.5887801724742099
+    <WireD> = 1.2911827701741401
     <BHPoints> = 0
   <EndBlock>
   <BeginBlock>
@@ -289,20 +289,20 @@
 [CircuitProps]  = 3
   <BeginCircuit>
     <CircuitName> = "WindingA"
-    <TotalAmps_re> = 12
-    <TotalAmps_im> = -5.174096522420669e-013
+    <TotalAmps_re> = 2010
+    <TotalAmps_im> = -8.6666116750546209e-011
     <CircuitType> = 1
   <EndCircuit>
   <BeginCircuit>
     <CircuitName> = "WindingB"
-    <TotalAmps_re> = -5.999999999999674
-    <TotalAmps_im> = 10.392304845413452
+    <TotalAmps_re> = -1004.9999999999454
+    <TotalAmps_im> = 1740.7110616067532
     <CircuitType> = 1
   <EndCircuit>
   <BeginCircuit>
     <CircuitName> = "WindingC"
-    <TotalAmps_re> = -6.0000000000002043
-    <TotalAmps_im> = -10.392304845413147
+    <TotalAmps_re> = -1005.0000000000341
+    <TotalAmps_im> = -1740.7110616067018
     <CircuitType> = 1
   <EndCircuit>
 [NumPoints] = 160
