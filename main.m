@@ -32,22 +32,23 @@ slotTeethWidth = (SLOTS-1)*SLOT_PITCH+slotGap;
 coilArea = slotGap*Hs2/2; %Area of coil for a single phase
 
 %Define simulations Number
-numSims = 1000;
-startVal = 5;
+numSims = 200;
+startVal = 1;
 
-inputs = zeros(1,numSims);
+inputs = zeros(3,numSims);
 outputs = zeros(6,numSims);
 outputVoltage = zeros(3,numSims);
 outputCurrent = zeros(3,numSims);
 outputResistance = zeros(3,numSims);
 
 for index=startVal:numSims+startVal
-  inputCurrent = index*2;
+  coilTurns = 2*index;
   i=index-startVal+1;
-  disp(inputCurrent);
-  disp(i);
+  disp(coilTurns);
   [losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH);
   inputs(1,i)=inputCurrent; %Input Current in amps
+  inputs(2,i)=coilTurns; %Number of Coil Turns
+  inputs(3,i)=inputCurrent*coilTurns; %Ni
   outputs(1,i)=wstforcex; %Weighted Stress Tensor Force on Track, x direction
   outputs(2,i)=wstforcey; %Weighted Stress Tensor Force on Track, y direction
   outputs(3,i)=lforcex; %Lorentz Force on Track, x direction
