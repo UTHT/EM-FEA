@@ -6,7 +6,7 @@ Fast magnetostatic simulations for double-sided linear induction motors in FEMM/
 
 List of parameters used by the Matlab code to simulate in the DLIM core design. Defined length units are defined in the initial problem setup using `mi_probdef`.
 
- | Parameter Name | Default Value | Description | Units
+ -- | Parameter Name | Default Value | Description | Units
 ------- | -------- | ------- | -------- | --------
 [x] |WIDTH_CORE | 460 |  Core width in motion direction | defined length unit
 [x] |THICK_CORE | 50 |  Core thickness | defined length unit
