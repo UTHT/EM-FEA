@@ -13,7 +13,7 @@ Utilized | Parameter Name | Default Value | Description | Units
 [] |LENGTH | 50 |  Core length | defined length unit
 [] |GAP | 17.5 |  Gap between core and xy plane (or 1/2 of air gap) | defined length unit
 [] |SLOT_PITCH | 40 |  Distance between two slots | defined length unit
-[] |SLOTS | 11 |  Number of slots | defined length unit
+[] |SLOTS | 11 |  Number of slots |
 [] |Hs0 | 0 |  Slot opening height | defined length unit
 [] |Hs01 | 0 |  Slot closed bridge height | defined length unit
 [] |Hs1 | 0 |  Slot wedge height | defined length unit
@@ -27,13 +27,13 @@ Utilized | Parameter Name | Default Value | Description | Units
 [] |END_EXT | 0 |  One-sided winding end extended length | defined length unit
 [] |SPAN_EXT | 20 |  Axial length of winding end span | defined length unit
 [] |SEG_ANGLE | 15 |  Deviation angle for slot arches | degrees
-[] | inputCurrent | 10 | Current in [Amps]
-[] | freq | 60 | Simulation frequency [Hz]
-[] | coilTurns | 360 |
-[] | trackThickness | 8 |
-[] | copperMaterial | '16 AWG' |
-[] | coreMaterial | 'M-19 Steel' |
-[] | trackMaterial | 'Aluminum, 6061-T6' |
+[] | inputCurrent | 10 | Current in | A
+[] | freq | 60 | Simulation frequency | Hz
+[] | coilTurns | 360 | number of coil turns |
+[] | trackThickness | 8 | thickness of track | defined length unit
+[] | copperMaterial | '16 AWG' | copper wire material |
+[] | coreMaterial | 'M-19 Steel' | DLIM core material |
+[] | trackMaterial | 'Aluminum, 6061-T6' | track material |
 
 
 ## Matlab Setup
