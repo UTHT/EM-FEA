@@ -1,5 +1,6 @@
 function [hysteresisLosses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,phaseAvol,phaseBvol,phaseCvol,phaseAcur,phaseBcur,phaseCcur] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH)
 
+%Define simulation/modeller units
 unit = 'millimeters';
 
 EnableBavg = false;
@@ -8,11 +9,14 @@ EnableTorque = false;
 
 %Open FEMM and resize window
 openfemm(0);
-%main_resize(1000,590);
+main_resize(1000,590);
 
 %Create new document and define problem solution
 newdocument(0);
+
+%Define problem setup
 mi_probdef(freq,unit,'planar',1e-8,LENGTH,30);
+
 %Get Lim Materials
 Air = 'Air';
 mi_getmaterial(Air);
@@ -22,10 +26,13 @@ mi_getmaterial(trackMaterial);
 
 %Define LIM Geometry Variables
 sumSlotTeeth = SLOTS*2+1;
-slotGap = SLOT_PITCH-Bs1;
+slotGap = Bs2;
+teethThickness = SLOT_PITCH-Bs2;
 slotTeethWidth = (SLOTS-1)*SLOT_PITCH+slotGap;
 
-%Define LIM Core Geometry
+%Start define LIM Core Geometry
+
+%Define LIM core external dimensions
 mi_addnode(WIDTH_CORE/-2,THICK_CORE);
 mi_addnode(WIDTH_CORE/2,THICK_CORE);
 mi_addnode(WIDTH_CORE/-2,0);
@@ -35,18 +42,18 @@ mi_addsegment(WIDTH_CORE/-2,THICK_CORE,WIDTH_CORE/2,THICK_CORE);
 mi_addsegment(WIDTH_CORE/-2,0,WIDTH_CORE/-2,THICK_CORE);
 mi_addsegment(WIDTH_CORE/2,0,WIDTH_CORE/2,THICK_CORE);
 
+%Define teeth geometries
 for i=0:SLOTS-1
     delta = SLOT_PITCH*i;
     mi_drawline(-slotTeethWidth/2+delta,0,-slotTeethWidth/2+delta,Hs2);
     mi_drawline(-slotTeethWidth/2+slotGap+delta,0,-slotTeethWidth/2+slotGap+delta,Hs2);
     mi_addsegment(-slotTeethWidth/2+delta,Hs2,-slotTeethWidth/2+delta+slotGap,Hs2);
-
 end
 
-for i=0:SLOTS-2
-    delta=SLOT_PITCH*i;
-    mi_addsegment(-slotTeethWidth/2+slotGap+delta,0,-slotTeethWidth/2+slotGap+delta+Bs1,0);
-end
+%for i=0:SLOTS-2
+%    delta=SLOT_PITCH*i;
+%    mi_addsegment(-slotTeethWidth/2+slotGap+delta,0,-slotTeethWidth/2+slotGap+delta+Bs1,0);
+%end
 
 mi_addsegment(WIDTH_CORE/-2,0,-slotTeethWidth/2,0);
 mi_addsegment(slotTeethWidth/2,0,WIDTH_CORE/2,0);
@@ -60,7 +67,7 @@ mi_addcircprop('WindingA',phaseA,1);
 mi_addcircprop('WindingB',phaseB,1);
 mi_addcircprop('WindingC',phaseC,1);
 
-%Create and Label Coils
+%Create and Label Coils with proper phase setup
 for i=0:SLOTS-1
    delta=SLOT_PITCH*i;
 
@@ -137,12 +144,13 @@ mi_setgroup(1);
 %mi_selectlabel(0,GAP/2);
 mi_setblockprop(Air,1,0,'<None>',0,1,0);
 
+%Mirror one side to create DLIM
 mi_selectgroup(1);
 mi_mirror(WIDTH_CORE/-2,0,WIDTH_CORE/2,0);
 
 %Create Track
-mi_drawrectangle(WIDTH_CORE/-2,trackThickness/-2,WIDTH_CORE/2,trackThickness/2);
-mi_selectrectangle(WIDTH_CORE/-2,trackThickness/-2,WIDTH_CORE/2,trackThickness/2);
+mi_drawrectangle(WIDTH_CORE/-2-100,trackThickness/-2,WIDTH_CORE/2+100,trackThickness/2);
+mi_selectrectangle(WIDTH_CORE/-2-100,trackThickness/-2,WIDTH_CORE/2+100,trackThickness/2);
 mi_setgroup(2);
 mi_addblocklabel(0,0);
 mi_selectlabel(0,0);
