@@ -2,6 +2,16 @@
 
 Fast magnetostatic simulations for double-sided linear induction motors in FEMM/Matlab.
 
+## Matlab Setup
+
+Using FEMM with Matlab requires FEMM files to be included into Matlab's search path. Replace `c:\\femm42\\mfiles` with the installation path of femm and use
+```
+addpath('c:\\femm42\\mfiles');
+savepath;
+```
+to add the FEMM mfiles path to Matlab's search path.
+
+
 ## Simulation Parameters
 
 List of parameters used by the Matlab code to simulate in the DLIM core design. Defined length units are defined in the initial problem setup using `mi_probdef`.
@@ -34,13 +44,3 @@ List of parameters used by the Matlab code to simulate in the DLIM core design. 
 [x] | copperMaterial | '16 AWG' | copper wire material |
 [x] | coreMaterial | 'M-19 Steel' | DLIM core material |
 [x] | trackMaterial | 'Aluminum, 6061-T6' | track material |
-
-
-## Matlab Setup
-
-Using FEMM with Matlab requires FEMM files to be included into Matlab's search path. Replace `c:\\femm42\\mfiles` with the installation path of femm and use
-```
-addpath('c:\\femm42\\mfiles');
-savepath;
-```
-to add the FEMM mfiles path to Matlab's search path.
