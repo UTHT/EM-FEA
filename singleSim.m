@@ -2,7 +2,7 @@
 WIDTH_CORE = 460;
 THICK_CORE = 50;
 LENGTH = 50;
-GAP = 10;
+GAP = 17.5;
 SLOT_PITCH = 40;
 SLOTS = 11;
 Hs0 = 0;
@@ -17,9 +17,9 @@ Layers = 2;
 COIL_PITCH = 2;
 
 %Define Simulation Default Parameters
-inputCurrent = 200;
+inputCurrent = 10;
 freq = 60;
-coilTurns = 30;
+coilTurns = 360;
 trackThickness = 8;
 copperMaterial = '16 AWG';
 coreMaterial = 'M-19 Steel';%'1010 Steel';
@@ -32,4 +32,16 @@ slotGap = SLOT_PITCH-Bs1; %Width of an Individual Slot
 slotTeethWidth = (SLOTS-1)*SLOT_PITCH+slotGap;
 coilArea = slotGap*Hs2/2; %Area of coil for a single phase
 
-DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH)
+[losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH);
+
+disp(lforcex);
+
+WIDTH_CORE=680;
+SLOT_PITCH=60;
+Bs0=40;
+Bs1=40;
+Bs2=40;
+
+[losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH);
+
+disp(lforcex);
