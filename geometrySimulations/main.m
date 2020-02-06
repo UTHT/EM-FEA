@@ -75,9 +75,9 @@ for x=min_depth:max_depth
     outputResistanceB(x,y)=vB/cB; %Resistance of Phase B
     outputResistanceC(x,y)=vC/cC; %Resistance of Phase C
     outputResultX(x,y)=lforcex/Weight;%Force/Weight Ratio (x-direction)
-    outputResultY(x,y)=lforcey/Weight;%Force/Weight Ratio (y-direction)\
+    outputResultY(x,y)=lforcey/Weight;%Force/Weight Ratio (y-direction)
+    save('geometry_results.mat');
   end
 end
 
 %DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH)
-save('geometry_results.mat');
