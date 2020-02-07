@@ -87,7 +87,7 @@ for x=min_depth:max_depth
     save('geometry_results.mat');
 
     singleSimTimeElapsed=toc;
-    disp(append("Simulation Number ",num2str(simulationNumber)," completed in ",num2str(singleSimTimeElapsed)," seocnds with parameters Hs2=",num2str(x),", Bs2=",num2str(y)))
+    disp(append("Simulation Number ",num2str(simulationNumber)," completed in ",num2str(singleSimTimeElapsed)," seconds with parameters Hs2=",num2str(x),", Bs2=",num2str(y)))
     simulationNumber=simulationNumber+1;
     totalTimeElapsed = totalTimeElapsed+singleSimTimeElapsed;
   end
