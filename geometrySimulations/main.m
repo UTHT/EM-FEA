@@ -40,13 +40,18 @@ min_width = 1;
 max_width = 60;
 numSims = (max_depth-min_depth)*(max_width-min_width);
 
+%Simulation counter/duration Variables
+totalTimeElapsed = 0;
+singleSimTimeElapsed = 0;
+simulationNumber = 1;
+
 for x=min_depth:max_depth
   for y=min_width:max_width
-    disp(x);
-    disp(y);
+    tic
     Hs2=x;
     THICK_CORE=x+30;
     Bs2=y;
+    coilArea=Bs2*Hs2;
     SLOT_PITCH=teethThickness+Bs2;
     WIDTH_CORE = y*(SLOTS)+20*(SLOTS+1);
     Volume = THICK_CORE/10*WIDTH_CORE/10*LENGTH/10-Bs2/10*Hs2/10*LENGTH/10*(SLOTS); %Volume of DLIM in cm3
@@ -59,6 +64,7 @@ for x=min_depth:max_depth
     inputNi(x,y)=inputCurrent*coilTurns; %Ni
     inputWeight(x,y)=Weight; %Weight of a single core (one side)
     inputVolume(x,y)=Volume;
+    inputCoilArea(x,y)=coilArea;
 
     [losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH);
     outputWSTForcex(x,y)=wstforcex; %Weighted Stress Tensor Force on Track, x direction
@@ -79,7 +85,12 @@ for x=min_depth:max_depth
     outputResultX(x,y)=lforcex/Weight;%Force/Weight Ratio (x-direction)
     outputResultY(x,y)=lforcey/Weight;%Force/Weight Ratio (y-direction)
     save('geometry_results.mat');
+
+    singleSimTimeElapsed=toc;
+    disp(append("Simulation Number ",num2str(simulationNumber)," completed in ",num2str(singleSimTimeElapsed)," seocnds with parameters Hs2=",num2str(x),", Bs2=",num2str(y)))
+    simulationNumber=simulationNumber+1;
+    totalTimeElapsed = totalTimeElapsed+singleSimTimeElapsed;
   end
 end
-
+disp(append("Total Simulation Time: ",num2str(totalTimeElapsed),"seconds"))
 %DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH)
