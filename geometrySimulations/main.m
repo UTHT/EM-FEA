@@ -34,14 +34,16 @@ slotTeethWidth = (SLOTS-1)*SLOT_PITCH+slotGap;
 coilArea = slotGap*Hs2/2; %Area of coil for a single phase
 
 %Define simulations bounds
-min_depth = 20;
+min_depth = 1;
 max_depth = 50;
-min_width = 20;
+min_width = 1;
 max_width = 60;
 numSims = (max_depth-min_depth)*(max_width-min_width);
 
 for x=min_depth:max_depth
   for y=min_width:max_width
+    disp(x);
+    disp(y);
     Hs2=x;
     THICK_CORE=x+30;
     Bs2=y;
@@ -55,7 +57,7 @@ for x=min_depth:max_depth
     inputBs2(x,y)=Bs2;
     inputWidth(x,y)=WIDTH_CORE;
     inputNi(x,y)=inputCurrent*coilTurns; %Ni
-    inputWeight(x,y)=Weight;%Weight of a single core (one side)
+    inputWeight(x,y)=Weight; %Weight of a single core (one side)
     inputVolume(x,y)=Volume;
 
     [losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH);
