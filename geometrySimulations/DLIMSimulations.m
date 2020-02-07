@@ -24,6 +24,8 @@ mi_getmaterial(copperMaterial);
 mi_getmaterial(coreMaterial);
 mi_getmaterial(trackMaterial);
 
+mi_modifymaterial(coreMaterial,6,0.5);
+
 %Define LIM Geometry Variables
 sumSlotTeeth = SLOTS*2+1;
 slotGap = Bs2;

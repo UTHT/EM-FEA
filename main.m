@@ -8,10 +8,10 @@ SLOTS = 11; %Number of slots
 Hs0 = 0; %Slot opening height
 Hs01 = 0; %Slot closed bridge height
 Hs1 = 0; %Slot wedge height
-Hs2 = 20; %Slot body height
+Hs2 = 20; %Slot body height (Height of teeth gap)
 Bs0 = 20; %Slot opening width
 Bs1 = 20; %Slot wedge maximum Width
-Bs2 = 20; %Slot body bottom width
+Bs2 = 20; %Slot body bottom width 
 Rs = 0; %Slot body bottom fillet
 Layers = 2; %Number of winding layers
 COIL_PITCH = 2; %Coil Pitch measured in slots
@@ -25,7 +25,6 @@ freq = 60;
 coilTurns = 360;
 trackThickness = 8;
 copperMaterial = '16 AWG';
-coreMaterial = 'M-19 Steel';
 trackMaterial = 'Aluminum, 6061-T6';
 
 %Define Simulation Specific Parameters

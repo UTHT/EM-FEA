@@ -21,8 +21,10 @@ mi_probdef(freq,unit,'planar',1e-8,LENGTH,30);
 Air = 'Air';
 mi_getmaterial(Air);
 mi_getmaterial(copperMaterial);
-mi_getmaterial(coreMaterial);
 mi_getmaterial(trackMaterial);
+mi_getmaterial(coreMaterial);
+
+mi_modifymaterial(coreMaterial,6,0.5);
 
 %Define LIM Geometry Variables
 sumSlotTeeth = SLOTS*2+1;
