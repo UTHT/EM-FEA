@@ -7,7 +7,7 @@ xlabel('Width (Bs2)');
 ylabel('Depth (Hs2)');
 zlabel('Force/Weight');
 
-figure(4);
+figure(7);
 surf(outputLForcex);
 title("Force");
 xlabel('Width (Bs2)');
