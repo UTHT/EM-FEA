@@ -8,7 +8,7 @@ EnableBn = true;
 EnableTorque = false;
 
 %Open FEMM and resize window
-openfemm(0);
+openfemm(1);
 main_resize(1000,590);
 
 %Create new document and define problem solution
