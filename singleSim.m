@@ -34,14 +34,11 @@ coilArea = slotGap*Hs2/2; %Area of coil for a single phase
 
 [losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH);
 
+disp(coreMaterial);
 disp(lforcex);
 
-WIDTH_CORE=680;
-SLOT_PITCH=60;
-Bs0=40;
-Bs1=40;
-Bs2=40;
-
+coreMaterial = '1010 Steel';
 [losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH);
 
+disp(coreMaterial);
 disp(lforcex);
