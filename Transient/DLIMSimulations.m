@@ -1,4 +1,4 @@
-function [hysteresisLosses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,phaseAvol,phaseBvol,phaseCvol,phaseAcur,phaseBcur,phaseCcur] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH)
+function [hysteresisLosses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,phaseAvol,phaseBvol,phaseCvol,phaseAcur,phaseBcur,phaseCcur] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH,END_EXT,SPAN_EXT,SEG_ANGLE,time)
 
 %Define simulation/modeller units
 unit = 'millimeters';
@@ -61,7 +61,7 @@ mi_addsegment(WIDTH_CORE/-2,0,-slotTeethWidth/2,0);
 mi_addsegment(slotTeethWidth/2,0,WIDTH_CORE/2,0);
 
 %Define Coil Currents
-wt = 2*pi*freq;%*time;
+wt = 2*pi*freq*time;
 phaseA = inputCurrent*exp(wt*j);
 phaseB = inputCurrent*exp(wt*j+2*pi/3*j);
 phaseC = inputCurrent*exp(wt*j+4*pi/3*j);
@@ -165,7 +165,7 @@ mi_addblocklabel(0,THICK_CORE*2);
 mi_selectlabel(0,THICK_CORE*2);
 mi_setblockprop(Air,1,0,'<None>',0,0,0);
 mi_makeABC;
-mi_saveas('SimulationData\DLIMSimulations.fem');
+mi_saveas('..\SimulationData\DLIMSimulations.fem');
 mi_analyze;
 mi_loadsolution;
 

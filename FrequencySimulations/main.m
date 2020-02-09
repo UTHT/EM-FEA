@@ -80,7 +80,7 @@ for x=1:numSims;
   outputResultX(x)=lforcex/Weight;%Force/Weight Ratio (x-direction)
   outputResultY(x)=lforcey/Weight;%Force/Weight Ratio (y-direction)
 
-  save('geometry_results.mat');
+  save('frequency_results.mat');
   singleSimTimeElapsed=toc;
   disp(append("Simulation Number ",num2str(simulationNumber)," completed in ",num2str(singleSimTimeElapsed)," seconds with parameters frequency ",num2str(freq)," hz"))
   simulationNumber=simulationNumber+1;
