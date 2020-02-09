@@ -47,9 +47,14 @@ totalTimeElapsed = 0;
 singleSimTimeElapsed = 0;
 simulationNumber = 1;
 
-for x=1:60
+%Define simulations bounds
+min_freq = 0;
+max_freq = 120;
+numSims = max_freq-min_freq;
+
+for x=1:numSims;
   tic
-  freq = x*2;
+  freq = min_freq+x-1;
 
   inputFreq(x)=freq;
   inputVolume(x)=Volume;
