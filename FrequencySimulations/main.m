@@ -1,5 +1,5 @@
 %Simulation Description:
-%Output Force, Losses vs frequency
+%Transient Simulations
 clc;
 clear;
 
