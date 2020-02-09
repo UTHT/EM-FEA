@@ -1,5 +1,5 @@
 [Format]      =  4.0
-[Frequency]   =  2
+[Frequency]   =  51
 [Precision]   =  1e-008
 [MinAngle]    =  30
 [DoSmartMesh] =  1
@@ -290,19 +290,19 @@
   <BeginCircuit>
     <CircuitName> = "WindingA"
     <TotalAmps_re> = 10
-    <TotalAmps_im> = -4.898587196589413e-015
+    <TotalAmps_im> = -1.9596824708904002e-013
     <CircuitType> = 1
   <EndCircuit>
   <BeginCircuit>
     <CircuitName> = "WindingB"
-    <TotalAmps_re> = -4.9999999999999902
-    <TotalAmps_im> = 8.6602540378443926
+    <TotalAmps_re> = -4.9999999999999325
+    <TotalAmps_im> = 8.6602540378444264
     <CircuitType> = 1
   <EndCircuit>
   <BeginCircuit>
     <CircuitName> = "WindingC"
-    <TotalAmps_re> = -5.000000000000016
-    <TotalAmps_im> = -8.6602540378443766
+    <TotalAmps_re> = -4.9999999999999662
+    <TotalAmps_im> = -8.6602540378444068
     <CircuitType> = 1
   <EndCircuit>
 [NumPoints] = 160
