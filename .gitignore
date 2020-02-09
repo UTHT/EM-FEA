@@ -2,3 +2,5 @@
 *.mat
 *.ans
 *.fem
+SimulationData/DLIMSimulations.ans
+SimulationData/DLIMSimulations.fem
