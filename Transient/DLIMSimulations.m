@@ -1,14 +1,18 @@
-function [hysteresisLosses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,phaseAvol,phaseBvol,phaseCvol,phaseAcur,phaseBcur,phaseCcur] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH,END_EXT,SPAN_EXT,SEG_ANGLE,time)
+function [hysteresisLosses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,phaseAvol,phaseBvol,phaseCvol,phaseAcur,phaseBcur,phaseCcur] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH,END_EXT,SPAN_EXT,SEG_ANGLE,angle)
 
 %Define simulation/modeller units
 unit = 'millimeters';
+
+plotUpperLimit = 0.5;
+plotLowerLimit = 0.0;
+paddingRatio = 1;
 
 EnableBavg = false;
 EnableBn = true;
 EnableTorque = false;
 
 %Open FEMM and resize window
-openfemm(1);
+openfemm(0);
 main_resize(1000,590);
 
 %Create new document and define problem solution
@@ -61,10 +65,10 @@ mi_addsegment(WIDTH_CORE/-2,0,-slotTeethWidth/2,0);
 mi_addsegment(slotTeethWidth/2,0,WIDTH_CORE/2,0);
 
 %Define Coil Currents
-wt = 2*pi*freq*time;
-phaseA = inputCurrent*exp(wt*j);
-phaseB = inputCurrent*exp(wt*j+2*pi/3*j);
-phaseC = inputCurrent*exp(wt*j+4*pi/3*j);
+%wt = 2*pi*freq*time;
+phaseA = inputCurrent*(cos(angle*pi/180)+sin(angle*pi/180)*j);
+phaseB = inputCurrent*(cos((120+angle)*pi/180)+sin((120+angle)*pi/180)*j);
+phaseC = inputCurrent*(cos((240+angle)*pi/180)+sin((240+angle)*pi/180)*j);
 mi_addcircprop('WindingA',phaseA,1);
 mi_addcircprop('WindingB',phaseB,1);
 mi_addcircprop('WindingC',phaseC,1);
@@ -75,25 +79,33 @@ for i=0:SLOTS-1
 
    bPhase = mod(i,3);
    tPhase = mod(i+1,3);
-   bmodulo = 2*mod(i+1,2)-1;
-   tmodulo = 2*mod(i+2,2)-1;
+   bIndex = floor(i/3)+0;
+   tIndex = floor((i+1)/3)-1;
+   bmodulo = -1;
+   tmodulo = 1;
    bWinding = '';
    tWinding = '';
 
    if(bPhase==0)
-       bWinding='WindingA';
+       mi_addcircprop(sprintf('WindingA%d',bIndex),phaseA,1);
+       bWinding=sprintf('WindingA%d',bIndex);
    elseif(bPhase==1)
-       bWinding='WindingB';
+       mi_addcircprop(sprintf('WindingB%d',bIndex),phaseB,1);
+       bWinding=sprintf('WindingB%d',bIndex);
    elseif(bPhase==2)
-       bWinding='WindingC';
+       mi_addcircprop(sprintf('WindingC%d',bIndex),phaseC,1);
+       bWinding=sprintf('WindingC%d',bIndex);
    end
 
-   if(tPhase==0)
-       tWinding='WindingA';
-   elseif(tPhase==1)
-       tWinding='WindingB';
-   elseif(tPhase==2)
-       tWinding='WindingC';
+   if(bPhase==0)
+       mi_addcircprop(sprintf('WindingB%d',tIndex),phaseB,1);
+       tWinding=sprintf('WindingB%d',tIndex);
+   elseif(bPhase==1)
+       mi_addcircprop(sprintf('WindingC%d',tIndex),phaseC,1);
+       tWinding=sprintf('WindingC%d',tIndex);
+   elseif(bPhase==2)
+       mi_addcircprop(sprintf('WindingA%d',tIndex),phaseA,1);
+       tWinding=sprintf('WindingA%d',tIndex);
    end
    %disp(bPhase)
 
@@ -147,8 +159,8 @@ mi_setgroup(1);
 mi_setblockprop(Air,1,0,'<None>',0,1,0);
 
 %Mirror one side to create DLIM
-mi_selectgroup(1);
-mi_mirror(WIDTH_CORE/-2,0,WIDTH_CORE/2,0);
+%mi_selectgroup(1);
+%mi_mirror(WIDTH_CORE/-2,0,WIDTH_CORE/2,0);
 
 %Create Track
 mi_drawrectangle(WIDTH_CORE/-2-100,trackThickness/-2,WIDTH_CORE/2+100,trackThickness/2);
@@ -168,6 +180,7 @@ mi_makeABC;
 mi_saveas('..\SimulationData\DLIMSimulations.fem');
 mi_analyze;
 mi_loadsolution;
+
 
 mo_selectblock(0,0);
 lforcex = mo_blockintegral(11);
@@ -192,5 +205,17 @@ phaseCcur = phaseCprop(1);
 phaseAvol = phaseAprop(2);
 phaseBvol = phaseBprop(2);
 phaseCvol = phaseCprop(2);
+
+mo_clearblock;
+
+%Save Image
+leftBound = (WIDTH_CORE/-2-100)*paddingRatio;
+rightBound = (WIDTH_CORE/2+100)*paddingRatio;
+topBound = (100)*paddingRatio;
+botBound = -(150)*paddingRatio;
+mo_showdensityplot(0,0,plotUpperLimit,plotLowerLimit,'mag');
+mo_zoom(leftBound,botBound,rightBound,topBound);
+mo_savebitmap(sprintf('DLIM_anglestep_%03d.jpg',angle))
+
 
 end
