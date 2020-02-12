@@ -1,6 +1,6 @@
 title("Number Grapher")
 
-freq = 60;
+freq = 120;
 time = 0;
 inputCurrent=1;
 
