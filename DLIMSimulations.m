@@ -8,7 +8,7 @@ EnableBn = true;
 EnableTorque = false;
 
 %Open FEMM and resize window
-openfemm(1);
+openfemm(0);
 main_resize(1000,590);
 
 %Create new document and define problem solution
@@ -75,25 +75,33 @@ for i=0:SLOTS-1
 
    bPhase = mod(i,3);
    tPhase = mod(i+1,3);
-   bmodulo = 2*mod(i+1,2)-1;
-   tmodulo = 2*mod(i+2,2)-1;
+   bIndex = floor(i/3)+0;
+   tIndex = floor((i+1)/3)-1;
+   bmodulo = -1;
+   tmodulo = 1;
    bWinding = '';
    tWinding = '';
 
    if(bPhase==0)
-       bWinding='WindingA';
+       mi_addcircprop(sprintf('WindingA%d',bIndex),phaseA,1);
+       bWinding=sprintf('WindingA%d',bIndex);
    elseif(bPhase==1)
-       bWinding='WindingB';
+       mi_addcircprop(sprintf('WindingB%d',bIndex),phaseB,1);
+       bWinding=sprintf('WindingB%d',bIndex);
    elseif(bPhase==2)
-       bWinding='WindingC';
+       mi_addcircprop(sprintf('WindingC%d',bIndex),phaseA,1);
+       bWinding=sprintf('WindingC%d',bIndex);
    end
 
-   if(tPhase==0)
-       tWinding='WindingA';
-   elseif(tPhase==1)
-       tWinding='WindingB';
-   elseif(tPhase==2)
-       tWinding='WindingC';
+   if(bPhase==0)
+       mi_addcircprop(sprintf('WindingB%d',tIndex),phaseA,1);
+       tWinding=sprintf('WindingB%d',tIndex);
+   elseif(bPhase==1)
+       mi_addcircprop(sprintf('WindingC%d',tIndex),phaseB,1);
+       tWinding=sprintf('WindingC%d',tIndex);
+   elseif(bPhase==2)
+       mi_addcircprop(sprintf('WindingA%d',tIndex),phaseA,1);
+       tWinding=sprintf('WindingA%d',tIndex);
    end
    %disp(bPhase)
 
@@ -192,5 +200,6 @@ phaseCcur = phaseCprop(1);
 phaseAvol = phaseAprop(2);
 phaseBvol = phaseBprop(2);
 phaseCvol = phaseCprop(2);
+
 
 end
