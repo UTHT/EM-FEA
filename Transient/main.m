@@ -28,7 +28,7 @@ SEG_ANGLE = 15; %Deviation angle for slot arches
 
 %Define Simulation Default Parameters
 inputCurrent = 10;
-freq = 60;
+freq = 15;
 coilTurns = 360;
 trackThickness = 8;
 copperMaterial = '16 AWG';
@@ -52,16 +52,16 @@ simulationNumber = 1;
 %Define simulations bounds
 timeStep = 0; %Time step
 startTime = 0; %Start time
-stopTime = 0; %Stop time
+stopTime = 250/1000; %Stop time
 x = 0;%counter variable
 
-for time=startTime:timeStep:stopTime
+for angle=0:180
   tic
 
   x=simulationNumber;
-  inputTime(x)=time;
 
-  [losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH,END_EXT,SPAN_EXT,SEG_ANGLE,time);
+
+  [losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH,END_EXT,SPAN_EXT,SEG_ANGLE,angle);
   outputWSTForcex(x)=wstforcex; %Weighted Stress Tensor Force on Track, x direction
   outputWSTForcey(x)=wstforcey; %Weighted Stress Tensor Force on Track, y direction
   outputLForcex(x)=lforcex; %Lorentz Force on Track, x direction
