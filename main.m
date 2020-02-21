@@ -21,12 +21,12 @@ SEG_ANGLE = 15; %Deviation angle for slot arches
 
 %Define Simulation Default Parameters
 inputCurrent = 10;
-freq = 60;
+freq = 10;
 coilTurns = 360;
 trackThickness = 8;
 copperMaterial = '16 AWG';
 trackMaterial = 'Aluminum, 6061-T6';
-coreMaterial = 'M-19 Steel'
+coreMaterial = 'M-19 Steel';
 
 %Define Simulation Specific Parameters
 sumSlotTeeth = SLOTS*2+1; %Number of Teeth + Slots
@@ -34,4 +34,4 @@ slotGap = SLOT_PITCH-Bs1; %Width of an Individual Slot
 slotTeethWidth = (SLOTS-1)*SLOT_PITCH+slotGap;
 coilArea = slotGap*Hs2/2; %Area of coil for a single phase
 
-DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH)
+DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH);
