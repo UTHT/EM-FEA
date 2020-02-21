@@ -55,13 +55,12 @@ startTime = 0; %Start time
 stopTime = 250/1000; %Stop time
 x = 0;%counter variable
 
-for angle=0:180
+for angle=1:180
   tic
 
   x=simulationNumber;
 
-
-  [losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH,END_EXT,SPAN_EXT,SEG_ANGLE,angle);
+  [losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC,flA,flB,flC] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH,END_EXT,SPAN_EXT,SEG_ANGLE,angle);
   outputWSTForcex(x)=wstforcex; %Weighted Stress Tensor Force on Track, x direction
   outputWSTForcey(x)=wstforcey; %Weighted Stress Tensor Force on Track, y direction
   outputLForcex(x)=lforcex; %Lorentz Force on Track, x direction
@@ -77,12 +76,15 @@ for angle=0:180
   outputResistanceA(x)=vA/cA; %Resistance of Phase A
   outputResistanceB(x)=vB/cB; %Resistance of Phase B
   outputResistanceC(x)=vC/cC; %Resistance of Phase C
+  outputFluxLinkageA(x)=flA;
+  outputFluxLinkageB(x)=flB;
+  outputFluxLinkageC(x)=flC;
   outputResultX(x)=lforcex/Weight;%Force/Weight Ratio (x-direction)
   outputResultY(x)=lforcey/Weight;%Force/Weight Ratio (y-direction)
 
   save('transient_results.mat');
   singleSimTimeElapsed=toc;
-  disp(append("Simulation Number ",num2str(simulationNumber)," at timestep ",num2str(startTime+timeStep)," completed in ",num2str(singleSimTimeElapsed)," seconds"))
+  disp(append("Simulation Number ",num2str(simulationNumber)," at angle ",num2str(angle)," completed in ",num2str(singleSimTimeElapsed)," seconds"))
   simulationNumber=simulationNumber+1;
   totalTimeElapsed = totalTimeElapsed+singleSimTimeElapsed;
 end
