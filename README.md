@@ -1,6 +1,6 @@
 # FEMMSimulations
 
-Fast magnetostatic simulations for double-sided linear induction motors in FEMM/Matlab.
+Fast magnetostatic simulations for double-sided linear induction motors in FEMM/Matlab. Design for the UofT Hyperloop Team.
 
 ## Matlab Setup
 
