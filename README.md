@@ -34,7 +34,7 @@ List of parameters used by the Matlab code to simulate in the DLIM core design. 
 [] |Rs | 0 |  Slot body bottom fillet | defined length unit
 [] |Layers | 2 |  Number of winding layers |
 [] |COIL_PITCH | 2 |  Coil Pitch measured in slots |
-[] |END_EXT | 0 |  One-sided winding end extended length | defined length unit
+[x] |END_EXT | 0 |  One-sided winding end extended length | defined length unit
 [] |SPAN_EXT | 20 |  Axial length of winding end span | defined length unit
 [] |SEG_ANGLE | 15 |  Deviation angle for slot arches | degrees
 [x] | inputCurrent | 10 | Current in | A
