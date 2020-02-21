@@ -1,7 +1,6 @@
 %Simulation Description:
 %Output Force,Losses vs Slot Depth (Hs2) and Slot Gap Width (Bs2)
-clc;
-clear;
+
 
 %Define LIM Parameters (Parallel to ANSYS rmXprt LinearMCore definition)
 WIDTH_CORE = 460;
