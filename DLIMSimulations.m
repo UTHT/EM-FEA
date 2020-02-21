@@ -61,7 +61,7 @@ mi_addsegment(WIDTH_CORE/-2,0,-slotTeethWidth/2,0);
 mi_addsegment(slotTeethWidth/2,0,WIDTH_CORE/2,0);
 
 %Define Coil Currents
-wt = 2*pi*freq;%*time;
+wt = 0*2*pi*freq;%*time;
 phaseA = inputCurrent*exp(wt*j);
 phaseB = inputCurrent*exp(wt*j+2*pi/3*j);
 phaseC = inputCurrent*exp(wt*j+4*pi/3*j);
@@ -75,33 +75,25 @@ for i=0:SLOTS-1
 
    bPhase = mod(i,3);
    tPhase = mod(i+1,3);
-   bIndex = floor(i/3)+0;
-   tIndex = floor((i+1)/3)-1;
-   bmodulo = -1;
-   tmodulo = 1;
+   bmodulo = 2*mod(i+1,2)-1;
+   tmodulo = 2*mod(i+2,2)-1;
    bWinding = '';
    tWinding = '';
 
    if(bPhase==0)
-       mi_addcircprop(sprintf('WindingA%d',bIndex),phaseA,1);
-       bWinding=sprintf('WindingA%d',bIndex);
+       bWinding='WindingA';
    elseif(bPhase==1)
-       mi_addcircprop(sprintf('WindingB%d',bIndex),phaseB,1);
-       bWinding=sprintf('WindingB%d',bIndex);
+       bWinding='WindingB';
    elseif(bPhase==2)
-       mi_addcircprop(sprintf('WindingC%d',bIndex),phaseA,1);
-       bWinding=sprintf('WindingC%d',bIndex);
+       bWinding='WindingC';
    end
 
-   if(bPhase==0)
-       mi_addcircprop(sprintf('WindingB%d',tIndex),phaseA,1);
-       tWinding=sprintf('WindingB%d',tIndex);
-   elseif(bPhase==1)
-       mi_addcircprop(sprintf('WindingC%d',tIndex),phaseB,1);
-       tWinding=sprintf('WindingC%d',tIndex);
-   elseif(bPhase==2)
-       mi_addcircprop(sprintf('WindingA%d',tIndex),phaseA,1);
-       tWinding=sprintf('WindingA%d',tIndex);
+   if(tPhase==0)
+       tWinding='WindingA';
+   elseif(tPhase==1)
+       tWinding='WindingB';
+   elseif(tPhase==2)
+       tWinding='WindingC';
    end
    %disp(bPhase)
 
