@@ -2,7 +2,7 @@ import imageio,os
 import time
 
 images = []
-imagesPath = 'Images/'
+imagesPath = 'temp_images/'
 numImg = 0
 fps = 60
 
@@ -13,7 +13,7 @@ for filename in os.listdir(imagesPath):
         images.append(imageio.imread(imagesPath+filename))
         print(filename)
 
-output = 'DLIMSimulation'+str(time.time())+'step1.gif'
+output = "FinalDLIM.gif"
 
 print("Saving GIF's")
 kargs={'duration':1/fps}
