@@ -3,41 +3,48 @@ load('geometry_results.mat');
 figure(1);
 surf(outputResultX);
 title("Force/Weight Ratio");
-xlabel('Width (Bs2)');
-ylabel('Depth (Hs2)');
+xlabel('Bs2 (mm)');
+ylabel('Hs2 (mm)');
 zlabel('Force/Weight');
 
 figure(7);
 surf(outputLForcex);
 title("Force");
-xlabel('Width (Bs2)');
-ylabel('Depth (Hs2)');
+xlabel('Bs2 (mm)');
+ylabel('Hs2 (mm)');
 zlabel('Force');
 
 figure(2);
 surf(inputVolume);
 title("Volume of Both Cores");
-xlabel('Width (Bs2)');
-ylabel('Depth (Hs2)');
+xlabel('Bs2 (mm)');
+ylabel('Hs2 (mm)');
 zlabel('Volume');
 
 figure(3);
 surf(outputHLosses);
 title("Core Losses");
-xlabel('Width (Bs2)');
-ylabel('Depth (Hs2)');
-zlabel('Core Losses');
+xlabel('Bs2 (mm)');
+ylabel('Hs2 (mm)');
+zlabel('Core Losses (W)');
 
 figure(4);
 surf(inputCoilArea);
 title("Coil Area");
-xlabel('Width (Bs2)');
-ylabel('Depth (Hs2)');
+xlabel('Bs2 (mm)');
+ylabel('Hs2 (mm)');
 zlabel('Coil Area');
 
 figure(5);
 surf(outputLForcex./inputCoilArea);
 title("Force/Coil Area");
-xlabel('Width (Bs2)');
-ylabel('Depth (Hs2)');
-zlabel('Force/Coil Area');
+xlabel('Bs2 (mm)');
+ylabel('Hs2 (mm)');
+zlabel('Force/Coil Area (N/mm^2)');
+
+figure(6);
+surf(outputLForcex./inputCoilTurns);
+title("Force/Number of Turns");
+xlabel('Bs2 (mm)');
+ylabel('Hs2 (mm)');
+zlabel('Force/Turns (N)');
