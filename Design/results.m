@@ -36,8 +36,8 @@ ylabel('Depth (THICK\_CORE-Hs2)');
 zlabel('Core Losses');
 
 figure(5);
-surf(outputHLosses./inputVolume);
-title("Core Losses/Core Volume");
+surf(outputHLosses.*inputVolume);
+title("Core Losses x Core Volume");
 xlabel('Width (END\_EXT)');
 ylabel('Depth (THICK\_CORE-Hs2)');
 zlabel('Core Losses/Core Volume');
