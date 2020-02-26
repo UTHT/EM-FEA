@@ -212,7 +212,7 @@ leftBound = (WIDTH_CORE/-2-END_EXT-100)*paddingRatio;
 rightBound = (WIDTH_CORE/2+END_EXT+100)*paddingRatio;
 topBound = (100)*paddingRatio;
 botBound = -(150)*paddingRatio;
-mo_showdensityplot(0,0,plotUpperLimit,plotLowerLimit,'mag');
+mo_showdensityplot(0,0,plotUpperLimit,plotLowerLimit,'real');
 mo_zoom(leftBound,botBound,rightBound,topBound);
 mo_savebitmap(append('temp_images\DLIM_angle_',sprintf('%03d',angle),'.jpg'))
 
