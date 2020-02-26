@@ -26,7 +26,7 @@ SEG_ANGLE = 15; %Deviation angle for slot arches
 
 %Define Simulation Default Parameters
 inputCurrent = 10;
-freq = 60;
+freq = 15;
 coilTurns = 360;
 trackThickness = 8;
 copperMaterial = '20 AWG';
