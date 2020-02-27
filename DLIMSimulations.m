@@ -146,8 +146,8 @@ mi_selectgroup(1);
 mi_movetranslate(0,GAP);
 
 %Create and Label Air Gap
-mi_addsegment(WIDTH_CORE/-2-END_EXT,GAP+trackThickness/2,WIDTH_CORE/2+END_EXT,GAP+trackThickness/2);
-mi_selectrectangle(WIDTH_CORE/-2-END_EXT,trackThickness/2,WIDTH_CORE/2+END_EXT,GAP+trackThickness/2);
+mi_addsegment(WIDTH_CORE/-2-END_EXT,GAP,WIDTH_CORE/2+END_EXT,GAP);
+mi_selectrectangle(WIDTH_CORE/-2-END_EXT,trackThickness/2,WIDTH_CORE/2+END_EXT,GAP);
 mi_setgroup(1);
 %mi_addblocklabel(0,GAP/2);
 %mi_selectlabel(0,GAP/2);
