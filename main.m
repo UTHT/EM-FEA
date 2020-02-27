@@ -2,7 +2,7 @@
 WIDTH_CORE = 370; %Core width in motion direction
 THICK_CORE = 60; %Core thickness
 LENGTH = 50; %Core length
-GAP = 17.5; %Gap between core and xy plane (or 1/2 of air gap)
+GAP = 15; %Gap between core and xy plane (or 1/2 of air gap)
 SLOT_PITCH = 40; %Distance between two slots
 SLOTS = 11; %Number of slots
 Hs0 = 0; %Slot opening height
@@ -21,8 +21,8 @@ SEG_ANGLE = 15; %Deviation angle for slot arches
 
 %Define Simulation Default Parameters
 inputCurrent = 10;
-freq = 10;
-coilTurns = 310;
+freq = 15;
+coilTurns = 360;
 trackThickness = 8;
 copperMaterial = '20 AWG';
 trackMaterial = 'Aluminum, 6061-T6';
