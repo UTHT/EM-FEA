@@ -1,4 +1,4 @@
-function [hysteresisLosses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,phaseAvol,phaseBvol,phaseCvol,phaseAcur,phaseBcur,phaseCcur,phaseAfl,phaseBfl,phaseCfl] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH,END_EXT)
+function [hysteresisLosses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,phaseAvol,phaseBvol,phaseCvol,phaseAcur,phaseBcur,phaseCcur,phaseAfl,phaseBfl,phaseCfl] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH,END_EXT,simulationNumber)
 
 %Define simulation/modeller units
 unit = 'millimeters';
@@ -146,8 +146,8 @@ mi_selectgroup(1);
 mi_movetranslate(0,GAP);
 
 %Create and Label Air Gap
-mi_addsegment(WIDTH_CORE/-2-END_EXT,GAP+trackThickness/2,WIDTH_CORE/2+END_EXT,GAP+trackThickness/2);
-mi_selectrectangle(WIDTH_CORE/-2-END_EXT,trackThickness/2,WIDTH_CORE/2+END_EXT,GAP+trackThickness/2);
+mi_addsegment(WIDTH_CORE/-2-END_EXT,GAP,WIDTH_CORE/2+END_EXT,GAP);
+mi_selectrectangle(WIDTH_CORE/-2-END_EXT,trackThickness/2,WIDTH_CORE/2+END_EXT,GAP);
 mi_setgroup(1);
 %mi_addblocklabel(0,GAP/2);
 %mi_selectlabel(0,GAP/2);
@@ -213,6 +213,6 @@ topBound = (100)*paddingRatio;
 botBound = -(150)*paddingRatio;
 mo_showdensityplot(0,0,plotUpperLimit,plotLowerLimit,'real');
 mo_zoom(leftBound,botBound,rightBound,topBound);
-mo_savebitmap('DLIM.jpg')
+mo_savebitmap(sprintf('DLIM_num_%04d.jpg',simulationNumber))
 
 end
