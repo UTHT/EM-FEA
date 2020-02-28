@@ -12,6 +12,7 @@ for filename in os.listdir(imagesPath):
         numImg += 1
         images.append(imageio.imread(imagesPath+filename))
         print(filename)
+        os.remove(filename)
 
 output = "ZeroFreq.gif"
 
