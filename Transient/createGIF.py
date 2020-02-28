@@ -4,7 +4,7 @@ import time
 images = []
 imagesPath = 'temp_images/'
 numImg = 0
-fps = 60
+fps = 15
 
 print("Adding frames")
 for filename in os.listdir(imagesPath):
@@ -13,7 +13,7 @@ for filename in os.listdir(imagesPath):
         images.append(imageio.imread(imagesPath+filename))
         print(filename)
 
-output = "FinalDLIM.gif"
+output = "ZeroFreq.gif"
 
 print("Saving GIF's")
 kargs={'duration':1/fps}

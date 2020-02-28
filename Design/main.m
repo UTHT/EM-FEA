@@ -87,7 +87,7 @@ parfor x=min_thickness:max_thickness
 
     %if (outputWSTForcex(x,y)==0)
 
-    [losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC,flA,flB,flC] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH,simulationNumber);
+    [losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC,flA,flB,flC] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH,END_EXT,simulationNumber);
     outputWSTForcex(x,y)=wstforcex; %Weighted Stress Tensor Force on Track, x direction
     outputWSTForcey(x,y)=wstforcey; %Weighted Stress Tensor Force on Track, y direction
     outputLForcex(x,y)=lforcex; %Lorentz Force on Track, x direction

@@ -47,11 +47,11 @@ Weight = Volume*coreMaterialDensity*2; %Weight of DLIM Core in g
 %Simulation counter/duration Variables
 totalTimeElapsed = 0;
 
-parfor angle=1:180
+parfor angle=1:18
   singleSimTimeElapsed = 0;
   tic
 
-  [losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC,flA,flB,flC] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH,END_EXT,SPAN_EXT,SEG_ANGLE,angle);
+  [losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC,flA,flB,flC] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH,END_EXT,SPAN_EXT,SEG_ANGLE,angle*10);
   outputWSTForcex(angle)=wstforcex; %Weighted Stress Tensor Force on Track, x direction
   outputWSTForcey(angle)=wstforcey; %Weighted Stress Tensor Force on Track, y direction
   outputLForcex(angle)=lforcex; %Lorentz Force on Track, x direction
