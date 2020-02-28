@@ -7,13 +7,6 @@ plotUpperLimit = 1.5;
 plotLowerLimit = 0.0;
 paddingRatio = 1;
 
-%Define Simulation Specific Parameters
-sumSlotTeeth = SLOTS*2+1; %Number of Teeth + Slots
-slotGap = SLOT_PITCH-Bs2; %Width of an Individual Slot
-slotTeethWidth = (SLOTS-1)*SLOT_PITCH+slotGap;
-coilArea = slotGap*Hs2/2; %Area of coil for a single phase
-%xEND_EXT=END_EXT+slotGap;
-
 %Open FEMM and resize window
 openfemm(0);
 main_resize(1000,590);
@@ -36,7 +29,7 @@ mi_modifymaterial(coreMaterial,6,0.5);
 %Define LIM Geometry Variables
 sumSlotTeeth = SLOTS*2+1;
 slotGap = Bs2;
-teethThickness = SLOT_PITCH-Bs2;
+teethThickness = 20;
 slotTeethWidth = (SLOTS-1)*SLOT_PITCH+slotGap;
 
 %Start define LIM Core Geometry
