@@ -1,13 +1,12 @@
 %Simulation Description:
 %All Parameters vs Core Thickness (THICK_CORE) and Core Width (WIDTH_CORE/END_EXT)
-load('geometry_results.mat')
 
 
 %Define LIM Parameters (Parallel to ANSYS rmXprt LinearMCore definition)
 WIDTH_CORE = 460; %Core width in motion direction
-THICK_CORE = 50; %Core thickness
+THICK_CORE = 60; %Core thickness
 LENGTH = 50; %Core length
-GAP = 17.5; %Gap between core and xy plane (or 1/2 of air gap)
+GAP = 6; %Gap between core and xy plane (or 1/2 of air gap)
 SLOT_PITCH = 40; %Distance between two slots
 SLOTS = 11; %Number of slots
 Hs0 = 0; %Slot opening height
@@ -20,7 +19,7 @@ Bs2 = 20; %Slot body bottom width
 Rs = 0; %Slot body bottom fillet
 Layers = 2; %Number of winding layers
 COIL_PITCH = 2; %Coil Pitch measured in slots
-END_EXT = 0; %One-sided winding end extended length
+END_EXT = 30; %One-sided winding end extended length
 SPAN_EXT = 20; %Axial length of winding end span
 SEG_ANGLE = 15; %Deviation angle for slot arches
 
@@ -43,7 +42,10 @@ coilArea = slotGap*Hs2/2; %Area of coil for a single phase
 
 %Define simulations bounds
 min_teeththickness = 1;
-max_teeththickness = 50;
+max_teeththickness = 80;
+min_bs2 = 10;
+max_bs2 = 20;
+
 %Simulation counter/duration Variables
 totalTimeElapsed = 0;
 singleSimTimeElapsed = 0;
@@ -52,51 +54,68 @@ simulationNumber = 1;
 save('teeth_thickness_results.mat');
 
 parfor x=min_teeththickness:max_teeththickness
+  for y=1:3
   tic
-  coilArea=Bs2*Hs2;
-  SLOT_PITCH=Bs2+x;
-  END_EXT = y;
-  WIDTH_CORE = Bs2*(SLOTS)+20*(SLOTS-1)+2*END_EXT;
-  Volume = THICK_CORE/10*WIDTH_CORE/10*LENGTH/10-Bs2/10*Hs2/10*LENGTH/10*(SLOTS); %Volume of DLIM in cm3
-  Weight = Volume*coreMaterialDensity*2; %Weight of DLIM Core in g
 
-  inputHs2(x,y)=Hs2;
-  inputDepth(x,y)=THICK_CORE;
-  inputBs2(x,y)=Bs2;
-  inputWidth(x,y)=WIDTH_CORE;
-  inputEndExt(x,y)=END_EXT;
-  inputNi(x,y)=inputCurrent*coilTurns; %Ni
-  inputWeight(x,y)=Weight; %Weight of a single core (one side)
-  inputVolume(x,y)=Volume;
-  inputCoilArea(x,y)=coilArea;
+    Bs2 = y*5+5;
+    Hs2 = 400/Bs2;
+    teethThickness = x;
+    simulationNumber=x*4+y;
 
-  [losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC,flA,flB,flC] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH,simulationNumber);
-  outputWSTForcex(x,y)=wstforcex; %Weighted Stress Tensor Force on Track, x direction
-  outputWSTForcey(x,y)=wstforcey; %Weighted Stress Tensor Force on Track, y direction
-  outputLForcex(x,y)=lforcex; %Lorentz Force on Track, x direction
-  outputLForcey(x,y)=lforcey; %Lorentz Force on Track, y direction
-  outputHLosses(x,y)=losses; %Hysteresis Losses
-  outputTLosses(x,y)=totalLosses; %Total Losses
-  outputVoltageA(x,y)=vA; %Voltage of Phase A
-  outputVoltageB(x,y)=vB; %Voltage of Phase B
-  outputVoltageC(x,y)=vC; %Voltage of Phase C
-  outputCurrentA(x,y)=cA; %Current of Phase A
-  outputCurrentB(x,y)=cB; %Current of Phase B
-  outputCurrentC(x,y)=cC; %Current of Phase C
-  outputResistanceA(x,y)=vA/cA; %Resistance of Phase A
-  outputResistanceB(x,y)=vB/cB; %Resistance of Phase B
-  outputResistanceC(x,y)=vC/cC; %Resistance of Phase C
-  outputFluxLinkageA(x,y)=flA;
-  outputFluxLinkageB(x,y)=flB;
-  outputFluxLinkageC(x,y)=flC;
-  outputResultX(x,y)=lforcex/Weight;%Force/Weight Ratio (x-direction)
-  outputResultY(x,y)=lforcey/Weight;%Force/Weight Ratio (y-direction)
+    disp(append("starting Simulation Number ",num2str(simulationNumber),"  with parameters TeethThickness=",num2str(teethThickness),", Bs2=",num2str(Bs2)))
 
-  singleSimTimeElapsed=toc;
-  disp(append("Simulation Number ",num2str(simulationNumber)," completed in ",num2str(singleSimTimeElapsed)," seconds with parameters THICK_CORE=",num2str(THICK_CORE),"WIDTH_CORE=",num2str(WIDTH_CORE)))
+    SLOT_PITCH = Bs2+teethThickness;
+    THICK_CORE = Hs2+30;
+    WIDTH_CORE = Bs2*(SLOTS)+teethThickness*(SLOTS-1);
 
-  simulationNumber=simulationNumber+1;
-  totalTimeElapsed = totalTimeElapsed+singleSimTimeElapsed;
+    Volume = THICK_CORE/10*(WIDTH_CORE+2*END_EXT)/10*LENGTH/10-Bs2/10*Hs2/10*LENGTH/10*(SLOTS); %Volume of DLIM in cm3
+    Weight = Volume*coreMaterialDensity*2; %Weight of DLIM Core in g
+    POLE_PITCH=2*SLOT_PITCH;
+
+    inputHs2(x,y)=Hs2;
+    inputDepth(x,y)=THICK_CORE;
+    inputBs2(x,y)=Bs2;
+    inputWidth(x,y)=WIDTH_CORE;
+    inputEndExt(x,y)=END_EXT;
+    inputNi(x,y)=inputCurrent*coilTurns; %Ni
+    inputWeight(x,y)=Weight; %Weight of a single core (one side)
+    inputVolume(x,y)=Volume;
+    inputCoilArea(x,y)=coilArea;
+    inputTeethThickness(x,y)=teethThickness;
+    inputSlotPitch(x,y)=SLOT_PITCH;
+    inputPolePitch(x,y)=POLE_PITCH;
+
+
+    syncSpeed(x,y) = 2*POLE_PITCH*freq;
+
+    [losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC,flA,flB,flC] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH,END_EXT,simulationNumber);
+    outputWSTForcex(x,y)=wstforcex; %Weighted Stress Tensor Force on Track, x direction
+    outputWSTForcey(x,y)=wstforcey; %Weighted Stress Tensor Force on Track, y direction
+    outputLForcex(x,y)=lforcex; %Lorentz Force on Track, x direction
+    outputLForcey(x,y)=lforcey; %Lorentz Force on Track, y direction
+    outputHLosses(x,y)=losses; %Hysteresis Losses
+    outputTLosses(x,y)=totalLosses; %Total Losses
+    outputVoltageA(x,y)=vA; %Voltage of Phase A
+    outputVoltageB(x,y)=vB; %Voltage of Phase B
+    outputVoltageC(x,y)=vC; %Voltage of Phase C
+    outputCurrentA(x,y)=cA; %Current of Phase A
+    outputCurrentB(x,y)=cB; %Current of Phase B
+    outputCurrentC(x,y)=cC; %Current of Phase C
+    outputResistanceA(x,y)=vA/cA; %Resistance of Phase A
+    outputResistanceB(x,y)=vB/cB; %Resistance of Phase B
+    outputResistanceC(x,y)=vC/cC; %Resistance of Phase C
+    outputFluxLinkageA(x,y)=flA;
+    outputFluxLinkageB(x,y)=flB;
+    outputFluxLinkageC(x,y)=flC;
+    outputResultX(x,y)=lforcex/Weight;%Force/Weight Ratio (x-direction)
+    outputResultY(x,y)=lforcey/Weight;%Force/Weight Ratio (y-direction)
+
+    singleSimTimeElapsed=toc;
+    disp(append(" Simulation Number ",num2str(simulationNumber),"  completed in ",num2str(singleSimTimeElapsed)," seconds with parameters TeethThickness=",num2str(teethThickness),", Bs2=",num2str(Bs2)))
+
+    simulationNumber=simulationNumber+1;
+    totalTimeElapsed = totalTimeElapsed+singleSimTimeElapsed;
+  end
 end
 
 disp(append("Total Simulation Time: ",num2str(totalTimeElapsed),"seconds"))
