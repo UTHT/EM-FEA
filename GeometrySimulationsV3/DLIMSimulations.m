@@ -197,6 +197,8 @@ phaseAfl = phaseAprop(3);
 phaseBfl = phaseBprop(3);
 phaseCfl = phaseCprop(3);
 
+disp(phaseAprop(4));
+
 mo_clearblock;
 
 %Save Image

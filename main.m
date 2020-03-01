@@ -15,7 +15,7 @@ Bs2 = 10; %Slot body bottom width
 Rs = 0; %Slot body bottom fillet
 Layers = 2; %Number of winding layers
 COIL_PITCH = 2; %Coil Pitch measured in slots
-END_EXT = 0; %One-sided winding end extended length
+END_EXT = 30; %One-sided winding end extended length
 SPAN_EXT = 20; %Axial length of winding end span
 SEG_ANGLE = 15; %Deviation angle for slot arches
 

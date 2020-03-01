@@ -1,30 +1,133 @@
-load('geometry_results.mat');
+clear;
+load('frequency_variant.mat');
 
-min_depth = 1;
-max_depth = 50;
-min_width = 1;
-max_width = 60;
-freq = 10;
 
-index = 1;
+xbs = inputBs2(ind,:);
+xhs = 400./inputBs2(ind,:);
 
-for x=min_depth:max_depth
-  for y=min_width:max_width
-    if(x*y==400)
-      SLOT_PITCH=20+y;
-      POLE_PITCH=2*SLOT_PITCH;
-      xforce(index) = outputWSTForcex(x,y);
-      yforce(index) = outputWSTForcey(x,y);
-      hlosses(index) = outputHLosses(x,y);
-      tlosses(index) = outputTLosses(x,y);
-      speed(index) = 2*freq*POLE_PITCH;
-      index=index+1;
-    end
-  end
-end
+%inputWidth(inputWidth==0)=nan;
+nal = 5;
 
 figure(1);
-plot(xforce);
+clf;
+hold on;
+title("Translational Unit Force vs Bs2")
+ylabel("Force (N/mm)");
+xlabel("Bs2 (mm)");
+
+axis([nal inf -inf inf]);
+for ind = 1:10
+  temp = outputLForcex(ind,:)./(inputWidth(ind,:));
+  plot(xbs,temp,'DisplayName',sprintf("%d hz",ind*15));
+  legend('show');
+  %plot(xhs,outputHLosses(ind,:),'DisplayName',sprintf("%d hz",ind*15));
+end
+legend;
+hold off;
 
 figure(2);
-plot(speed);
+clf;
+hold on;
+title("Unit Core Losses vs Bs2")
+ylabel("Losses (W/mm)");
+xlabel("Bs2 (mm)");
+
+axis([nal inf -inf inf]);
+for ind = 1:10
+  temp = outputHLosses(ind,:)./(inputWidth(ind,:));
+  plot(xbs,temp,'DisplayName',sprintf("%d hz",ind*15));
+  legend('show');
+  %plot(xhs,outputHLosses(ind,:),'DisplayName',sprintf("%d hz",ind*15));
+end
+hold off;
+
+
+
+figure(3);
+clf;
+hold on;
+title("Unit Weight vs Bs2")
+ylabel("Weight (g/mm)");
+xlabel("Bs2 (mm)");
+axis([nal inf -inf inf]);
+temp = double(inputWeight(ind,:))./(inputWidth(ind,:));
+plot(xbs,temp,'DisplayName','vs. Bs2');
+plot(xhs,temp,'DisplayName','vs. Hs2');
+legend('show');
+
+
+figure(4);
+clf;
+hold on;
+title("Speed vs Bs2")
+ylabel("Speed ((kmph)/mm)");
+xlabel("Bs2 (mm)");
+axis([nal inf -inf inf]);
+for ind = 1:10
+  temp = syncSpeed(ind,:).*3.6./1000;
+  plot(xbs,temp,'DisplayName',sprintf("%d hz",ind*15));
+  legend('show');
+end
+
+figure(5);
+clf;
+hold on;
+title("Normalized Phase A Power (/Core Length) vs Bs2")
+ylabel("Normalized Power (W/mm)");
+xlabel("Bs2 (mm)");
+axis([nal inf -inf inf]);
+for ind = 1:10
+  outputPowerA = conj(outputCurrentA(ind,:)).*outputVoltageA(ind,:)/2./inputWidth(ind,:);
+  %outputPowerB = conj(outputCurrentB(ind,:)).*outputVoltageB(ind,:)/2;
+  %outputPowerC = conj(outputCurrentC(ind,:)).*outputVoltageC(ind,:)/2;
+  plot(xbs,real(outputPowerA),'DisplayName',sprintf("vA@%dhz",ind*15));
+  %plot(xbs,real(outputPowerB),'DisplayName',sprintf("vB@%dhz",ind*15));
+  %plot(xbs,real(outputPowerC),'DisplayName',sprintf("vC@%dhz",ind*15));
+
+  legend('show');
+end
+
+figure(6);
+clf;
+hold on;
+title("Phase A Power vs Bs2")
+ylabel("Power (W)");
+xlabel("Bs2 (mm)");
+axis([nal inf -inf inf]);
+for ind = 1:10
+  outputPowerA = conj(outputCurrentA(ind,:)).*outputVoltageA(ind,:)/2;
+  %outputPowerB = conj(outputCurrentB(ind,:)).*outputVoltageB(ind,:)/2;
+  %outputPowerC = conj(outputCurrentC(ind,:)).*outputVoltageC(ind,:)/2;
+  plot(xbs,real(outputPowerA),'DisplayName',sprintf("vA@%dhz",ind*15));
+  %plot(xbs,real(outputPowerB),'DisplayName',sprintf("vB@%dhz",ind*15));
+  %plot(xbs,real(outputPowerC),'DisplayName',sprintf("vC@%dhz",ind*15));
+
+  legend('show');
+end
+
+figure(7);
+clf;
+hold on;
+title("Phase B Power vs Bs2")
+ylabel("Power (W)");
+xlabel("Bs2 (mm)");
+axis([nal inf -inf inf]);
+for ind = 1:10
+  outputPowerB = conj(outputCurrentB(ind,:)).*outputVoltageB(ind,:)/2;
+  plot(xbs,real(outputPowerB),'DisplayName',sprintf("vB@%dhz",ind*15));
+  legend('show');
+end
+
+figure(8);
+clf;
+hold on;
+title("Phase C Power vs Bs2")
+ylabel("Power (W)");
+xlabel("Bs2 (mm)");
+axis([nal inf -inf inf]);
+for ind = 1:10
+  outputPowerC = conj(outputCurrentC(ind,:)).*outputVoltageC(ind,:)/2;
+  plot(xbs,real(outputPowerC),'DisplayName',sprintf("vC@%dhz",ind*15));
+
+  legend('show');
+end
