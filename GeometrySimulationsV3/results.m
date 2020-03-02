@@ -46,11 +46,11 @@ hold off;
 figure(3);
 clf;
 hold on;
-title("Unit Weight vs Bs2")
+title(" Weight vs Bs2")
 ylabel("Weight (g/mm)");
 xlabel("Bs2 (mm)");
 axis([nal inf -inf inf]);
-temp = double(inputWeight(ind,:))./(inputWidth(ind,:));
+temp = double(inputWeight(ind,:))./1000;
 plot(xbs,temp,'DisplayName','vs. Bs2');
 plot(xhs,temp,'DisplayName','vs. Hs2');
 legend('show');
