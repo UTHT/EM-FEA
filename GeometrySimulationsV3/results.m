@@ -30,7 +30,7 @@ clf;
 hold on;
 title("Unit Core Losses vs Bs2")
 ylabel("Losses (W/mm)");
-xlabel("Bs2 (mm)");
+xlabel("Bs2 (mm)"); 
 
 axis([nal inf -inf inf]);
 for ind = 1:10
@@ -46,9 +46,9 @@ hold off;
 figure(3);
 clf;
 hold on;
-title(" Weight vs Bs2")
-ylabel("Weight (g/mm)");
-xlabel("Bs2 (mm)");
+title(" Weight vs Length")
+ylabel("Weight (kg)");
+xlabel("Length (mm)");
 axis([nal inf -inf inf]);
 temp = double(inputWeight(ind,:))./1000;
 plot(xbs,temp,'DisplayName','vs. Bs2');

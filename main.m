@@ -1,6 +1,6 @@
-%Define LIM Parameters (Parallel to ANSYS rmXprt LinearMCore definition)
+  %Define LIM Parameters (Parallel to ANSYS rmXprt LinearMCore definition)
 WIDTH_CORE = 370; %Core width in motion direction
-THICK_CORE = 70; %Core thickness
+THICK_CORE = 60; %Core thickness
 LENGTH = 50; %Core length
 GAP = 6; %Gap between core and xy plane (or 1/2 of air gap)
 SLOT_PITCH = 40; %Distance between two slots
@@ -21,7 +21,7 @@ SEG_ANGLE = 15; %Deviation angle for slot arches
 
 %Define Simulation Default Parameters
 inputCurrent = 10;
-freq = 150;
+freq = 15;
 coilTurns = 310;
 trackThickness = 8;
 copperMaterial = '20 AWG';

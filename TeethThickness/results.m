@@ -73,13 +73,13 @@ hold off;
 figure(5);
 clf;
 hold on;
-title("Weight vs Teeth Thickness")
+title("Unit Weight vs Teeth Thickness")
 ylabel("Weight (kg/mm)");
 xlabel("TeethThickness (mm)");
 
 axis([nal inf -inf inf]);
 for ind = 1:3
-  temp = inputWeight(:,ind)./1000;
+  temp = inputWeight(:,ind)./(inputWidth(:,ind))/1000;
   plot(xtt,temp','DisplayName',sprintf("%d hz",ind*15));
   %plot(xhs,outputHLosses(ind,:),'DisplayName',sprintf("%d hz",ind*15));
 end
@@ -144,3 +144,20 @@ for ind = 1:3
   plot(xtt,real(outputPowerC));
 end
 legend({'Bs2=10mm','Bs2=15mm','Bs2=20mm'});
+
+
+figure(10);
+clf;
+hold on;
+title("Core Losses vs Teeth Thickness")
+ylabel("Losses (W)");
+xlabel("TeethThickness (mm)");
+
+axis([nal inf -inf inf]);
+for ind = 1:3
+  temp = outputHLosses(:,ind);
+  plot(xtt,temp','DisplayName',sprintf("%d hz",ind*15));
+  %plot(xhs,outputHLosses(ind,:),'DisplayName',sprintf("%d hz",ind*15));
+end
+legend({'Bs2=10mm','Bs2=15mm','Bs2=20mm'});
+hold off;
