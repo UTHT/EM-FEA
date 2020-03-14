@@ -2,11 +2,6 @@
 
 Fast magnetostatic simulations for double-sided linear induction motors in FEMM/Matlab.
 
-## Repository Structure
-
-- DLIM
-  - AirGap
-    - a
 
 ## Matlab Setup
 
