@@ -137,7 +137,7 @@ mi_clearselected;
 
 mi_zoomnatural;
 mi_makeABC;
-mi_saveas(append('..\SimulationData\temp_',num2str(angle),'.fem'));
+mi_saveas('..\SimulationData\TFLIMSimulations.fem');
 mi_analyze;
 mi_loadsolution;
 
@@ -174,6 +174,6 @@ topBound = (100)*paddingRatio;
 botBound = -(15)*paddingRatio;
 mo_showdensityplot(0,0,plotUpperLimit,plotLowerLimit,'real');
 mo_zoom(leftBound,botBound,rightBound,topBound);
-mo_savebitmap(append('temp_images\TFLIM_angle_',sprintf('%03d',angle),'.jpg'))
+mo_savebitmap('TFLIM.jpg');
 
 end
