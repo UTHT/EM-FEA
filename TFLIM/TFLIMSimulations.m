@@ -137,7 +137,7 @@ mi_clearselected;
 
 mi_zoomnatural;
 mi_makeABC;
-mi_saveas('..\SimulationData\TFLIMSimulations.fem');
+mi_saveas('SimulationData\TFLIMSimulations.fem');
 mi_analyze;
 mi_loadsolution;
 
