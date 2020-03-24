@@ -24,8 +24,6 @@ TEETH_EXTENSIONS=10;
 AIR_GAP=5;
 TRACK_OFFSET=0;
 
-ANGLE=0;
-
 %Define Simulation Specific Parameters
 AREA = 2*(THICK_CORE+TEETH_EXTENSIONS)*TEETH_THICKNESS+(WIDTH-2*TEETH_EXTENSIONS)*CORE_THICKNESS; %Volume of DLIM in cm3
 
@@ -36,7 +34,7 @@ parfor angle=1:180
   singleSimTimeElapsed = 0;
   tic
 
-  [losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vL,vR,cL,cR,flL,flR] = TFLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH,THICK_CORE,LENGTH,TEETH_THICKNESS,CORE_THICKNESS,COIL_WIDTH,TEETH_EXTENSIONS,AIR_GAP,TRACK_OFFSET,ANGLE);
+  [losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vL,vR,cL,cR,flL,flR] = TFLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH,THICK_CORE,LENGTH,TEETH_THICKNESS,CORE_THICKNESS,COIL_WIDTH,TEETH_EXTENSIONS,AIR_GAP,TRACK_OFFSET,angle);
   outputWSTForcex(angle)=wstforcex; %Weighted Stress Tensor Force on Track, x direction
   outputWSTForcey(angle)=wstforcey; %Weighted Stress Tensor Force on Track, y direction
   outputLForcex(angle)=lforcex; %Lorentz Force on Track, x direction
