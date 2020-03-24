@@ -14,7 +14,7 @@ for filename in os.listdir(imagesPath):
         images.append(imageio.imread(imagesPath+filename))
 
 
-output = "DLIM "+str(datetime.datetime.now())+".gif"
+output = "TFLIM "+str(datetime.datetime.now())+".gif"
 
 print("Saving GIF's")
 kargs={'duration':1/fps}

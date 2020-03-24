@@ -30,7 +30,7 @@ AREA = 2*(THICK_CORE+TEETH_EXTENSIONS)*TEETH_THICKNESS+(WIDTH-2*TEETH_EXTENSIONS
 %Simulation counter/duration Variables
 totalTimeElapsed = 0;
 
-parfor angle=1:180
+parfor angle=1:360
   singleSimTimeElapsed = 0;
   tic
 
