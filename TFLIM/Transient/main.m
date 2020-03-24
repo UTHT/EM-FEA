@@ -50,7 +50,6 @@ parfor angle=1:180
   outputFluxLinkageA(angle)=flL; %Flux Linkage of Winding L
   outputFluxLinkageB(angle)=flR;  %Flux Linkage of Winding R
 
-
   %save('transient_results.mat');
   singleSimTimeElapsed=toc;
   disp(append("Simulation at angle ",num2str(angle)," completed in ",num2str(singleSimTimeElapsed)," seconds"))
