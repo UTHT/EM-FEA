@@ -1,3 +1,10 @@
+%Define distributed processing Parameters
+%numComputers = 3;
+%cidFile = fopen("../../dist_proc/cid.txt");
+%cp = fscanf(cidFile,'%d');
+%c_id = cp(1);
+%c_cores = cp(2);
+
 %Define TFLIM Parameters
 inputCurrent = 10;
 freq = 15;
@@ -17,35 +24,43 @@ TEETH_EXTENSIONS=10;
 AIR_GAP=5;
 TRACK_OFFSET=0;
 
-
+totalTimeElapsed=0;
 totalwidth = WIDTH/2+COIL_WIDTH;
+simulationMax = totalwidth*2;
 AREA = 2*(THICK_CORE+TEETH_EXTENSIONS)*TEETH_THICKNESS+(WIDTH-2*TEETH_EXTENSIONS)*CORE_THICKNESS; %Volume of DLIM in cm3
+
+totalAngle=360;
+angleIncrement=15;
+angleDivisions=totalAngle/angleIncrement+1;
 
 save('stability_results.mat');
 
-parfor simulationNumber = 1:2*totalwidth
+parfor simulationNumber = 1:simulationMax
   tic;
-  for x=0:15:360
-
+  for angleIndex = 1:angleDivisions;
+    trackoffset = simulationNumber;
+    angle=(angleIndex-1)*angleIncrement;
     [losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vL,vR,cL,cR,flL,flR] = TFLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH,THICK_CORE,LENGTH,TEETH_THICKNESS,CORE_THICKNESS,COIL_WIDTH,TEETH_EXTENSIONS,AIR_GAP,TRACK_OFFSET,angle,simulationNumber);
-    outputWSTForcex(simulationNumber)=wstforcex; %Weighted Stress Tensor Force on Track, x direction
-    outputWSTForcey(simulationNumber)=wstforcey; %Weighted Stress Tensor Force on Track, y direction
-    outputLForcex(simulationNumber)=lforcex; %Lorentz Force on Track, x direction
-    outputLForcey(simulationNumber)=lforcey; %Lorentz Force on Track, y direction
-    outputHLosses(simulationNumber)=losses; %Hysteresis Losses
-    outputTLosses(simulationNumber)=totalLosses; %Total Losses
-    outputVoltageL(simulationNumber)=vL; %Voltage of Winding L
-    outputVoltageR(simulationNumber)=vR; %Voltage of Winding R
-    outputCurrentA(simulationNumber)=cL; %Current of Winding L
-    outputCurrentB(simulationNumber)=cR; %Current of Winding R
-    outputResistanceA(simulationNumber)=vL/cL; %Resistance of Winding L
-    outputResistanceB(simulationNumber)=vR/cR; %Resistance of Winding R
-    outputFluxLinkageA(simulationNumber)=flL; %Flux Linkage of Winding L
-    outputFluxLinkageB(simulationNumber)=flR;  %Flux Linkage of Winding R
+    outputWSTForcex(simulationNumber,angleIndex)=wstforcex; %Weighted Stress Tensor Force on Track, x direction
+    outputWSTForcey(simulationNumber,angleIndex)=wstforcey; %Weighted Stress Tensor Force on Track, y direction
+    outputLForcex(simulationNumber,angleIndex)=lforcex; %Lorentz Force on Track, x direction
+    outputLForcey(simulationNumber,angleIndex)=lforcey; %Lorentz Force on Track, y direction
+    outputHLosses(simulationNumber,angleIndex)=losses; %Hysteresis Losses
+    outputTLosses(simulationNumber,angleIndex)=totalLosses; %Total Losses
+    outputVoltageL(simulationNumber,angleIndex)=vL; %Voltage of Winding L
+    outputVoltageR(simulationNumber,angleIndex)=vR; %Voltage of Winding R
+    outputCurrentA(simulationNumber,angleIndex)=cL; %Current of Winding L
+    outputCurrentB(simulationNumber,angleIndex)=cR; %Current of Winding R
+    outputResistanceA(simulationNumber,angleIndex)=vL/cL; %Resistance of Winding L
+    outputResistanceB(simulationNumber,angleIndex)=vR/cR; %Resistance of Winding R
+    outputFluxLinkageA(simulationNumber,angleIndex)=flL; %Flux Linkage of Winding L
+    outputFluxLinkageB(simulationNumber,angleIndex)=flR;  %Flux Linkage of Winding R
 
     singleSimTimeElapsed=toc;
-    disp(append("Simulation at angle ",num2str(angle)," completed in ",num2str(singleSimTimeElapsed)," seconds"))
+    disp(append("Simulation with number ",num2str(simulationNumber)," at angle ",num2str(angle)," completed in ",num2str(singleSimTimeElapsed)," seconds"))
     totalTimeElapsed = totalTimeElapsed+singleSimTimeElapsed;
   end
 end
+
+disp(append("Total Simulation Time: ",num2str(totalTimeElapsed),"seconds"))
 save('stability_results.mat');
