@@ -1,4 +1,4 @@
-function [hysteresisLosses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,phaseLvol,phaseRvol,phaseLcur,phaseRcur,phaseLfl,phaseRfl] = TFLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH,THICK_CORE,LENGTH,TEETH_THICKNESS,CORE_THICKNESS,COIL_WIDTH,TEETH_EXTENSIONS,AIR_GAP,TRACK_OFFSET,simulationNumber)
+function [hysteresisLosses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,phaseLvol,phaseRvol,phaseLcur,phaseRcur,phaseLfl,phaseRfl] = TFLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH,THICK_CORE,LENGTH,TEETH_THICKNESS,CORE_THICKNESS,COIL_WIDTH,TEETH_EXTENSIONS,AIR_GAP,TRACK_OFFSET,angle,simulationNumber)
 
 %Define simulation/modeller units
 unit = 'millimeters';
@@ -52,8 +52,8 @@ mi_addsegment(innerrightbound,0,innerrightbound,innertopbound);
 mi_addsegment(leftbound,0,innerleftbound,0);
 mi_addsegment(rightbound,0,innerrightbound,0);
 
-LPhase = inputCurrent*(cos(angle*pi/180)+sin(angle*pi/180)*j);
-RPhase = inputCurrent*(cos(angle*pi/180)+sin(angle*pi/180)*j);
+LPhase = inputCurrent*(cos(angle*pi/180));
+RPhase = inputCurrent*(cos(angle*pi/180));
 mi_addcircprop('WindingL',LPhase,1);
 mi_addcircprop('WindingR',RPhase,1);
 
