@@ -1,7 +1,6 @@
 # FEMMSimulations
 
-Fast magnetostatic simulations for double-sided linear induction motors in FEMM/Matlab.
-
+Developing propulsion and levitation mechanisms for Hyperloop, using fast magnetostatic simulations for double-sided linear induction motors and 2D transverse flux linear induction motors in FEMM/Matlab.
 
 ## Matlab Setup
 
@@ -13,7 +12,7 @@ savepath;
 to add the FEMM mfiles path to Matlab's search path.
 
 
-## Simulation Parameters
+## DLIM Simulation Parameters
 
 List of parameters used by the Matlab code to simulate in the DLIM core design. Defined length units are defined in the initial problem setup using `mi_probdef`.
 
