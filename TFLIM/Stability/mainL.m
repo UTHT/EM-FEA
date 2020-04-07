@@ -38,11 +38,7 @@ save('stability_results.mat');
 parfor simulationNumber = 1:simulationMax
   tic;
   for angleIndex = 1:angleDivisions
-<<<<<<< HEAD:TFLIM/Stability/mainR.m
-    trackoffset = -simulationNumber;
-=======
     trackoffset = simulationNumber;
->>>>>>> e0b824b526d6e3f3c9cb0c7a8dd124547ae6e1b5:TFLIM/Stability/mainL.m
     angle=(angleIndex-1)*angleIncrement;
     [losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vL,vR,cL,cR,flL,flR] = TFLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH,THICK_CORE,LENGTH,TEETH_THICKNESS,CORE_THICKNESS,COIL_WIDTH,TEETH_EXTENSIONS,AIR_GAP,TRACK_OFFSET,angle,simulationNumber);
     outputWSTForcex(simulationNumber,angleIndex)=wstforcex; %Weighted Stress Tensor Force on Track, x direction
