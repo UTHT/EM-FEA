@@ -52,8 +52,8 @@ mi_addsegment(innerrightbound,0,innerrightbound,innertopbound);
 mi_addsegment(leftbound,0,innerleftbound,0);
 mi_addsegment(rightbound,0,innerrightbound,0);
 
-LPhase = inputCurrent*(cos(angle*pi/180));
-RPhase = inputCurrent*(cos(angle*pi/180));
+LPhase = inputCurrent*(cos(angle*pi/180)+sin(angle*pi/180)*j);
+RPhase = inputCurrent*(cos(angle*pi/180)+sin(angle*pi/180)*j);
 mi_addcircprop('WindingL',LPhase,1);
 mi_addcircprop('WindingR',RPhase,1);
 

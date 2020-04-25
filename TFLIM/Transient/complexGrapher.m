@@ -28,5 +28,9 @@ for i=0:100
   plot(phaseAre,phaseAim,'ro');
   plot(phaseBre,phaseBim,'bo');
   plot(phaseCre,phaseCim,'go');
+  
+  phaseAamplitude = sqrt(phaseAre*phaseAre+phaseAim*phaseAim);
+  disp(phaseAamplitude);
+  
   pause(1)
 end
