@@ -63,4 +63,4 @@ parfor simulationNumber = 1:simulationMax
 end
 
 disp(append("Total Simulation Time: ",num2str(totalTimeElapsed),"seconds"))
-save('stability_results.mat');
+save('stability_results_Rv2.mat');
