@@ -1,8 +1,8 @@
-# FEMMSimulations
+# Electromagnetics Finite Element Analysis
 
-Developing propulsion and levitation mechanisms for Hyperloop, using fast magnetostatic simulations for double-sided linear induction motors and 2D transverse flux linear induction motors in FEMM/Matlab.
+Developing propulsion and levitation mechanisms for Hyperloop, using fast magnetostatic simulations for double-sided linear induction motors and 2D transverse flux linear induction motors. Software used includes Simcenter Magnetics (MagNet) and FEMM/Matlab.
 
-## Matlab Setup
+## FEMM + Matlab Setup
 
 Using FEMM with Matlab requires FEMM files to be included into Matlab's search path. Replace `c:\\femm42\\mfiles` with the installation path of femm and use
 ```
