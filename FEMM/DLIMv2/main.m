@@ -1,6 +1,6 @@
   %Define LIM Parameters (Parallel to ANSYS rmXprt LinearMCore definition)
 WIDTH_CORE = 500; %Core width in motion direction
-THICK_CORE = 80; %Core thickness
+THICK_CORE = 60; %Core thickness
 LENGTH = 50; %Core length
 GAP = 6; %Gap between core and xy plane (or 1/2 of air gap)
 SLOT_PITCH = 60; %Distance between two slots
@@ -23,6 +23,7 @@ SEG_ANGLE = 15; %Deviation angle for slot arches
 teeth_thickness = 20;
 slot_thickness = 40;
 core_endlength = 30;
+coil_thickness = Hs2;
 SLOT_PITCH = teeth_thickness+slot_thickness;
 Bs2 = slot_thickness;
 WIDTH_CORE=SLOT_PITCH*(SLOTS-1)+slot_thickness;
@@ -42,4 +43,4 @@ slotGap = SLOT_PITCH-Bs1; %Width of an Individual Slot
 slotTeethWidth = (SLOTS-1)*SLOT_PITCH+slotGap;
 coilArea = slotGap*Hs2/2; %Area of coil for a single phase
 
-[losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC,flA,flB,flC] = DLIM_GRW_Simulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH,core_endlength);
+[losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC,flA,flB,flC] = DLIM_GRW_Simulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH,core_endlength,coil_thickness);
