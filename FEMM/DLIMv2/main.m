@@ -23,7 +23,8 @@ SEG_ANGLE = 15; %Deviation angle for slot arches
 teeth_thickness = 20;
 slot_thickness = 40;
 core_endlength = 30;
-coil_thickness = Hs2;
+pole_pitch = SLOTS*SLOT_PITCH;
+coil_thickness = Hs2/2;
 SLOT_PITCH = teeth_thickness+slot_thickness;
 Bs2 = slot_thickness;
 WIDTH_CORE=SLOT_PITCH*(SLOTS-1)+slot_thickness;
@@ -37,10 +38,14 @@ copperMaterial = '20 AWG';
 trackMaterial = 'Aluminum, 6061-T6';
 coreMaterial = 'M-19 Steel';
 
+%Define Optimization Specific Parameters
+sync_speed = 2*pole_pitch*freq;
+G_factor_prop = pole_pitch^2*freq/GAP;
+
 %Define Simulation Specific Parameters
 sumSlotTeeth = SLOTS*2+1; %Number of Teeth + Slots
 slotGap = SLOT_PITCH-Bs1; %Width of an Individual Slot
 slotTeethWidth = (SLOTS-1)*SLOT_PITCH+slotGap;
 coilArea = slotGap*Hs2/2; %Area of coil for a single phase
 
-[losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC,flA,flB,flC] = DLIM_GRW_Simulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH,core_endlength,coil_thickness);
+[losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC,flA,flB,flC] = DLIM_GRWv2_Simulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH,core_endlength,coil_thickness);
