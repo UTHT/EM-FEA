@@ -42,6 +42,5 @@ For i=0 to slots-1
   End If
 Next
 
-
 Call view.newLine(-width_core/2-core_endlengths,0,-slot_teeth_width/2,0)
 Call view.newLine(slot_teeth_width/2,0,width_core/2+core_endlengths,0)
