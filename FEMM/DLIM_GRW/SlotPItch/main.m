@@ -81,6 +81,8 @@ parfor x = 1:num_sp(2)
     Volume = (THICK_CORE*(WIDTH_CORE+2*END_EXT)*LENGTH) - (Bs2*Hs2*LENGTH*(SLOTS))*2; %Volume of DLIM in cm3
     Weight = Volume*coreMaterialDensity; %Weight of DLIM Core in g
 
+    disp(append("starting Simulation Number ",num2str(simulationNumber)))
+
     inputHs2(x,y)=Hs2;
     inputDepth(x,y)=THICK_CORE;
     inputBs2(x,y)=Bs2;
