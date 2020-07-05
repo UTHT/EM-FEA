@@ -50,17 +50,17 @@ slotTeethWidth = (SLOTS-1)*SLOT_PITCH+slotGap;
 coilArea = slotGap*Hs2/2; %Area of coil for a single phase
 
 %Define Simulation bounds
-min_sp = 40
-max_sp = 400
-delta_sp = 1
-sp_values = [min_sp:delta_sp:max_sp]
-num_sp = size(sp_values)
+min_sp = 40;
+max_sp = 400;
+delta_sp = 1;
+sp_values = [min_sp:delta_sp:max_sp];
+num_sp = size(sp_values);
 
-min_fq = 15
-max_fq = 300
-delta_fq = 15
-fq_values = [min_fq:delta_fq:max_fq]
-num_fq = size(fq_values)
+min_fq = 15;
+max_fq = 300;
+delta_fq = 15;
+fq_values = [min_fq:delta_fq:max_fq];
+num_fq = size(fq_values);
 
 parfor x = 1:num_sp(2)
   for y = 1:num_fq(2)
