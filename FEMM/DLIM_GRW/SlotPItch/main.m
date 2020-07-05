@@ -62,9 +62,10 @@ delta_fq = 15
 fq_values = [min_fq:delta_fq:max_fq]
 num_fq = size(fq_values)
 
-parfor x= 1:num_sp(2)
+parfor x = 1:num_sp(2)
   for y = 1:num_fq(2)
 
+    simulationNumber=x*num_fq(2)+y;
     tic
 
     freq = fq_values(y);
@@ -92,7 +93,7 @@ parfor x= 1:num_sp(2)
     inputSlotThickness(x,y)=slot_thickness;
     inputCoreEndlength(x,y)=core_endlength;
 
-    [losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC,flA,flB,flC] = DLIM_GRWv2_Simulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH,core_endlength,coil_thickness);
+    [losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC,flA,flB,flC] = DLIM_GRWv2_Simulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH,core_endlength,coil_thickness,simulationNumber);
     outputWSTForcex(x,y)=wstforcex; %Weighted Stress Tensor Force on Track, x direction
     outputWSTForcey(x,y)=wstforcey; %Weighted Stress Tensor Force on Track, y direction
     outputLForcex(x,y)=lforcex; %Lorentz Force on Track, x direction

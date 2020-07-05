@@ -1,4 +1,4 @@
-function [hysteresisLosses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,phaseAvol,phaseBvol,phaseCvol,phaseAcur,phaseBcur,phaseCcur,phaseAfl,phaseBfl,phaseCfl] = DLIM_GRWv2_Simulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH,CORE_ENDLENGTH,COIL_THICKNESS)
+function [hysteresisLosses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,phaseAvol,phaseBvol,phaseCvol,phaseAcur,phaseBcur,phaseCcur,phaseAfl,phaseBfl,phaseCfl] = DLIM_GRWv2_Simulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH,CORE_ENDLENGTH,COIL_THICKNESS,simulationNumber)
 
 %Define simulation/modeller units
 unit = 'millimeters';
@@ -155,7 +155,7 @@ mi_addblocklabel(0,THICK_CORE*2);
 mi_selectlabel(0,THICK_CORE*2);
 mi_setblockprop(Air,1,0,'<None>',0,0,0);
 mi_makeABC;
-mi_saveas('qnafiles\DLIM-GRWsim.fem');
+mi_saveas(append('..\SimulationData\temp_',num2str(simulationNumber),'.fem'));
 mi_analyze;
 mi_loadsolution;
 
@@ -196,6 +196,6 @@ topBound = (100)*paddingRatio;
 botBound = -(150)*paddingRatio;
 mo_showdensityplot(0,0,plotUpperLimit,plotLowerLimit,'real');
 mo_zoom(leftBound,botBound,rightBound,topBound);
-mo_savebitmap('DLIM_GRW.jpg')
+mo_savebitmap(sprintf('DLIM_num_%04d.jpg',simulationNumber))
 
 end
