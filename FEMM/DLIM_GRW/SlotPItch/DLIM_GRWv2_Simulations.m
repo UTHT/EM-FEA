@@ -196,6 +196,6 @@ topBound = (100)*paddingRatio;
 botBound = -(150)*paddingRatio;
 mo_showdensityplot(0,0,plotUpperLimit,plotLowerLimit,'real');
 mo_zoom(leftBound,botBound,rightBound,topBound);
-mo_savebitmap(sprintf('DLIM_num_%04d.jpg',simulationNumber))
+mo_savebitmap(sprintf('.\res\DLIM_num_%04d.jpg',simulationNumber))
 
 end

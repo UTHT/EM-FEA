@@ -116,7 +116,7 @@ parfor x = 1:num_sp(2)
     disp(append("Simulation Number ",num2str(simulationNumber)," completed in ",num2str(singleSimTimeElapsed)," seconds with parameters Hs2=",num2str(Hs2),", Bs2=",num2str(Bs2)))
     simulationNumber=simulationNumber+1;
     totalTimeElapsed = totalTimeElapsed+singleSimTimeElapsed;
-
+  end
 end
 
 disp(append("Total Simulation Time: ",num2str(totalTimeElapsed),"seconds"))
