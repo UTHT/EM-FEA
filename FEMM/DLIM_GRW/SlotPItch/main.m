@@ -76,7 +76,7 @@ parfor x = 1:num_sp(2)
 
     pole_pitch = SLOTS*SLOT_PITCH;
     sync_speed(x,y) = 2*pole_pitch*freq;
-    goodness_factor_prop(x,y) = pole_pitch^2*freq/GAP;
+    goodness(x,y) = pole_pitch^2*freq/GAP;
 
     Volume = (THICK_CORE*(WIDTH_CORE+2*END_EXT)*LENGTH) - (Bs2*Hs2*LENGTH*(SLOTS))*2; %Volume of DLIM in cm3
     Weight = Volume*coreMaterialDensity; %Weight of DLIM Core in g
