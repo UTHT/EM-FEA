@@ -155,7 +155,7 @@ mi_addblocklabel(0,THICK_CORE*2);
 mi_selectlabel(0,THICK_CORE*2);
 mi_setblockprop(Air,1,0,'<None>',0,0,0);
 mi_makeABC;
-mi_saveas(append('..\SimulationData\temp_',num2str(simulationNumber),'.fem'));
+mi_saveas(append('..\qnafiles\temp_',num2str(simulationNumber),'.fem'));
 mi_analyze;
 mi_loadsolution;
 
@@ -196,6 +196,6 @@ topBound = (100)*paddingRatio;
 botBound = -(150)*paddingRatio;
 mo_showdensityplot(0,0,plotUpperLimit,plotLowerLimit,'real');
 mo_zoom(leftBound,botBound,rightBound,topBound);
-mo_savebitmap(sprintf('.\res\DLIM_num_%04d.jpg',simulationNumber))
+mo_savebitmap(sprintf('DLIM_num_%04d.jpg',simulationNumber))
 
 end

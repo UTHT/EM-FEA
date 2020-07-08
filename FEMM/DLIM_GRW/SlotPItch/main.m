@@ -48,24 +48,25 @@ sumSlotTeeth = SLOTS*2+1; %Number of Teeth + Slots
 slotGap = SLOT_PITCH-Bs1; %Width of an Individual Slot
 slotTeethWidth = (SLOTS-1)*SLOT_PITCH+slotGap;
 coilArea = slotGap*Hs2/2; %Area of coil for a single phase
+totalTimeElapsed = 0;
 
 %Define Simulation bounds
 min_sp = 40;
 max_sp = 400;
 delta_sp = 1;
-sp_values = [min_sp:delta_sp:max_sp];
-num_sp = size(sp_values);
+sp_values = min_sp:delta_sp:max_sp;
+num_sp = 361;
 
 min_fq = 15;
 max_fq = 300;
 delta_fq = 15;
-fq_values = [min_fq:delta_fq:max_fq];
-num_fq = size(fq_values);
+fq_values = min_fq:delta_fq:max_fq;
+num_fq = 20;
 
-parfor x = 1:num_sp(2)
-  for y = 1:num_fq(2)
+parfor x = 1:num_sp
+  for y = 1:num_fq
 
-    simulationNumber=x*num_fq(2)+y;
+    simulationNumber=x*num_fq+y;
     tic
 
     freq = fq_values(y);
