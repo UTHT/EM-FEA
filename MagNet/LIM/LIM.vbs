@@ -63,7 +63,8 @@ Set view = getDocument().getView()
 Call view.getSlice().moveInALine(-length_core/2)
 Call make_core_component()
 Call clear_construction_lines()
-Call make_windings(make_winding())
+'Call make_windings(make_winding())
+Call make_winding()
 'end main'
 
 
