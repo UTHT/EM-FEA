@@ -115,24 +115,17 @@ Function make_winding()
   rx1 = -slot_teeth_width/2+coil_core_separation_x+coil_width
   by1 = coil_core_separation_y
   ty1 = coil_core_separation_y+coil_height
+  lx2 = lx1+distribute_distance*slot_pitch
+  rx2 = rx1+distribute_distance*slot_pitch
+  by2 = slot_height-ty1
+  ty2 = slot_height-by1
 
   Call view.newLine(lx1,by1,rx1,by1)
   Call view.newLine(lx1,ty1,rx1,ty1)
   Call view.newLine(lx1,by1,lx1,ty1)
   Call view.newLine(rx1,by1,rx1,ty1)
 
-  lx2 = lx1+distribute_distance*slot_pitch
-  rx2 = rx1+distribute_distance*slot_pitch
-  by2 = slot_height-ty1
-  ty2 = slot_height-by1
-
-  Call view.newLine(lx2,by2,rx2,by2)
-  Call view.newLine(lx2,ty2,rx2,ty2)
-  Call view.newLine(lx2,by2,lx2,ty2)
-  Call view.newLine(rx2,by2,rx2,ty2)
-
   Call view.selectAt((lx1+rx1)/2,(ty1+by1)/2, infoSetSelection, Array(infoSliceSurface))
-  'Call getDocument().getView().selectAt((lx2+rx2)/2,(ty2+by2)/2, infoAddToSelection, Array(infoSliceSurface))
 
   Call view.getSlice().moveInALine(length_core/2)
 
