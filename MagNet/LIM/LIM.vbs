@@ -125,89 +125,51 @@ Function make_winding()
   Call view.newLine(lx1,by1,lx1,ty1)
   Call view.newLine(rx1,by1,rx1,ty1)
 
+  Call view.getSlice().moveInALine(length_core/2)
   Call view.selectAt((lx1+rx1)/2,(ty1+by1)/2, infoSetSelection, Array(infoSliceSurface))
 
-  Call view.getSlice().moveInALine(length_core/2)
+  Dim component_name_val
+  component_name_val = "Coil#1"
+  component_name = Array(component_name_val)
 
-  REDIM component_name(0)
-  component_name(0)= "Coil#1"
+  init_coords = Array((lx1+rx1)/2,(by1+ty1)/2,0)
+  unit_x_vec = Array(1,0,0)
+  unit_y_vec = Array(0,1,0)
+  unit_z_vec = Array(0,0,1)
 
-  init_coords=Array((lx1+rx1)/2,(by1+ty1)/2,0)
-  unit_x_vec=Array(1,0,0)
-  unit_y_vec=Array(0,1,0)
-  unit_z_vec=Array(0,0,1)
+  frame_params = Array("Frame","Cartesian",init_coords,unit_x_vec,unit_y_vec,unit_z_vec)
+  start_frame = Array("Start")
+  blend_frame = Array("Blend","Automatic")
 
-  frame_params=Array("Frame","Cartesian",init_coords,unit_x_vec,unit_y_vec,unit_z_vec)
+  line_frame_1 = Array("Line",Array(0,0,length_core/2+coil_width/2+coil_core_separation_x))
+  line_frame_2 = Array("Line",Array((lx2+rx2)/2-(lx1+rx1)/2,(ty2+by2)/2-(ty1+by1)/2,length_core/2+coil_width/2+coil_core_separation_x))
+  line_frame_3 = Array("Line",Array((lx2+rx2)/2-(lx1+rx1)/2,(ty2+by2)/2-(ty1+by1)/2,0))
 
-  REDIM multi_sweep_params(6)
-  multi_sweep_params(0)=frame_params
+  multi_sweep_params = Array(frame_params,start_frame,line_frame_1,blend_frame,line_frame_2,blend_frame,line_frame_3)
 
-  REDIM start_frame(0)
-  start_frame(0)= "Start"
+  Call view.makeComponentInAMultiSweep(multi_sweep_params,component_name,format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
 
-  multi_sweep_params(1)= start_frame
+  Call getDocument().beginUndoGroup("Mirror Component")
+  Call getDocument().mirrorComponent(getDocument().copyComponent(component_name, 1), 0, 0, 0, 0, 0, 1, 1)
+  Call getDocument().endUndoGroup()
 
-  REDIM line_frame_1(1)
-  line_frame_1(0)= "Line"
+  copy_keyword = " Copy#1"
+  union_keyword = " Union#1"
+  components = Array(component_name_val,component_name_val+copy_keyword)
 
-  REDIM line_frame_1_coords(2)
-  line_frame_1_coords(0)= 0
-  line_frame_1_coords(1)= 0
-  line_frame_1_coords(2)= length_core/2+coil_width/2+coil_core_separation_x
-  line_frame_1(1)= line_frame_1_coords
+  Call getDocument().beginUndoGroup("Union Components")
+  If (getDocument().unionComponents(components,2,ErrorMessages) <> "") Then
+    Call getDocument().getView().selectObject(component_name_val, infoSetSelection)
+    Call getDocument().getView().selectObject(component_name_val+copy_keyword, infoAddToSelection)
+    Call getDocument().getView().deleteSelection()
+  Else
+    Call getDocument().getView().unselectAll()
+    Call getApplication().MsgBox("An error occurred doing the union operation:" & vbLf & ErrorMessages, vbOKOnly)
+  End If
+  Call getDocument().endUndoGroup()
 
-  multi_sweep_params(2)= line_frame_1
+  Call getDocument().beginUndoGroup("Set Coil Properties", true)
+  Call getDocument().renameObject(component_name_val+"+"+component_name_val+copy_keyword+union_keyword,component_name_val)
+  Call getDocument().endUndoGroup()
 
-  REDIM blend_frame_1(1)
-  blend_frame_1(0)= "Blend"
-  blend_frame_1(1)= "Automatic"
-
-  multi_sweep_params(3)= blend_frame_1
-
-  REDIM line_frame_2(1)
-  line_frame_2(0)= "Line"
-
-  REDIM line_frame_2_coords(2)
-  line_frame_2_coords(0)= (lx2+rx2)/2-(lx1+rx1)/2
-  line_frame_2_coords(1)= (ty2+by2)/2-(ty1+by1)/2
-  line_frame_2_coords(2)= length_core/2+coil_width/2+coil_core_separation_x
-  line_frame_2(1)= line_frame_2_coords
-
-  multi_sweep_params(4)= line_frame_2
-
-
-  REDIM blend_frame_2(1)
-  blend_frame_2(0)= "Blend"
-  blend_frame_2(1)= "Automatic"
-
-  multi_sweep_params(5)= blend_frame_1
-
-  REDIM line_frame_3(1)
-  line_frame_3(0)= "Line"
-
-  REDIM line_frame_3_coords(2)
-  line_frame_3_coords(0)= (lx2+rx2)/2-(lx1+rx1)/2
-  line_frame_3_coords(1)= (ty2+by2)/2-(ty1+by1)/2
-  line_frame_3_coords(2)= 0
-  line_frame_3(1)= line_frame_3_coords
-
-  multi_sweep_params(6)= line_frame_3
-
-
-
-
-Call getDocument().getView().makeComponentInAMultiSweep(multi_sweep_params, component_name, "Name=AIR", infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
-
-
-
-
-  'REDIM ArrayOfValues(1)
-  'ArrayOfValues(0)= "Component#1"
-  'ArrayOfValues(1)= "Component#2"
-  'Call view.makeComponentInALine(length_core,ArrayOfValues,format_material(coil_material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
-
-  'Call view.newLine(lx2-coil_core_separation_x,0,lx2-coil_core_separation_x,slot_height)
-  'Call view.newLine(rx1+coil_core_separation_x,0,rx1+coil_core_separation_x,slot_height)
-
-  'Call getDocument().getView().makeComponentInAnArc(lx2-coil_core_separation_x,0,0,1,90,ArrayOfValues,"Name=Copper: 5.77e7 Siemens/meter", infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
 End Function
