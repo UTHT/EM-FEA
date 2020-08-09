@@ -1,6 +1,6 @@
 # Electromagnetics Finite Element Analysis
 
-Developing propulsion and levitation mechanisms for Hyperloop, using fast magnetostatic simulations for double-sided linear induction motors and 2D transverse flux linear induction motors. Software used includes Simcenter Magnetics (MagNet) and FEMM (Finite Element Method Magnetics). 
+Developing propulsion and levitation mechanisms for Hyperloop, using electromagnetic simulations for double-sided linear induction motors and 3D transverse flux linear induction motors. Software used includes Simcenter Magnetics (MagNet) and FEMM (Finite Element Method Magnetics). 
 
 ## FEMM + Matlab Setup
 
