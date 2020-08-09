@@ -63,7 +63,7 @@ Set view = getDocument().getView()
 Call view.getSlice().moveInALine(-length_core/2)
 Call make_core_component()
 Call clear_construction_lines()
-Call make_winding()
+Call make_windings(make_winding())
 'end main'
 
 
@@ -171,5 +171,18 @@ Function make_winding()
   Call getDocument().beginUndoGroup("Set Coil Properties", true)
   Call getDocument().renameObject(component_name_val+"+"+component_name_val+copy_keyword+union_keyword,component_name_val)
   Call getDocument().endUndoGroup()
+  make_winding = component_name_val
+End Function
 
+
+Function make_windings(winding_name)
+  Call getDocument().beginUndoGroup("Transform Component")
+  For i=1 to slots-1-distribute_distance
+    Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding_name),1),slot_pitch*i, 0, 0, 1)
+
+    component_name = Replace(winding_name,"1",i+1)
+    copy_keyword = " Copy#1"
+    Call getDocument().renameObject(winding_name+Replace(copy_keyword,"1",i+1),component_name)
+  Next
+  Call getDocument().endUndoGroup()
 End Function
