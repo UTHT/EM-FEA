@@ -145,11 +145,11 @@ Function make_winding()
   blend_frame = Array("Blend","Automatic")
 
   line_frame_1 = Array("Line",Array(0,0,length_core/2+coil_width/2+coil_core_separation_x))
-  'line_frame_2 = Array("Line",Array(((lx2+rx2)/2-(lx1+rx1)/2)/2,0,length_core/2+coil_width/2+coil_core_separation_x+end_ext))
+  line_frame_2 = Array("Line",Array(((lx2+rx2)/2-(lx1+rx1)/2)/2,0,length_core/2+coil_width/2+coil_core_separation_x+end_ext))
   'line_frame_3 = Array("Line",Array(((lx2+rx2)/2-(lx1+rx1)/2)/2,0,length_core/2+coil_width/2+coil_core_separation_x+end_ext+coil_width+length_core))
   'line_frame_4 = Array("Line",Array(((lx2+rx2)/2-(lx1+rx1)/2)/2,(ty2+by2)/2-(ty1+by1)/2,length_core/2+coil_width/2+coil_core_separation_x+end_ext+coil_width+length_core))
   'line_frame_5 = Array("Line",Array(((lx2+rx2)/2-(lx1+rx1)/2)/2,(ty2+by2)/2-(ty1+by1)/2,length_core/2+coil_width/2+coil_core_separation_x+end_ext))
-  'line_frame_6 = Array("Line",Array((lx2+rx2)/2-(lx1+rx1)/2,(ty2+by2)/2-(ty1+by1)/2,length_core/2+coil_width/2+coil_core_separation_x))
+  line_frame_6 = Array("Line",Array((lx2+rx2)/2-(lx1+rx1)/2,(ty2+by2)/2-(ty1+by1)/2,length_core/2+coil_width/2+coil_core_separation_x))
   'line_frame_7 = Array("Line",Array((lx2+rx2)/2-(lx1+rx1)/2,(ty2+by2)/2-(ty1+by1)/2,0))
 
   multi_sweep_params = Array(frame_params,start_frame,line_frame_1,blend_frame)',line_frame_2,blend_frame)',line_frame_3,blend_frame,line_frame_4,blend_frame,line_frame_5,blend_frame,line_frame_6,blend_frame,line_frame_7)
