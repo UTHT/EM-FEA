@@ -140,14 +140,14 @@ Function make_winding()
 
 
 
-  init_coords=Array((lx1+rx1)/2,(by1+ty1)/2,-length/2)'TODO: change to construction surface'
+  init_coords=Array((lx1+rx1)/2,(by1+ty1)/2,-length_core/2)'TODO: change to construction surface'
   unit_x_vec=Array(1,0,0)
   unit_y_vec=Array(0,1,0)
   unit_z_vec=Array(0,0,1)
 
   frame_params=Array("Frame","Cartesian",init_coords,unit_x_vec,unit_y_vec,unit_z_vec)
 
-  REDIM multi_sweep_params(4)
+  REDIM multi_sweep_params(10)
   multi_sweep_params(0)=frame_params
 
   REDIM start_frame(0)
@@ -161,7 +161,7 @@ Function make_winding()
   REDIM line_frame_1_coords(2)
   line_frame_1_coords(0)= 0
   line_frame_1_coords(1)= 0
-  line_frame_1_coords(2)= length_core
+  line_frame_1_coords(2)= length_core+coil_width/2+coil_core_separation_x
   line_frame_1(1)= line_frame_1_coords
 
   multi_sweep_params(2)= line_frame_1
@@ -176,12 +176,66 @@ Function make_winding()
   line_frame_2(0)= "Line"
 
   REDIM line_frame_2_coords(2)
-  line_frame_2_coords(0)= 50
-  line_frame_2_coords(1)= 50
-  line_frame_2_coords(2)= 50
+  line_frame_2_coords(0)= (lx2+rx2)/2-(lx1+rx1)/2
+  line_frame_2_coords(1)= (ty2+by2)/2-(ty1+by1)/2
+  line_frame_2_coords(2)= length_core+coil_width/2+coil_core_separation_x
   line_frame_2(1)= line_frame_2_coords
 
   multi_sweep_params(4)= line_frame_2
+
+
+  REDIM blend_frame_2(1)
+  blend_frame_2(0)= "Blend"
+  blend_frame_2(1)= "Automatic"
+
+  multi_sweep_params(5)= blend_frame_1
+
+  REDIM line_frame_3(1)
+  line_frame_3(0)= "Line"
+
+  REDIM line_frame_3_coords(2)
+  line_frame_3_coords(0)= (lx2+rx2)/2-(lx1+rx1)/2
+  line_frame_3_coords(1)= (ty2+by2)/2-(ty1+by1)/2
+  line_frame_3_coords(2)= -(coil_width/2+coil_core_separation_x)
+  line_frame_3(1)= line_frame_3_coords
+
+  multi_sweep_params(6)= line_frame_3
+
+  REDIM blend_frame_3(1)
+  blend_frame_3(0)= "Blend"
+  blend_frame_3(1)= "Automatic"
+
+  multi_sweep_params(7)= blend_frame_3
+
+  REDIM line_frame_4(1)
+  line_frame_4(0)= "Line"
+
+  REDIM line_frame_4_coords(2)
+  line_frame_4_coords(0)= 0
+  line_frame_4_coords(1)= 0
+  line_frame_4_coords(2)= -(coil_width/2+coil_core_separation_x)
+  line_frame_4(1)= line_frame_4_coords
+
+  multi_sweep_params(8)= line_frame_4
+
+  REDIM blend_frame_4(1)
+  blend_frame_4(0)= "Blend"
+  blend_frame_4(1)= "Automatic"
+
+  multi_sweep_params(9)= blend_frame_4
+
+  REDIM line_frame_5(1)
+  line_frame_5(0)= "Line"
+
+  REDIM line_frame_5_coords(2)
+  line_frame_5_coords(0)= 0
+  line_frame_5_coords(1)= 0
+  line_frame_5_coords(2)= length_core
+  line_frame_5(1)= line_frame_5_coords
+
+  multi_sweep_params(10)= line_frame_5
+
+
 
 Call getDocument().getView().makeComponentInAMultiSweep(multi_sweep_params, component_name, "Name=AIR", infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
 
