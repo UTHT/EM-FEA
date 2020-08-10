@@ -1,61 +1,45 @@
 'Geometry Parameters Setup'
+width_core = 370      'core width (motion direction)
+thick_core = 60       'core thickness (away from track)
+length_core = 50      'core length (into the page)
+core_endlengths = 30  'core end width
+slots = 11            'number of slots
+slot_pitch = 40       'slot pitch
+slot_gap = 20         'slot gap width (teeth_width is generated with slot_pitch and slot_gap)
+slot_height = 40      'slot height
+end_ext = 15          'one sided winding extension value (TODO: replace with dynamic sizing)
 
-Dim width_core 'core width (motion direction)
-Dim thick_core 'core thickness (away from track)
-Dim length_core 'core length (into the page)
-Dim core_endlengths 'core end width
+const SHOW_FORBIDDEN_AIR = True		' Show forbidden zones for design purposes (as red air regions)
+const SHOW_FULL_GEOMETRY = True		' Build with flanges of track
+const BUILD_WITH_SYMMETRY = False	' Build only half of the track and one wheel, with symmetry conditions
+const AUTO_RUN = False 'Run simulation as soon as problam definition is complete
 
-Dim slots 'number of slots'
-Dim slot_pitch 'slot pitch'
-Dim slot_gap 'slot gap width'
-Dim teeth_width 'teeth width'
-Dim slot_height 'slot height'
-Dim end_ext
-
-width_core = 370
-thick_core = 60
-length_core = 50
-core_endlengths = 30
-slots = 11
-slot_pitch = 40
-slot_gap = 20
-slot_height = 40
-end_ext = 15
-
+airRailBoundary = 1
+airResolution = 6
+aluminiumResolution = 5
+magnetResolution = 5
+railSurfaceResolution = 2
+plateSurfaceResolution = 3
+magnetFaceResolution = 3
+motionAirFaceResolution = magnetFaceResolution
+useHAdaption = False
+usePAdaption = False
 
 'Winding Setup'
-Dim coil_core_separation_x 'minimum separation between core and coil (one-sided, x-direction)'
-Dim coil_core_separation_y 'minimum separation between core and coil (one-sided, y-direction)'
-Dim distribute_distance 'distributed winding distance, in # of slots'
-
-Dim coil_width 'coil x length value'
-Dim coil_height 'coil y length value'
-
-coil_core_separation_x = 4
-coil_core_separation_y = 4
-distribute_distance = 2
-
-
-'Internal Variables'
-core_endlengths = core_endlengths + slot_gap
-teeth_width = slot_pitch-slot_gap
-slot_teeth_width = (slots-1)*slot_pitch+slot_gap
-num_coils = slots-distribute_distance
-coil_width = slot_gap-2*coil_core_separation_x
-coil_height = (slot_height-3*coil_core_separation_y)/2
-
+coil_core_separation_x = 4  'minimum separation between core and coil (one-sided, x-direction)'
+coil_core_separation_y = 4  'minimum separation between core and coil (one-sided, y-direction)'
+distribute_distance = 2     'distributed winding distance, in # of slots'
 
 'Material Setup'
-Dim core_material
-Dim air_material
-
 core_material = "M330-35A"
 coil_material = "Copper: 5.77e7 Siemens/meter"
 air_material = "AIR"
 
 'Include Necessary Scripts'
+Call Include("setup")
 Call Include("winding")
 Call Include("core")
+Call Include("track")
 
 'Document Setup'
 Call newDocument()
@@ -67,16 +51,17 @@ Set view = getDocument().getView()
 
 
 'main()'
+setup()
 Call view.getSlice().moveInALine(-length_core/2)
-Call make_core_component()
-Call make_windings(make_winding())
-
+'Call make_core_component()
+'Call make_windings(make_winding())
+Call make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
 
 'end main'
 
 
-Sub Include(file)
 
+Sub Include(file)
   Dim fso, f
   Set fso = CreateObject("Scripting.FileSystemObject")
   Set f = fso.OpenTextFile(file & ".vbs", 1)
