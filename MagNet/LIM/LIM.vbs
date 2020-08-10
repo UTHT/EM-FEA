@@ -20,7 +20,7 @@ slots = 11
 slot_pitch = 40
 slot_gap = 20
 slot_height = 40
-end_ext = 10
+end_ext = 15
 
 core_endlengths = core_endlengths + slot_gap
 teeth_width = slot_pitch-slot_gap
@@ -65,8 +65,8 @@ Set view = getDocument().getView()
 Call view.getSlice().moveInALine(-length_core/2)
 Call make_core_component()
 Call clear_construction_lines()
-'Call make_windings(make_winding())
-Call make_winding()
+Call make_windings(make_winding())
+'Call make_winding()
 'end main'
 
 
@@ -208,7 +208,6 @@ Function make_winding()
   Call getDocument().endUndoGroup()
 
   'Rename Component'
-  'Coil#1p1+Coil#1p2 Union#1+Coil#1p1+Coil#1p2 Union#1 Copy#1 Union#1
   Dim final_name
   final_component_name = component_name+"+"+component_name+copy_keyword+"1"+union_keyword+"1"
   Call getDocument().beginUndoGroup("Set Coil Properties", true)
@@ -221,12 +220,14 @@ End Function
 
 Function make_windings(winding_name)
   Call getDocument().beginUndoGroup("Transform Component")
+
+  Dim component_name
+  copy_keyword = " Copy#1"
+
   For i=1 to slots-1-distribute_distance
     Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding_name),1),slot_pitch*i, 0, 0, 1)
-
     component_name = Replace(winding_name,"1",i+1)
-    copy_keyword = " Copy#1"
-    Call getDocument().renameObject(winding_name+Replace(copy_keyword,"1",i+1),component_name)
+    Call getDocument().renameObject(winding_name+Replace(copy_keyword,"1",i),component_name)
   Next
   Call getDocument().endUndoGroup()
 End Function
