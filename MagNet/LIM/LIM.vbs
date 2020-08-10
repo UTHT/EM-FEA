@@ -20,7 +20,7 @@ slots = 11
 slot_pitch = 40
 slot_gap = 20
 slot_height = 40
-end_ext = 50
+end_ext = 10
 
 core_endlengths = core_endlengths + slot_gap
 teeth_width = slot_pitch-slot_gap
@@ -128,12 +128,22 @@ Function make_winding()
   Call view.newLine(lx1,by1,lx1,ty1)
   Call view.newLine(rx1,by1,rx1,ty1)
 
-  Call view.getSlice().moveInALine(length_core/2)
-  Call view.selectAt((lx1+rx1)/2,(ty1+by1)/2, infoSetSelection, Array(infoSliceSurface))
+  Call view.newLine(lx2,by2,rx2,by2)
+  Call view.newLine(lx2,ty2,rx2,ty2)
+  Call view.newLine(lx2,by2,lx2,ty2)
+  Call view.newLine(rx2,by2,rx2,ty2)
 
-  Dim component_name_val
-  component_name_val = "Coil#1"
-  component_name = Array(component_name_val)
+  Call view.getSlice().moveInALine(length_core/2)
+
+  Dim coil_p1_name
+  Dim coil_p2_name
+  Dim coil_name
+
+  coil_p1_name = "Coil#1p1"
+  coil_p2_name = "Coil#1p2"
+  coil_name = "Coil#1"
+  copy_keyword = " Copy#"
+  union_keyword = " Union#"
 
   init_coords = Array((lx1+rx1)/2,(by1+ty1)/2,0)
   unit_x_vec = Array(1,0,0)
@@ -147,34 +157,30 @@ Function make_winding()
   line_frame_1 = Array("Line",Array(0,0,length_core/2+coil_width/2+coil_core_separation_x))
   line_frame_2 = Array("Line",Array(((lx2+rx2)/2-(lx1+rx1)/2)/2,0,length_core/2+coil_width/2+coil_core_separation_x+end_ext))
   line_frame_3 = Array("Line",Array(((lx2+rx2)/2-(lx1+rx1)/2)/2,0,length_core/2+coil_width/2+coil_core_separation_x+end_ext+coil_width))
-  'line_frame_4 = Array("Line",Array(((lx2+rx2)/2-(lx1+rx1)/2)/2,(ty2+by2)/2-(ty1+by1)/2,length_core/2+coil_width/2+coil_core_separation_x+end_ext+coil_width+length_core))
-  'line_frame_5 = Array("Line",Array(((lx2+rx2)/2-(lx1+rx1)/2)/2,(ty2+by2)/2-(ty1+by1)/2,length_core/2+coil_width/2+coil_core_separation_x+end_ext))
-  'line_frame_6 = Array("Line",Array((lx2+rx2)/2-(lx1+rx1)/2,(ty2+by2)/2-(ty1+by1)/2,length_core/2+coil_width/2+coil_core_separation_x))
-  'line_frame_7 = Array("Line",Array((lx2+rx2)/2-(lx1+rx1)/2,(ty2+by2)/2-(ty1+by1)/2,0))
   arc_frame_4 = Array("Arc",180,Array(((lx2+rx2)/2-(lx1+rx1)/2)/2,(ty2+by2)/4-(ty1+by1)/4,length_core/2+coil_width/2+coil_core_separation_x+end_ext+coil_width),Array(-1,0,0))
-  line_frame_5 = Array("Line",Array(((lx2+rx2)/2-(lx1+rx1)/2)/2,(ty2+by2)/2-(ty1+by1)/2,length_core/2+coil_width/2+coil_core_separation_x+end_ext))
-  line_frame_6 = Array("Line",Array((lx2+rx2)/2-(lx1+rx1)/2,(ty2+by2)/2-(ty1+by1)/2,0))'length_core/2+coil_width/2+coil_core_separation_x))
-  'line_frame_7 = Array("Line",Array((lx2+rx2)/2-(lx1+rx1)/2,(ty2+by2)/2-(ty1+by1)/2,0))
+  line_frame_5 = Array("Line",Array(((lx2+rx2)/2-(lx1+rx1)/2)/2,(ty2+by2)/2-(ty1+by1)/2,length_core/2+coil_width/2+coil_core_separation_x))
+  line_frame_6 = Array("Line",Array((lx2+rx2)/2-(lx1+rx1)/2,(ty2+by2)/2-(ty1+by1)/2,length_core/2+coil_width/2+coil_core_separation_x))
 
+  multi_sweep_params = Array(frame_params,start_frame,line_frame_1,blend_frame,line_frame_2,blend_frame,line_frame_3,blend_frame,arc_frame_4)'',blend_frame,line_frame_5)'',blend_frame,line_frame_6)'',blend_frame,line_frame_7)
 
+  Call view.selectAt((lx1+rx1)/2,(ty1+by1)/2, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInAMultiSweep(multi_sweep_params,Array(coil_p1_name),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
 
+  line_frame_7 = Array("Line",Array((lx2+rx2)/2-(lx1+rx1)/2,(ty2+by2)/2-(ty1+by1)/2,length_core/2+coil_width/2+coil_core_separation_x))
+  line_frame_8 = Array("Line",Array(((lx2+rx2)/2-(lx1+rx1)/2)/2,(ty2+by2)/2-(ty1+by1)/2,length_core/2+coil_width/2+coil_core_separation_x+end_ext))
+  line_frame_9 = Array("Line",Array(((lx2+rx2)/2-(lx1+rx1)/2)/2,(ty2+by2)/2-(ty1+by1)/2,length_core/2+coil_width/2+coil_core_separation_x+end_ext+coil_width))
 
-  multi_sweep_params = Array(frame_params,start_frame,line_frame_1,blend_frame,line_frame_2,blend_frame,line_frame_3,blend_frame,arc_frame_4,blend_frame,line_frame_5,blend_frame,line_frame_6)'',blend_frame,line_frame_7)
+  multi_sweep_params = Array(frame_params,start_frame,line_frame_7,blend_frame,line_frame_8,blend_frame,line_frame_9)
 
-  Call view.makeComponentInAMultiSweep(multi_sweep_params,component_name,format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call view.selectAt((lx2+rx2)/2,(ty2+by2)/2, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInAMultiSweep(multi_sweep_params,Array(coil_p2_name),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
 
-  Call getDocument().beginUndoGroup("Mirror Component")
-  Call getDocument().mirrorComponent(getDocument().copyComponent(component_name, 1), 0, 0, 0, 0, 0, 1, 1)
-  Call getDocument().endUndoGroup()
-
-  copy_keyword = " Copy#1"
-  union_keyword = " Union#1"
-  components = Array(component_name_val,component_name_val+copy_keyword)
-
-  Call getDocument().beginUndoGroup("Union Components")
-  If (getDocument().unionComponents(components,2,ErrorMessages) <> "") Then
-    Call getDocument().getView().selectObject(component_name_val, infoSetSelection)
-    Call getDocument().getView().selectObject(component_name_val+copy_keyword, infoAddToSelection)
+  'Merge Coil Parts (Forms one side of single winding)'
+  coil_parts = Array(coil_p1_name,coil_p2_name)
+  Call getDocument().beginUndoGroup("Union Coil Parts")
+  If (getDocument().unionComponents(coil_parts,2,ErrorMessages) <> "") Then
+    Call getDocument().getView().selectObject(coil_p1_name, infoSetSelection)
+    Call getDocument().getView().selectObject(coil_p2_name, infoAddToSelection)
     Call getDocument().getView().deleteSelection()
   Else
     Call getDocument().getView().unselectAll()
@@ -182,10 +188,34 @@ Function make_winding()
   End If
   Call getDocument().endUndoGroup()
 
-  Call getDocument().beginUndoGroup("Set Coil Properties", true)
-  Call getDocument().renameObject(component_name_val+"+"+component_name_val+copy_keyword+union_keyword,component_name_val)
+  'Mirror Single-sided Coil (Forms full single winding in two separate components)'
+  component_name = coil_p1_name+"+"+coil_p2_name+union_keyword+"1"
+  Call getDocument().beginUndoGroup("Mirror Component")
+  Call getDocument().mirrorComponent(getDocument().copyComponent(Array(component_name), 1), 0, 0, 0, 0, 0, 1, 1)
   Call getDocument().endUndoGroup()
-  make_winding = component_name_val
+
+  'Union both coil sides (Form full single winding)'
+  coil_halves = Array(component_name,component_name+copy_keyword+"1")
+  Call getDocument().beginUndoGroup("Union Components")
+  If (getDocument().unionComponents(coil_halves,2,ErrorMessages) <> "") Then
+    Call getDocument().getView().selectObject(component_name, infoSetSelection)
+    Call getDocument().getView().selectObject(component_name+copy_keyword+"1", infoAddToSelection)
+    Call getDocument().getView().deleteSelection()
+  Else
+    Call getDocument().getView().unselectAll()
+    Call getApplication().MsgBox("An error occurred doing the union operation:" & vbLf & ErrorMessages, vbOKOnly)
+  End If
+  Call getDocument().endUndoGroup()
+
+  'Rename Component'
+  'Coil#1p1+Coil#1p2 Union#1+Coil#1p1+Coil#1p2 Union#1 Copy#1 Union#1
+  Dim final_name
+  final_component_name = component_name+"+"+component_name+copy_keyword+"1"+union_keyword+"1"
+  Call getDocument().beginUndoGroup("Set Coil Properties", true)
+  Call getDocument().renameObject(final_component_name,coil_name)
+  Call getDocument().endUndoGroup()
+  make_winding = coil_name
+
 End Function
 
 
