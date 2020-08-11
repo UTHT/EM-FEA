@@ -44,17 +44,18 @@ coil_width = slot_gap-2*coil_core_separation_x
 coil_height = (slot_height-3*coil_core_separation_y)/2
 
 'Problem Bounds'
-x_min
-y_min
-z_min
-x_max
-y_max
-z_max
+x_min = 0
+y_min = 0
+z_min = 0
+x_max = 0
+y_max = 0
+z_max = 0
 
 'Include Necessary Scripts'
 Call Include("winding")
 Call Include("core")
 Call Include("track")
+Call Include("air")
 
 'Document Setup'
 Call newDocument()
@@ -65,9 +66,9 @@ Set view = getDocument().getView()
 
 
 'Main Code'
-'Call make_core_component()
-'Call make_windings(make_winding())
-Call make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
+Call make_core_component()
+Call make_windings(make_winding())
+'Call make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
 
 'end main'
 
