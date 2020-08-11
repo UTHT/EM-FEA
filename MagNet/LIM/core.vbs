@@ -22,6 +22,7 @@ End Function
 
 
 Function make_core_component()
+  Call view.getSlice().moveInALine(-length_core/2)
   Call draw_core_geometry()
   Call view.selectAt(0,(thick_core+slot_height)/2,infoSetSelection,Array(infoSliceSurface))
 
