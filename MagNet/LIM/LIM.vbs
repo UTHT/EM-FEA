@@ -14,17 +14,6 @@ const SHOW_FULL_GEOMETRY = True		' Build with flanges of track
 const BUILD_WITH_SYMMETRY = False	' Build only half of the track and one wheel, with symmetry conditions
 const AUTO_RUN = False 'Run simulation as soon as problam definition is complete
 
-airRailBoundary = 1
-airResolution = 6
-aluminiumResolution = 5
-magnetResolution = 5
-railSurfaceResolution = 2
-plateSurfaceResolution = 3
-magnetFaceResolution = 3
-motionAirFaceResolution = magnetFaceResolution
-useHAdaption = False
-usePAdaption = False
-
 'Winding Setup'
 coil_core_separation_x = 4  'minimum separation between core and coil (one-sided, x-direction)'
 coil_core_separation_y = 4  'minimum separation between core and coil (one-sided, y-direction)'
@@ -36,15 +25,15 @@ coil_material = "Copper: 5.77e7 Siemens/meter"
 air_material = "AIR"
 
 'Track Constants'
-const railHeight = 127
-const railWidth = 127
-const webThickness = 10.4902
-const flangeThickness = 10.4648
-const plateThickness = 12.7
-const plateGap = 12.7
-const bottomForbiddenHeight = 29.6672
-const topForbiddenHeight = 19.05
-const topForbiddenWidth = 46.0502
+const rail_height = 127
+const rail_width = 127
+const web_thickness = 10.4902
+const flange_thickness = 10.4648
+const plate_thickness = 12.7
+const plate_gap = 12.7
+const bottom_forbidden_height = 29.6672
+const top_forbidden_height = 19.05
+const top_forbidden_width = 46.0502
 
 'Internal Variables'
 core_endlengths = core_endlengths + slot_gap
@@ -54,6 +43,13 @@ num_coils = slots-distribute_distance
 coil_width = slot_gap-2*coil_core_separation_x
 coil_height = (slot_height-3*coil_core_separation_y)/2
 
+'Problem Bounds'
+x_min
+y_min
+z_min
+x_max
+y_max
+z_max
 
 'Include Necessary Scripts'
 Call Include("winding")
@@ -69,9 +65,9 @@ Set view = getDocument().getView()
 
 
 'Main Code'
-Call make_core_component()
+'Call make_core_component()
 'Call make_windings(make_winding())
-'Call make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
+Call make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
 
 'end main'
 
