@@ -63,7 +63,7 @@ Function make_winding()
   Call view.makeComponentInAMultiSweep(multi_sweep_params,Array(coil_p2_name),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
 
   'Merge Coil Parts (Forms one side of single winding)'
-  union_components(coil_p1_name,coil_p2_name)
+  Call union_components(coil_p1_name,coil_p2_name)
 
   'Mirror Single-sided Coil (Forms full single winding in two separate components)'
   component_name = coil_p1_name+"+"+coil_p2_name+union_keyword+"1"
@@ -72,7 +72,7 @@ Function make_winding()
   Call getDocument().endUndoGroup()
 
   'Union both coil sides (Form full single winding)'
-  union_components(component_name,component_name+copy_keyword+"1")
+  Call union_components(component_name,component_name+copy_keyword+"1")
 
   'Rename Component'
   Dim final_name
