@@ -8,7 +8,14 @@ slot_pitch = 40       'slot pitch
 slot_gap = 20         'slot gap width (teeth_width is generated with slot_pitch and slot_gap)
 slot_height = 40      'slot height
 end_ext = 15          'one sided winding extension value (TODO: replace with dynamic sizing)
+air_gap = 10
 
+'Problem Variables'
+slip = 0.01 'Per unit slip'
+v_r = 25 'Relative speed of pod'
+motion_length = 0.01 'track_length (in meters)'
+
+'Build Flags'
 const SHOW_FORBIDDEN_AIR = True		' Show forbidden zones for design purposes (as red air regions)
 const SHOW_FULL_GEOMETRY = True		' Build with flanges of track
 const BUILD_WITH_SYMMETRY = False	' Build only half of the track and one wheel, with symmetry conditions
@@ -42,14 +49,18 @@ slot_teeth_width = (slots-1)*slot_pitch+slot_gap
 num_coils = slots-distribute_distance
 coil_width = slot_gap-2*coil_core_separation_x
 coil_height = (slot_height-3*coil_core_separation_y)/2
+v_s = v_r/(1-slip)
+slip_speed = v_s-v_r
+motion_length = motion_length*1000
 
 'Problem Bounds'
+
 x_min = 0
-y_min = 0
-z_min = 0
-x_max = 0
-y_max = 0
-z_max = 0
+y_min = -10
+z_min = -width_core*0.75
+x_max = (length_core+air_gap)*2
+y_max = rail_height+10
+z_max = -z_min
 
 'Include Necessary Scripts'
 Call Include("winding")
@@ -66,9 +77,12 @@ Set view = getDocument().getView()
 
 
 'Main Code'
-Call make_core_component()
-Call make_windings(make_winding())
+
 'Call make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
+'Call make_core_component()
+'Call make_windings(make_winding())
+
+
 
 'end main'
 
@@ -80,5 +94,4 @@ Sub Include(file)
   Set f = fso.OpenTextFile(file & ".vbs", 1)
   ExecuteGlobal f.ReadAll
   f.Close
-  'ExecuteGlobal str
 End Sub
