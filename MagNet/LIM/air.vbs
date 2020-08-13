@@ -28,8 +28,4 @@ Function make_airbox(BUILD_WITH_SYMMETRY)
     Call getDocument().createBoundaryCondition(Array("Outer Air,Face#4"), "BoundaryCondition#1")
     Call getDocument().setMagneticFieldNormal("BoundaryCondition#1")
   End If
-
-
-
-
 End Function
