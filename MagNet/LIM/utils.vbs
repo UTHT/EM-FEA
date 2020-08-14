@@ -24,11 +24,17 @@ Function union_components(component_1,component_2)
   End If
   Call getDocument().endUndoGroup()
 End Function
-
+'Forbidden Air 1p1+Forbidden Air 1p2 Union#1+Component#1 Union#1
 Function rename_components(component,name)
   Call getDocument().beginUndoGroup("Rename Component", true)
   Call getDocument().renameObject(component,name)
   Call getDocument().endUndoGroup()
+End Function
+
+Function union_and_rename(component_1,component_2,name)
+  Call union_components(component_1,component_2)
+  union_name = component_1+"+"+component_2+" Union#1"
+  Call rename_components(union_name,name)
 End Function
 
 Function get_global(local_x,local_y)

@@ -11,18 +11,27 @@ Function make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
   	Call view.newLine(top_forbidden_width/2.0, rail_height - flange_thickness, top_forbidden_width/2.0, rail_height - flange_thickness - top_forbidden_height)
   	Call view.newLine(top_forbidden_width/2.0, rail_height - flange_thickness - top_forbidden_height, -top_forbidden_width/2.0, rail_height - flange_thickness - top_forbidden_height)
 
+    fa_name_1 = "Forbidden Air 1"
+    fa_name_2 = "Forbidden Air 2"
+
   	Call view.selectAt(-1, bottom_forbidden_height/2.0, infoSetSelection, Array(infoSliceSurface))
-  	Call view.makeComponentInALine(z_min, Array("Forbidden Air 1"), "Name=AIR", infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
-    Call view.makeComponentInALine(z_max, Array("Forbidden Air 1"), "Name=AIR", infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
-    'Call getDocument().setMaxElementSize("Forbidden Air 1", airResolution)
-  	Call getDocument().setComponentColor("Forbidden Air 1", RGB(255, 0, 0), 50)
+  	Call view.makeComponentInALine(z_min, Array(fa_name_1+"p1"), "Name=AIR", infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+    Call view.selectAt(-1, bottom_forbidden_height/2.0, infoSetSelection, Array(infoSliceSurface))
+    Call view.makeComponentInALine(z_max, Array(fa_name_1+"p2"), "Name=AIR", infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+    Call union_and_rename(fa_name_1+"p1",fa_name_1+"p2",fa_name_1)
 
-  	Call view.selectAt(-1, rail_height - flange_thickness - top_forbidden_height/2.0, infoSetSelection, Array(infoSliceSurface))
-  	Call view.makeComponentInALine(abs(z_min)+z_max, Array("Forbidden Air 2"), "Name=AIR", infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+    'Call getDocument().setMaxElementSize(fa_name_1, airResolution)
+  	Call getDocument().setComponentColor(fa_name_1, RGB(255, 0, 0), 50)
+
+    Call view.selectAt(-1, rail_height - flange_thickness - top_forbidden_height/2.0, infoSetSelection, Array(infoSliceSurface))
+  	Call view.makeComponentInALine(z_min, Array(fa_name_2+"p1"), "Name=AIR", infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+    Call view.selectAt(-1, rail_height - flange_thickness - top_forbidden_height/2.0, infoSetSelection, Array(infoSliceSurface))
+    Call view.makeComponentInALine(z_max, Array(fa_name_2+"p2"), "Name=AIR", infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+    Call union_and_rename(fa_name_2+"p1",fa_name_2+"p2",fa_name_2)
+
   	'Call getDocument().setMaxElementSize("Forbidden Air 2", airResolution)
-  	Call getDocument().setComponentColor("Forbidden Air 2", RGB(255, 0, 0), 50)
+  	Call getDocument().setComponentColor(fa_name_2, RGB(255, 0, 0), 50)
 
-  	'Call view.getSlice().moveInALine(abs(z_min))
   	Call view.selectAll(infoSetSelection, Array(infoSliceLine))
   	Call view.deleteSelection()
   End If
