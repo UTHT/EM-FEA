@@ -75,11 +75,8 @@ Function make_winding()
   Call union_components(component_name,component_name+copy_keyword+"1")
 
   'Rename Component'
-  Dim final_name
   final_component_name = component_name+"+"+component_name+copy_keyword+"1"+union_keyword+"1"
-  Call getDocument().beginUndoGroup("Set Coil Properties", true)
-  Call getDocument().renameObject(final_component_name,coil_name)
-  Call getDocument().endUndoGroup()
+  Call rename_components(final_component_name,coil_name)
   make_winding = coil_name
 End Function
 

@@ -25,6 +25,12 @@ Function union_components(component_1,component_2)
   Call getDocument().endUndoGroup()
 End Function
 
+Function rename_components(component,name)
+  Call getDocument().beginUndoGroup("Rename Component", true)
+  Call getDocument().renameObject(component,name)
+  Call getDocument().endUndoGroup()
+End Function
+
 Function get_global(local_x,local_y)
   Set view = getDocument().getView()
   Dim global_points(3)
