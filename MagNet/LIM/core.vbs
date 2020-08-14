@@ -34,11 +34,9 @@ End Function
 
 
 Sub Include(file)
-
   Dim fso, f
   Set fso = CreateObject("Scripting.FileSystemObject")
   Set f = fso.OpenTextFile(file & ".vbs", 1)
   ExecuteGlobal f.ReadAll
   f.Close
-  'ExecuteGlobal str
 End Sub
