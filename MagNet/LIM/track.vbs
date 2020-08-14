@@ -42,18 +42,6 @@ Function make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
   	End If
   End If
 
-  Call view.newLine(-x_max, 0, -rail_width/2.0 - plate_gap, 0)
-  Call view.newLine(-rail_width/2.0 - plate_gap, 0, -rail_width/2.0 - plate_gap, plate_thickness)
-  Call view.newLine(-rail_width/2.0 - plate_gap, plate_thickness, -x_max, plate_thickness)
-  Call view.newLine(-x_max, plate_thickness, -x_max, 0)
-
-  If NOT(BUILD_WITH_SYMMETRY) Then
-  	Call view.newLine(x_max, 0, rail_width/2.0 + plate_gap, 0)
-  	Call view.newLine(rail_width/2.0 + plate_gap, 0, rail_width/2.0 + plate_gap, plate_thickness)
-  	Call view.newLine(rail_width/2.0 + plate_gap, plate_thickness, x_max, plate_thickness)
-  	Call view.newLine(x_max, plate_thickness, x_max, 0)
-  End If
-
   rail = "Rail"
   p1 = "Plate 1"
   p2 = "Plate 2"
@@ -61,10 +49,20 @@ Function make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
   Call generate_two_sided_component(rail,track_material,0,rail_height/2.0,z_min,z_max+motion_length)
   'Call getDocument().setMaxElementSize(rail, aluminiumResolution)
 
+  Call view.newLine(-x_max, 0, -rail_width/2.0 - plate_gap, 0)
+  Call view.newLine(-rail_width/2.0 - plate_gap, 0, -rail_width/2.0 - plate_gap, plate_thickness)
+  Call view.newLine(-rail_width/2.0 - plate_gap, plate_thickness, -x_max, plate_thickness)
+  Call view.newLine(-x_max, plate_thickness, -x_max, 0)
+
   Call generate_two_sided_component(p1,track_material,-rail_width/2.0-plate_gap-10,plate_thickness/2.0,z_min,z_max+motion_length)
   'Call getDocument().setMaxElementSize(p1, aluminiumResolution)
 
   If NOT(BUILD_WITH_SYMMETRY) Then
+  	Call view.newLine(x_max, 0, rail_width/2.0 + plate_gap, 0)
+  	Call view.newLine(rail_width/2.0 + plate_gap, 0, rail_width/2.0 + plate_gap, plate_thickness)
+  	Call view.newLine(rail_width/2.0 + plate_gap, plate_thickness, x_max, plate_thickness)
+  	Call view.newLine(x_max, plate_thickness, x_max, 0)
+
     Call generate_two_sided_component(p2,track_material,rail_width/2.0+plate_gap+10,plate_thickness/2.0,z_min,z_max+motion_length)
   	'Call getDocument().setMaxElementSize(p2, aluminiumResolution)
   End If
