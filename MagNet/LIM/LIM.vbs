@@ -79,8 +79,8 @@ Set view = getDocument().getView()
 'Main Code'
 
 'Call make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
-'Call make_core_component()
-'Call make_windings(make_winding())
+Call make_core_component()
+Call make_windings(make_winding())
 
 
 
