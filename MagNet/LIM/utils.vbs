@@ -24,7 +24,7 @@ Function union_components(component_1,component_2)
   End If
   Call getDocument().endUndoGroup()
 End Function
-'Forbidden Air 1p1+Forbidden Air 1p2 Union#1+Component#1 Union#1
+
 Function rename_components(component,name)
   Call getDocument().beginUndoGroup("Rename Component", true)
   Call getDocument().renameObject(component,name)
@@ -35,6 +35,14 @@ Function union_and_rename(component_1,component_2,name)
   Call union_components(component_1,component_2)
   union_name = component_1+"+"+component_2+" Union#1"
   Call rename_components(union_name,name)
+End Function
+
+Function generate_two_sided_component(component_name,selection_x,selection_y,neg_val,pos_val)
+  Call view.selectAt(selection_x, selection_y, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInALine(z_min, Array(component_name+"p1"),format_material(air_material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call view.selectAt(selection_x, selection_y, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInALine(z_max, Array(component_name+"p2"),format_material(air_material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call union_and_rename(component_name+"p1",component_name+"p2",component_name)
 End Function
 
 Function get_global(local_x,local_y)
