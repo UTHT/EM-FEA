@@ -63,17 +63,7 @@ Function make_winding()
   Call view.makeComponentInAMultiSweep(multi_sweep_params,Array(coil_p2_name),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
 
   'Merge Coil Parts (Forms one side of single winding)'
-  coil_parts = Array(coil_p1_name,coil_p2_name)
-  Call getDocument().beginUndoGroup("Union Coil Parts")
-  If (getDocument().unionComponents(coil_parts,2,ErrorMessages) <> "") Then
-    Call getDocument().getView().selectObject(coil_p1_name, infoSetSelection)
-    Call getDocument().getView().selectObject(coil_p2_name, infoAddToSelection)
-    Call getDocument().getView().deleteSelection()
-  Else
-    Call getDocument().getView().unselectAll()
-    Call getApplication().MsgBox("An error occurred doing the union operation:" & vbLf & ErrorMessages, vbOKOnly)
-  End If
-  Call getDocument().endUndoGroup()
+  union_components(coil_p1_name,coil_p2_name)
 
   'Mirror Single-sided Coil (Forms full single winding in two separate components)'
   component_name = coil_p1_name+"+"+coil_p2_name+union_keyword+"1"
@@ -82,17 +72,7 @@ Function make_winding()
   Call getDocument().endUndoGroup()
 
   'Union both coil sides (Form full single winding)'
-  coil_halves = Array(component_name,component_name+copy_keyword+"1")
-  Call getDocument().beginUndoGroup("Union Components")
-  If (getDocument().unionComponents(coil_halves,2,ErrorMessages) <> "") Then
-    Call getDocument().getView().selectObject(component_name, infoSetSelection)
-    Call getDocument().getView().selectObject(component_name+copy_keyword+"1", infoAddToSelection)
-    Call getDocument().getView().deleteSelection()
-  Else
-    Call getDocument().getView().unselectAll()
-    Call getApplication().MsgBox("An error occurred doing the union operation:" & vbLf & ErrorMessages, vbOKOnly)
-  End If
-  Call getDocument().endUndoGroup()
+  union_components(component_name,component_name+copy_keyword+"1")
 
   'Rename Component'
   Dim final_name
@@ -121,11 +101,9 @@ End Function
 
 
 Sub Include(file)
-
   Dim fso, f
   Set fso = CreateObject("Scripting.FileSystemObject")
   Set f = fso.OpenTextFile(file & ".vbs", 1)
   ExecuteGlobal f.ReadAll
   f.Close
-  'ExecuteGlobal str
 End Sub
