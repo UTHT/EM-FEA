@@ -37,11 +37,11 @@ Function union_and_rename(component_1,component_2,name)
   Call rename_components(union_name,name)
 End Function
 
-Function generate_two_sided_component(component_name,selection_x,selection_y,neg_val,pos_val)
+Function generate_two_sided_component(component_name,material,selection_x,selection_y,neg_val,pos_val)
   Call view.selectAt(selection_x, selection_y, infoSetSelection, Array(infoSliceSurface))
-  Call view.makeComponentInALine(z_min, Array(component_name+"p1"),format_material(air_material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call view.makeComponentInALine(neg_val, Array(component_name+"p1"),format_material(material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
   Call view.selectAt(selection_x, selection_y, infoSetSelection, Array(infoSliceSurface))
-  Call view.makeComponentInALine(z_max, Array(component_name+"p2"),format_material(air_material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call view.makeComponentInALine(pos_val, Array(component_name+"p2"),format_material(material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
   Call union_and_rename(component_name+"p1",component_name+"p2",component_name)
 End Function
 
