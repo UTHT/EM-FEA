@@ -1,6 +1,8 @@
 Call Include("utils")
 
 Function make_winding()
+  Call view.getSlice().moveInALine(-length_core/2)
+
   lx1 = -slot_teeth_width/2+coil_core_separation_x
   rx1 = -slot_teeth_width/2+coil_core_separation_x+coil_width
   by1 = coil_core_separation_y
@@ -75,20 +77,20 @@ Function make_winding()
   Call union_components(component_name,component_name+copy_keyword+"1")
 
   'Rename Component'
-  Dim final_name
   final_component_name = component_name+"+"+component_name+copy_keyword+"1"+union_keyword+"1"
-  Call getDocument().beginUndoGroup("Set Coil Properties", true)
-  Call getDocument().renameObject(final_component_name,coil_name)
-  Call getDocument().endUndoGroup()
+  Call rename_components(final_component_name,coil_name)
   make_winding = coil_name
+
+  Call view.getSlice().moveInALine(length_core/2)
 End Function
 
 
 Function make_windings(winding_name)
-  Call getDocument().beginUndoGroup("Transform Component")
-
   Dim component_name
   copy_keyword = " Copy#1"
+
+  Call getDocument().beginUndoGroup("Transform Component")
+  Call view.getSlice().moveInALine(-length_core/2)
 
   For i=1 to num_coils-1
     Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding_name),1),slot_pitch*i, 0, 0, 1)

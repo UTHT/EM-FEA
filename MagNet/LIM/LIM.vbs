@@ -13,7 +13,7 @@ air_gap = 10
 'Problem Variables'
 slip = 0.01 'Per unit slip'
 v_r = 25 'Relative speed of pod'
-motion_length = 0.01 'track_length (in meters)'
+motion_length = 1 'track_length (in meters)'
 
 'Build Flags'
 const SHOW_FORBIDDEN_AIR = True		' Show forbidden zones for design purposes (as red air regions)
@@ -29,6 +29,7 @@ distribute_distance = 2     'distributed winding distance, in # of slots'
 'Material Setup'
 core_material = "M330-35A"
 coil_material = "Copper: 5.77e7 Siemens/meter"
+track_material = "Aluminum: 3.8e7 Siemens/meter"
 air_material = "AIR"
 
 'Track Constants'
@@ -78,9 +79,9 @@ Set view = getDocument().getView()
 
 'Main Code'
 
-'Call make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
-Call make_core_component()
-Call make_windings(make_winding())
+Call make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
+'Call make_core_component()
+'Call make_windings(make_winding())
 
 
 

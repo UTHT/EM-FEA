@@ -25,6 +25,26 @@ Function union_components(component_1,component_2)
   Call getDocument().endUndoGroup()
 End Function
 
+Function rename_components(component,name)
+  Call getDocument().beginUndoGroup("Rename Component", true)
+  Call getDocument().renameObject(component,name)
+  Call getDocument().endUndoGroup()
+End Function
+
+Function union_and_rename(component_1,component_2,name)
+  Call union_components(component_1,component_2)
+  union_name = component_1+"+"+component_2+" Union#1"
+  Call rename_components(union_name,name)
+End Function
+
+Function generate_two_sided_component(component_name,material,selection_x,selection_y,neg_val,pos_val)
+  Call view.selectAt(selection_x, selection_y, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInALine(neg_val, Array(component_name+"p1"),format_material(material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call view.selectAt(selection_x, selection_y, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInALine(pos_val, Array(component_name+"p2"),format_material(material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call union_and_rename(component_name+"p1",component_name+"p2",component_name)
+End Function
+
 Function get_global(local_x,local_y)
   Set view = getDocument().getView()
   Dim global_points(3)
