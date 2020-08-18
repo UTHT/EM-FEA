@@ -45,6 +45,41 @@ Function generate_two_sided_component(component_name,material,selection_x,select
   Call union_and_rename(component_name+"p1",component_name+"p2",component_name)
 End Function
 
+Function orient_cp(num_coils)
+  Call select_core_components(num_coils)
+  Call getDocument().beginUndoGroup("Rotate Core Component")
+  core_components = get_core_components(num_coils)
+  Call getDocument().getApplication().MsgBox(print_arr(core_components))
+  Call getDocument().rotateComponent(core_components, 0, 0, 0, 0, 1, 0, 90, 1)
+  Call getDocument().rotateComponent(core_components, 0, 0, 0, 0, 0, 1, 90, 1)
+  Call getDocument().endUndoGroup()
+End Function
+
+Function get_core_components(num_coils)
+  ReDim components(-1)
+  ReDim Preserve components(UBound(components)+1) : components(UBound(components)) = "Core 1"
+  For i=0 to num_coils-1
+    ReDim Preserve components(UBound(components)+1) : components(UBound(components)) = "Coil#"&(i+1)
+  Next
+  get_core_components=components
+End Function
+
+Function select_core_components(num_coils)
+  components = get_core_components(num_coils)
+  Call getDocument().getView().selectObject(components(0),infoSetSelection)
+  For i=0 to num_coils-1
+    Call getDocument().getView().selectObject(components(i),infoAddToSelection)
+  Next
+End Function
+
+Function print_arr(input_arr)
+  Dim output_str
+  For each x in input_arr
+    output_str = output_str&x&" "
+  Next
+  print_arr = output_str
+End Function
+
 Function get_global(local_x,local_y)
   Set view = getDocument().getView()
   Dim global_points(3)
