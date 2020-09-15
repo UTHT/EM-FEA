@@ -80,9 +80,19 @@ Set view = getDocument().getView()
 'Main Code'
 
 Call make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
+<<<<<<< HEAD
 Call make_core_component()
 Call make_windings(make_winding())
 
+=======
+'Call orient_cp("Rail,Body#1,Face#4")
+Call make_core_component()
+Call make_windings(make_winding())
+Call select_core_components(num_coils)
+Call orient_cp(num_coils)
+'components = get_core_components(num_coils)
+'Call getDocument().getApplication().MsgBox(components(0))
+>>>>>>> 109f3c7d1eda89769d16fcbbc54474b3ebad0673
 
 
 'end main'
