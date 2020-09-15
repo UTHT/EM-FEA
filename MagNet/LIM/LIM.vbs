@@ -11,15 +11,15 @@ end_ext = 15          'one sided winding extension value (TODO: replace with dyn
 air_gap = 10
 
 'Problem Variables'
-slip = 0.01 'Per unit slip'
-v_r = 25 'Relative speed of pod'
-motion_length = 1 'track_length (in meters)'
+slip = 0.01         'Per unit slip'
+v_r = 25            'Relative speed of pod'
+motion_length = 1   'track_length (in meters)'
 
 'Build Flags'
-const SHOW_FORBIDDEN_AIR = True		' Show forbidden zones for design purposes (as red air regions)
-const SHOW_FULL_GEOMETRY = True		' Build with flanges of track
-const BUILD_WITH_SYMMETRY = False	' Build only half of the track and one wheel, with symmetry conditions
-const AUTO_RUN = False 'Run simulation as soon as problam definition is complete
+const SHOW_FORBIDDEN_AIR = True	  	' Show forbidden zones for design purposes (as red air regions)
+const SHOW_FULL_GEOMETRY = False		' Build with flanges of track
+const BUILD_WITH_SYMMETRY = True  	' Build only half of the track and one wheel, with symmetry conditions
+const AUTO_RUN = False              'Run simulation as soon as problam definition is complete
 
 'Winding Setup'
 coil_core_separation_x = 4  'minimum separation between core and coil (one-sided, x-direction)'
@@ -80,8 +80,8 @@ Set view = getDocument().getView()
 'Main Code'
 
 Call make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
-'Call make_core_component()
-'Call make_windings(make_winding())
+Call make_core_component()
+Call make_windings(make_winding())
 
 
 
