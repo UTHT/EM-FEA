@@ -106,9 +106,10 @@ Function build_motor()
   Call make_single_side_windings(make_winding())
   Call select_core_components(num_coils)
   Call orient_core(num_coils)
+  Call move_core_to_midtrack(num_coils)
   Call insert_core_airgap(num_coils)
-  If BUILD_WITH_SYMMETRY Then
-    'TODO: Mirror Lim Core'
+  If NOT (BUILD_WITH_SYMMETRY) Then
+    Call mirror_components()
   End If
 End Function
 

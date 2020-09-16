@@ -55,6 +55,13 @@ Function orient_core(num_coils)
   Call getDocument().endUndoGroup()
 End Function
 
+Function move_core_to_midtrack(num_coils)
+  Call getDocument().beginUndoGroup("Transform Component")
+  core_components = get_core_components(num_coils)
+  Call getDocument().shiftComponent(core_components, 0, rail_height/2, 0, 1)
+  Call getDocument().endUndoGroup()
+End Function
+
 Function insert_core_airgap(num_coils)
   Call select_core_components(num_coils)
   Call getDocument().beginUndoGroup("Translate Core Component")
