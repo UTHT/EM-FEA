@@ -55,7 +55,7 @@ Function orient_core(num_coils)
   Call getDocument().endUndoGroup()
 End Function
 
-Function insert__core_airgap(num_coils)
+Function insert_core_airgap(num_coils)
   Call select_core_components(num_coils)
   Call getDocument().beginUndoGroup("Translate Core Component")
   core_components = get_core_components(num_coils)
@@ -106,8 +106,15 @@ Function get_origin_from_local()
   get_origin_from_local = get_global(0,0)
 End Function
 
+Function mirror_components()
+  Call getDocument().beginUndoGroup("Mirror Component")
+  components = get_core_components(num_coils)
+  Call getDocument().mirrorComponent(getDocument().copyComponent(components, 1), 0, 0, 0, 1, 0, 0, 1)
+  Call getDocument().endUndoGroup()
+End Function
+
 Function reset_local()
   'This doesn't work
   unit_z_vec = Array(0,0,1)
-  call getDocument().getView().getSlice().moveToAPlane(0,0,0,0,0,1,1,0,0)
+  CALL getDocument().getView().getSlice().moveToAPlane(0, 0, 0, 0, 0, 1, 0, 0, -1)
 End Function

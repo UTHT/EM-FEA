@@ -8,7 +8,7 @@ slot_pitch = 40       'slot pitch
 slot_gap = 20         'slot gap width (teeth_width is generated with slot_pitch and slot_gap)
 slot_height = 40      'slot height
 end_ext = 15          'one sided winding extension value (TODO: replace with dynamic sizing)
-air_gap = 10          'distance between DLIM cores
+air_gap = 14          'distance between DLIM cores
 
 'Problem Variables'
 slip = 0.01         'Per unit slip'
@@ -18,7 +18,7 @@ motion_length = 1   'track_length (in meters)'
 'Build Flags'
 const SHOW_FORBIDDEN_AIR = True	  	' Show forbidden zones for design purposes (as red air regions)
 const SHOW_FULL_GEOMETRY = False		' Build with flanges of track
-const BUILD_WITH_SYMMETRY = True  	' Build only half of the track and one wheel, with symmetry conditions
+const BUILD_WITH_SYMMETRY = False  	' Build only half of the track and one wheel, with symmetry conditions
 const AUTO_RUN = False              'Run simulation as soon as problam definition is complete
 
 'Winding Setup'
@@ -47,6 +47,7 @@ const top_forbidden_width = 46.0502
 core_endlengths = core_endlengths + slot_gap
 teeth_width = slot_pitch-slot_gap
 slot_teeth_width = (slots-1)*slot_pitch+slot_gap
+core_track_gap = (air_gap-web_thickness)/2
 num_coils = slots-distribute_distance
 coil_width = slot_gap-2*coil_core_separation_x
 coil_height = (slot_height-3*coil_core_separation_y)/2
@@ -80,12 +81,8 @@ Set view = getDocument().getView()
 'Main Code'
 
 Call make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
-'Call orient_cp("Rail,Body#1,Face#4")
-'Call make_core_component()
-'Call make_windings(make_winding())
-'Call select_core_components(num_coils)
-'Call orient_core(num_coils)
-'Call insert_core_airgap(num_coils)
+'Call reset_local()
+Call build_motor()
 'components = get_core_components(num_coils)
 'Call getDocument().getApplication().MsgBox(components(0))
 

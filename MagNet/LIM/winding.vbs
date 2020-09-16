@@ -85,7 +85,7 @@ Function make_winding()
 End Function
 
 
-Function make_windings(winding_name)
+Function make_single_side_windings(winding_name)
   Dim component_name
   copy_keyword = " Copy#1"
 
@@ -101,6 +101,16 @@ Function make_windings(winding_name)
   Call clear_construction_lines()
 End Function
 
+Function build_motor()
+  Call make_core_component()
+  Call make_single_side_windings(make_winding())
+  Call select_core_components(num_coils)
+  Call orient_core(num_coils)
+  Call insert_core_airgap(num_coils)
+  If BUILD_WITH_SYMMETRY Then
+    'TODO: Mirror Lim Core'
+  End If
+End Function
 
 Sub Include(file)
   Dim fso, f
