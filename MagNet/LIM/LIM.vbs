@@ -8,7 +8,7 @@ slot_pitch = 40       'slot pitch
 slot_gap = 20         'slot gap width (teeth_width is generated with slot_pitch and slot_gap)
 slot_height = 40      'slot height
 end_ext = 15          'one sided winding extension value (TODO: replace with dynamic sizing)
-air_gap = 10
+air_gap = 10          'distance between DLIM cores
 
 'Problem Variables'
 slip = 0.01         'Per unit slip'
@@ -80,19 +80,14 @@ Set view = getDocument().getView()
 'Main Code'
 
 Call make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
-<<<<<<< HEAD
-Call make_core_component()
-Call make_windings(make_winding())
-
-=======
 'Call orient_cp("Rail,Body#1,Face#4")
-Call make_core_component()
-Call make_windings(make_winding())
-Call select_core_components(num_coils)
-Call orient_cp(num_coils)
+'Call make_core_component()
+'Call make_windings(make_winding())
+'Call select_core_components(num_coils)
+'Call orient_core(num_coils)
+'Call insert_core_airgap(num_coils)
 'components = get_core_components(num_coils)
 'Call getDocument().getApplication().MsgBox(components(0))
->>>>>>> 109f3c7d1eda89769d16fcbbc54474b3ebad0673
 
 
 'end main'

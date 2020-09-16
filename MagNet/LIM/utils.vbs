@@ -45,13 +45,21 @@ Function generate_two_sided_component(component_name,material,selection_x,select
   Call union_and_rename(component_name+"p1",component_name+"p2",component_name)
 End Function
 
-Function orient_cp(num_coils)
+Function orient_core(num_coils)
   Call select_core_components(num_coils)
   Call getDocument().beginUndoGroup("Rotate Core Component")
   core_components = get_core_components(num_coils)
   Call getDocument().getApplication().MsgBox(print_arr(core_components))
   Call getDocument().rotateComponent(core_components, 0, 0, 0, 0, 1, 0, 90, 1)
   Call getDocument().rotateComponent(core_components, 0, 0, 0, 0, 0, 1, 90, 1)
+  Call getDocument().endUndoGroup()
+End Function
+
+Function insert__core_airgap(num_coils)
+  Call select_core_components(num_coils)
+  Call getDocument().beginUndoGroup("Translate Core Component")
+  core_components = get_core_components(num_coils)
+  Call getDocument().shiftComponent(core_components, -air_gap/2, 0, 0, 1)
   Call getDocument().endUndoGroup()
 End Function
 
