@@ -37,6 +37,14 @@ Function union_and_rename(component_1,component_2,name)
   Call rename_components(union_name,name)
 End Function
 
+Function rename_all_with_substr(components,substr,newsubstr)
+temp = components
+  For i=0 to num_coils-1
+    temp(i) = Replace(components(i),substr,newsubstr)
+    Call rename_components(components(i),temp(i))
+  Next
+End Function
+
 Function generate_two_sided_component(component_name,material,selection_x,selection_y,neg_val,pos_val)
   Call view.selectAt(selection_x, selection_y, infoSetSelection, Array(infoSliceSurface))
   Call view.makeComponentInALine(neg_val, Array(component_name+"p1"),format_material(material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
@@ -117,6 +125,7 @@ Function mirror_components()
   Call getDocument().beginUndoGroup("Mirror Component")
   components = get_core_components(num_coils)
   Call getDocument().mirrorComponent(getDocument().copyComponent(components, 1), 0, 0, 0, 1, 0, 0, 1)
+  Call rename_all_with_substr(components,"Coil","Haha")
   Call getDocument().endUndoGroup()
 End Function
 

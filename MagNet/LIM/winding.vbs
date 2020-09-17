@@ -101,17 +101,6 @@ Function make_single_side_windings(winding_name)
   Call clear_construction_lines()
 End Function
 
-Function build_motor()
-  Call make_core_component()
-  Call make_single_side_windings(make_winding())
-  Call select_core_components(num_coils)
-  Call orient_core(num_coils)
-  Call move_core_to_midtrack(num_coils)
-  Call insert_core_airgap(num_coils) 
-  If NOT (BUILD_WITH_SYMMETRY) Then
-    Call mirror_components()
-  End If
-End Function
 
 Sub Include(file)
   Dim fso, f
