@@ -76,18 +76,22 @@ Call SetLocale("en-us")
 Call getDocument().setDefaultLengthUnit("Millimeters")
 Set view = getDocument().getView()
 
+'Ids Class Setup
+Set ids_o = new ids.init(num_coils)
 
 
 'Main Code'
 
 Call make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
+Call ids_o.generate_core("test")
 'Call reset_local()
-Call build_motor()
+'Call build_motor()
 'components = get_core_components(num_coils)
 'Call getDocument().getApplication().MsgBox(components(0))
 
 
 'end main'
+
 
 Function build_motor()
   Call make_core_component()
@@ -101,6 +105,7 @@ Function build_motor()
   End If
 End Function
 
+
 Sub Include(file)
   Dim fso, f
   Set fso = CreateObject("Scripting.FileSystemObject")
@@ -108,3 +113,39 @@ Sub Include(file)
   ExecuteGlobal f.ReadAll
   f.Close
 End Sub
+
+
+Class ids
+  Private num_coils
+  Private mirror
+
+  Private component_names
+  Private component_names_a
+  Private component_names_b
+
+  'Constructor
+  Public Default Function init(nc)
+    num_coils = nc
+    component_names = Array()
+    component_names_a = Array()
+    component_names_b = Array()
+
+    Set init = Me
+  End Function
+
+  Public Function generate_core(name)
+    Call getDocument().getApplication().MsgBox(UBound(component_names))
+    ReDim Preserve component_names(UBound(component_names) + 1)
+    component_names(UBound(component_names)) = name
+    Call getDocument().getApplication().MsgBox(UBound(component_names))
+  End Function
+
+  Public Property Get a_component_names()
+    a_component_names = component_names_a
+  End Property
+
+  Public Property Get b_component_names()
+    b_component_names = component_names_b
+  End Property
+
+End Class
