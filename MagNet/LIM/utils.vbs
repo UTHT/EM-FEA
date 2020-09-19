@@ -97,10 +97,22 @@ End Function
 
 Function print_arr(input_arr)
   Dim output_str
+  output_str = output_str&"["
   For each x in input_arr
     output_str = output_str&x&" "
   Next
-  print_arr = output_str
+  print_arr = output_str&"]"
+End Function
+
+Function print(input)
+  Set app = getDocument().getApplication()
+  If(IsArray(input)) Then
+    Call app.MsgBox(print_arr(input))
+  ElseIf(IsNumeric(input)) Then
+    Call app.MsgBox(Cstr(input))
+  Else
+    Call app.MsgBox(input)
+  End If
 End Function
 
 Function get_global(local_x,local_y)

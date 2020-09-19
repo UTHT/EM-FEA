@@ -84,6 +84,10 @@ Set ids_o = new ids.init(num_coils)
 
 Call make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
 Call ids_o.generate_core("test")
+Call ids_o.generate_core("test")
+Call ids_o.generate_core("test")
+Call ids_o.generate_core("test")
+Call print(ids_o.get_component_names())
 'Call reset_local()
 'Call build_motor()
 'components = get_core_components(num_coils)
@@ -133,12 +137,19 @@ Class ids
     Set init = Me
   End Function
 
-  Public Function generate_core(name)
-    Call getDocument().getApplication().MsgBox(UBound(component_names))
-    ReDim Preserve component_names(UBound(component_names) + 1)
-    component_names(UBound(component_names)) = name
-    Call getDocument().getApplication().MsgBox(UBound(component_names))
+
+  Public Function add_component(name)
+    If(UBound(component_names)>=0) Then
+      ReDim Preserve component_names(UBound(component_names) + 1)
+      component_names(UBound(component_names)) = name
+    Else
+      component_names = Array(name)
+    End if
   End Function
+
+  Public Property Get get_component_names()
+    get_component_names = component_names
+  End Property
 
   Public Property Get a_component_names()
     a_component_names = component_names_a
