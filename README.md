@@ -10,3 +10,22 @@ addpath('c:\\femm42\\mfiles');
 savepath;
 ```
 to add the FEMM mfiles path to Matlab's search path.
+
+## Directory Structure
+
+* FEMM (Matlab code for various projects)
+  * DLIM
+    * Double-sided LIM simulations
+  * DLIMv2
+    * DLIM version 2 - updated simulation code, no results
+  * DLIM_GRW
+    * DLIM Gramme-Ring Windings simulations
+  * LHD
+    * Linear Halbach Drive simulations
+  * TFLIM
+    * Transverse Flux LIM simulations (in 2D)
+* MagNet (VBS code for various projects)
+  * EDW
+    * Electrodynamic Wheel simulations
+  * LIM
+    * Linear Induction Motor simulations
