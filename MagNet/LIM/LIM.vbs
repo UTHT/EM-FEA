@@ -69,12 +69,14 @@ Call Include("winding")
 Call Include("core")
 Call Include("track")
 Call Include("air")
+Call Include("ids")
 
 'Document Setup'
 Call newDocument()
 Call SetLocale("en-us")
 Call getDocument().setDefaultLengthUnit("Millimeters")
 Set view = getDocument().getView()
+Set app = getDocument().getApplication()
 
 'Ids Class Setup
 Set ids_o = new ids.init(num_coils)
@@ -83,13 +85,8 @@ Set ids_o = new ids.init(num_coils)
 'Main Code'
 
 Call make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
-Call ids_o.generate_core("test")
-Call ids_o.generate_core("test")
-Call ids_o.generate_core("test")
-Call ids_o.generate_core("test")
-Call print(ids_o.get_component_names())
 'Call reset_local()
-'Call build_motor()
+Call build_motor()
 'components = get_core_components(num_coils)
 'Call getDocument().getApplication().MsgBox(components(0))
 
@@ -100,10 +97,11 @@ Call print(ids_o.get_component_names())
 Function build_motor()
   Call make_core_component()
   Call make_single_side_windings(make_winding())
-  Call select_core_components(num_coils)
-  Call orient_core(num_coils)
-  Call move_core_to_midtrack(num_coils)
-  Call insert_core_airgap(num_coils)
+  Call print(ids_o.get_component_names())
+  Call select_core_components()
+  Call orient_core()
+  Call move_core_to_midtrack()
+  Call insert_core_airgap()
   If NOT (BUILD_WITH_SYMMETRY) Then
     Call mirror_components()
   End If
@@ -117,46 +115,3 @@ Sub Include(file)
   ExecuteGlobal f.ReadAll
   f.Close
 End Sub
-
-
-Class ids
-  Private num_coils
-  Private mirror
-
-  Private component_names
-  Private component_names_a
-  Private component_names_b
-
-  'Constructor
-  Public Default Function init(nc)
-    num_coils = nc
-    component_names = Array()
-    component_names_a = Array()
-    component_names_b = Array()
-
-    Set init = Me
-  End Function
-
-
-  Public Function add_component(name)
-    If(UBound(component_names)>=0) Then
-      ReDim Preserve component_names(UBound(component_names) + 1)
-      component_names(UBound(component_names)) = name
-    Else
-      component_names = Array(name)
-    End if
-  End Function
-
-  Public Property Get get_component_names()
-    get_component_names = component_names
-  End Property
-
-  Public Property Get a_component_names()
-    a_component_names = component_names_a
-  End Property
-
-  Public Property Get b_component_names()
-    b_component_names = component_names_b
-  End Property
-
-End Class

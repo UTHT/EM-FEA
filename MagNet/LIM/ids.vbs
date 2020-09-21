@@ -16,12 +16,32 @@ Class ids
     Set init = Me
   End Function
 
-  Public Function generate_core(name)
-    Call getDocument().getApplication().MsgBox(UBound(component_names))
-    ReDim Preserve component_names(UBound(component_names) + 1)
-    component_names(UBound(component_names)) = name
-    Call getDocument().getApplication().MsgBox(UBound(component_names))
+  Public Function add_component(name)
+    If(UBound(component_names)>=0) Then
+      ReDim Preserve component_names(UBound(component_names) + 1)
+      component_names(UBound(component_names)) = name
+    Else
+      component_names = Array(name)
+    End if
   End Function
+
+  'Public Function modify_component(name)
+
+  'End Function
+
+  Public Function find_all_components_with_match(find)
+    ReDim matches(-1)
+    For i=0 to UBound(component_names)
+      If component_names(i).Contains(find) Then
+        ReDim Preserve matches (UBound(matches) + 1) : matches(UBound(matches)) = component_names(i)
+      End if
+    Next
+    find_all_components_with_match = matches
+  End Function
+
+  Public Property Get get_component_names()
+    get_component_names = component_names
+  End Property
 
   Public Property Get a_component_names()
     a_component_names = component_names_a

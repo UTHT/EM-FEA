@@ -89,6 +89,8 @@ Function make_single_side_windings(winding_name)
   Dim component_name
   copy_keyword = " Copy#1"
 
+  Call ids_o.add_component(winding_name)
+
   Call getDocument().beginUndoGroup("Transform Component")
   Call view.getSlice().moveInALine(-length_core/2)
 
@@ -96,6 +98,7 @@ Function make_single_side_windings(winding_name)
     Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding_name),1),slot_pitch*i, 0, 0, 1)
     component_name = Replace(winding_name,"1",i+1)
     Call getDocument().renameObject(winding_name+Replace(copy_keyword,"1",i),component_name)
+    Call ids_o.add_component(component_name)
   Next
   Call getDocument().endUndoGroup()
   Call clear_construction_lines()

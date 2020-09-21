@@ -26,12 +26,15 @@ Function make_core_component()
   Call draw_core_geometry()
   Call view.selectAt(0,(thick_core+slot_height)/2,infoSetSelection,Array(infoSliceSurface))
 
+  core_name = "Core 1"
   REDIM component_name(0)
-  component_name(0) = "Core 1"
+  component_name(0) = core_name
+  Call ids_o.add_component(core_name)
   Call view.makeComponentInALine(length_core,component_name,format_material(core_material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
   Call clear_construction_lines()
   Call view.getSlice().moveInALine(length_core/2)
 End Function
+
 
 
 Sub Include(file)
