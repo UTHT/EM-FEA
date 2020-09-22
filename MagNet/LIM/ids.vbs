@@ -12,8 +12,8 @@ Class ids
     remove_strings = Array(",","Body#1")
     copy_replace_strings = Array("Copy#1","Copy#9")
 
-    a_postfix = "A1"
-    b_postfix = "B2"
+    a_postfix = "A"
+    b_postfix = "B"
     Set init = Me
   End Function
 
