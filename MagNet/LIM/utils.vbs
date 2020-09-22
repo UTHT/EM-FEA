@@ -37,21 +37,11 @@ Function union_and_rename(component_1,component_2,name)
   Call rename_components(union_name,name)
 End Function
 
-Function rename_all_with_substr(components,substr,newsubstr)
-temp = components
+Function rename_copies(components,substr,newsubstr)
+  temp = components
   For i=0 to num_coils-1
     temp(i) = Replace(components(i),substr,newsubstr)
     'app.MsgBox(components(i))
-    ids_o.add_component(temp(i))
-    Call rename_components(components(i),temp(i))
-  Next
-End Function
-
-Function append_all_with_substr(components,substr)
-temp = components
-  For i=0 to num_coils-1
-    temp(i) = components(i)+substr
-    ids_o.add_component(temp(i))
     Call rename_components(components(i),temp(i))
   Next
 End Function
@@ -68,7 +58,6 @@ Function orient_core()
   Call select_core_components()
   Call getDocument().beginUndoGroup("Rotate Core Component")
   core_components = ids_o.get_core_components()
-  'Call getDocument().getApplication().MsgBox(print_arr(core_components))
   Call getDocument().rotateComponent(core_components, 0, 0, 0, 0, 1, 0, 90, 1)
   Call getDocument().rotateComponent(core_components, 0, 0, 0, 0, 0, 1, 90, 1)
   Call getDocument().endUndoGroup()
@@ -137,15 +126,11 @@ End Function
 Function mirror_components()
   Call getDocument().beginUndoGroup("Mirror Component")
   components = ids_o.get_core_components()
-  Call getDocument().mirrorComponent(getDocument().copyComponent(components, 1), 0, 0, 0, 1, 0, 0, 1)
-
-
-  components = ids_o.get_core_components()
+  Call getDocument().copyComponent(components, 1)
+  Call getDocument().mirrorComponent(components, 0, 0, 0, 1, 0, 0, 1)
   Call print(ids_o.get_core_components())
-  Call rename_all_with_substr(components,"Copy#1","B2")
-  components = ids_o.get_core_components()
-  Call append_all_with_substr(ids_o.find_all_components_with_not_match("B2")," A2")
-  Call print(ids_o.get_core_components())
+  Call ids_o.rename_mirror()
+
   Call getDocument().endUndoGroup()
 End Function
 

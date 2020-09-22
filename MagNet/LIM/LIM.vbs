@@ -79,7 +79,7 @@ Set view = getDocument().getView()
 Set app = getDocument().getApplication()
 
 'Ids Class Setup
-Set ids_o = new ids.init(num_coils)
+Set ids_o = new ids.init()
 
 
 'Main Code'
@@ -98,9 +98,6 @@ Function build_motor()
   Call make_core_component()
   Call make_single_side_windings(make_winding())
   Call print(ids_o.get_core_components())
-  'print(getDocument().getAllComponentPaths())
-  'Call print(ids_o.get_components())
-  'Call print(ids_o.find_all_components_with_match("Coil"))
   Call select_core_components()
   Call orient_core()
   Call move_core_to_midtrack()
