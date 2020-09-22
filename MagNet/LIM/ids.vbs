@@ -48,10 +48,15 @@ Class ids
   Public Function rename_mirror()
     matches = find_all_components_with_match_replace(copy_replace_strings)
     For i=0 to UBound(matches)
-      Call print(matches(i))
-      Call print(replace_substrings(matches(i),b_postfix))
       new_name = replace_substrings(matches(i),b_postfix)
       Call rename_components(matches(i),replace_substrings(matches(i),b_postfix))
+    Next
+    matches = get_core_components()
+    For i=0 to UBound(matches)
+      If InStr(matches(i),b_postfix)=0 Then
+        Call print(InStr(matches(i),b_postfix))
+        Call rename_components(matches(i),append_substrings(matches(i)," "+a_postfix))
+      End If
     Next
   End Function
 
@@ -70,6 +75,10 @@ Class ids
       End If
     Next
     replace_substrings = temp
+  End Function
+
+  Private Function append_substrings(str,app)
+    append_substrings = str+app
   End Function
 
   Public Property Get get_core_components()
