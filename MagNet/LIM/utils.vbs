@@ -41,6 +41,17 @@ Function rename_all_with_substr(components,substr,newsubstr)
 temp = components
   For i=0 to num_coils-1
     temp(i) = Replace(components(i),substr,newsubstr)
+    'app.MsgBox(components(i))
+    ids_o.add_component(temp(i))
+    Call rename_components(components(i),temp(i))
+  Next
+End Function
+
+Function append_all_with_substr(components,substr)
+temp = components
+  For i=0 to num_coils-1
+    temp(i) = components(i)+substr
+    ids_o.add_component(temp(i))
     Call rename_components(components(i),temp(i))
   Next
 End Function
@@ -56,7 +67,7 @@ End Function
 Function orient_core()
   Call select_core_components()
   Call getDocument().beginUndoGroup("Rotate Core Component")
-  core_components = ids_o.get_component_names()
+  core_components = ids_o.get_components()
   'Call getDocument().getApplication().MsgBox(print_arr(core_components))
   Call getDocument().rotateComponent(core_components, 0, 0, 0, 0, 1, 0, 90, 1)
   Call getDocument().rotateComponent(core_components, 0, 0, 0, 0, 0, 1, 90, 1)
@@ -65,7 +76,7 @@ End Function
 
 Function move_core_to_midtrack()
   Call getDocument().beginUndoGroup("Transform Component")
-  core_components = ids_o.get_component_names()
+  core_components = ids_o.get_components()
   Call getDocument().shiftComponent(core_components, 0, rail_height/2, 0, 1)
   Call getDocument().endUndoGroup()
 End Function
@@ -73,13 +84,13 @@ End Function
 Function insert_core_airgap()
   Call select_core_components()
   Call getDocument().beginUndoGroup("Translate Core Component")
-  core_components = ids_o.get_component_names()
+  core_components = ids_o.get_components()
   Call getDocument().shiftComponent(core_components, -air_gap/2, 0, 0, 1)
   Call getDocument().endUndoGroup()
 End Function
 
 Function select_core_components()
-  components = ids_o.get_component_names()
+  components = ids_o.get_components()
   Call getDocument().getView().selectObject(components(0),infoSetSelection)
   For i=0 to UBound(components)-1
     Call getDocument().getView().selectObject(components(i),infoAddToSelection)
@@ -125,9 +136,16 @@ End Function
 
 Function mirror_components()
   Call getDocument().beginUndoGroup("Mirror Component")
-  components = ids_o.get_component_names()
+  components = ids_o.get_components()
   Call getDocument().mirrorComponent(getDocument().copyComponent(components, 1), 0, 0, 0, 1, 0, 0, 1)
-  Call rename_all_with_substr(components,"Coil","Haha")
+
+
+  components = ids_o.get_components()
+  Call print(ids_o.get_components())
+  Call rename_all_with_substr(components,"Copy#1","B2")
+  components = ids_o.get_components()
+  Call append_all_with_substr(ids_o.find_all_components_with_not_match("B2")," A2")
+  Call print(ids_o.get_components())
   Call getDocument().endUndoGroup()
 End Function
 
