@@ -45,12 +45,19 @@ Class ids
     find_all_components_with_match_replace = matches
   End Function
 
+  'Update core components to have postfix'
+  'Called only when BUILD_WITH_SYMMETRY true'
   Public Function rename_mirror()
     matches = find_all_components_with_match_replace(copy_replace_strings)
     For i=0 to UBound(matches)
       new_name = replace_substrings(matches(i),b_postfix)
       Call rename_components(matches(i),replace_substrings(matches(i),b_postfix))
     Next
+  End Function
+
+  'Update core components to have postfix'
+  'Need to call regardless of BUILD_WITH_SYMMETRY'
+  Public Function update_names()
     matches = get_core_components()
     For i=0 to UBound(matches)
       If InStr(matches(i),b_postfix)=0 Then
@@ -59,14 +66,26 @@ Class ids
     Next
   End Function
 
-  Public Function remove_substrings(str)
+  'Gets component names for A side'
+  Public Function get_a_components()
+    get_a_components = find_all_components_with_match_replace(Array(a_postfix))
+  End Function
+
+  'Gets component names for B side'
+  Public Function get_b_components()
+    get_a_components = find_all_components_with_match_replace(Array(a_postfix))
+  End Function
+
+  'Removes predetermined substrings from input string '
+  Private Function remove_substrings(str)
     For i=0 to UBound(remove_strings)
       str = Replace(str,remove_strings(i),"")
     Next
     remove_substrings = str
   End Function
 
-  Public Function replace_substrings(str,repl)
+  'Replaces (param) substring in (param) string'
+  Private Function replace_substrings(str,repl)
     temp = str
     For i=0 to UBound(copy_replace_strings)
       If InStr(str,copy_replace_strings(i)) Then
@@ -75,6 +94,7 @@ Class ids
     Next
     replace_substrings = temp
   End Function
+
 
   Private Function append_substrings(str,app)
     append_substrings = str+app
