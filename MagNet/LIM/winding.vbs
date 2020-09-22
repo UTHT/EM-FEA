@@ -101,6 +101,10 @@ Function make_single_side_windings(winding_name)
   Call clear_construction_lines()
 End Function
 
+'Call getDocument().makeCurrentFlowSurfaceCoil(1, "Coil#2 B,Body#1", Array(-36.6293039679939, 58.1243026498357, 80), Array(6.12323399573677e-17, 1, 0), Array("Coil#2 B,Body#1"))
+'Call getDocument().makeCurrentFlowSurfaceCoil(1, "Coil#1 B,Body#1", Array(-36.805637262673, 67.3861564175029, 120), Array(-6.12323399573677e-17, -1, -0))
+
+'Function make_current_flow_surface_coil()
 
 Sub Include(file)
   Dim fso, f

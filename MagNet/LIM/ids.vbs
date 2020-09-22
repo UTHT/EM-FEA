@@ -76,7 +76,7 @@ Class ids
     get_a_components = find_all_components_with_match_replace(Array(a_postfix))
   End Function
 
-  'Removes predetermined substrings from input string '
+  'Removes predetermined substrings from (param) string '
   Private Function remove_substrings(str)
     For i=0 to UBound(remove_strings)
       str = Replace(str,remove_strings(i),"")
@@ -95,7 +95,7 @@ Class ids
     replace_substrings = temp
   End Function
 
-
+  'Appends (param) substring to (param) string'
   Private Function append_substrings(str,app)
     append_substrings = str+app
   End Function

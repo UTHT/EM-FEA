@@ -106,6 +106,7 @@ Function build_motor()
   If NOT (BUILD_WITH_SYMMETRY) Then
     Call mirror_components()
   End If
+  Call ids_o.update_names()
 End Function
 
 
