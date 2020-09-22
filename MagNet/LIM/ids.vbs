@@ -1,10 +1,10 @@
 Class ids
   Private core_matches
   Private remove_strings
-  Private copy_replace_strings
+  Public copy_replace_strings
 
-  Private a_prefix
-  Private b_prefix
+  Private a_postfix
+  Private b_postfix
 
   'Constructor
   Public Default Function init()
@@ -48,10 +48,15 @@ Class ids
   Public Function rename_mirror()
     matches = find_all_components_with_match(copy_replace_strings)
     For i=0 to UBound(matches)
-      'Call print(matches)
-      Call rename_components(matches(i),replace_substrings(matches(i),b_prefix))
+      Call print(matches(i))
+      Call print(replace_substrings(matches(i),b_postfix))
+      Call print(VarType(matches(i)))
+      Call print(VarType(replace_substrings(matches(i),b_postfix)))
+      new_name = replace_substrings(matches(i),b_postfix)
+      Call print(matches(i))
+      Call rename_components(matches(i),replace_substrings(matches(i),new_name))
+      Call print("here")
     Next
-    find_all_components_with_match = matches
   End Function
 
   Public Function remove_substrings(str)
@@ -62,10 +67,13 @@ Class ids
   End Function
 
   Public Function replace_substrings(str,repl)
+    temp = str
     For i=0 to UBound(copy_replace_strings)
-      str = Replace(str,copy_replace_strings(i),repl)
+      If InStr(str,copy_replace_strings(i)) Then
+        temp = Replace(temp,copy_replace_strings(i),repl)
+      End If
     Next
-    replace_substrings = str
+    replace_substrings = temp
   End Function
 
   Public Property Get get_core_components()

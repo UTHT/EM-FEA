@@ -90,7 +90,7 @@ Function print_arr(input_arr)
   Dim output_str
   output_str = output_str&"["
   For each x in input_arr
-    output_str = output_str&x&" "
+    output_str = output_str&x&","
   Next
   print_arr = output_str&"]"
 End Function
@@ -128,7 +128,6 @@ Function mirror_components()
   components = ids_o.get_core_components()
   Call getDocument().copyComponent(components, 1)
   Call getDocument().mirrorComponent(components, 0, 0, 0, 1, 0, 0, 1)
-  Call print(ids_o.get_core_components())
   Call ids_o.rename_mirror()
 
   Call getDocument().endUndoGroup()
