@@ -46,16 +46,12 @@ Class ids
   End Function
 
   Public Function rename_mirror()
-    matches = find_all_components_with_match(copy_replace_strings)
+    matches = find_all_components_with_match_replace(copy_replace_strings)
     For i=0 to UBound(matches)
       Call print(matches(i))
       Call print(replace_substrings(matches(i),b_postfix))
-      Call print(VarType(matches(i)))
-      Call print(VarType(replace_substrings(matches(i),b_postfix)))
       new_name = replace_substrings(matches(i),b_postfix)
-      Call print(matches(i))
-      Call rename_components(matches(i),replace_substrings(matches(i),new_name))
-      Call print("here")
+      Call rename_components(matches(i),replace_substrings(matches(i),b_postfix))
     Next
   End Function
 
