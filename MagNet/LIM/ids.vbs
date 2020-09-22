@@ -54,7 +54,6 @@ Class ids
     matches = get_core_components()
     For i=0 to UBound(matches)
       If InStr(matches(i),b_postfix)=0 Then
-        Call print(InStr(matches(i),b_postfix))
         Call rename_components(matches(i),append_substrings(matches(i)," "+a_postfix))
       End If
     Next
