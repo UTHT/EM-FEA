@@ -57,7 +57,6 @@ slip_speed = v_s-v_r
 motion_length = motion_length*1000
 
 'Problem Bounds'
-
 x_min = 0
 y_min = -10
 z_min = -width_core*0.75

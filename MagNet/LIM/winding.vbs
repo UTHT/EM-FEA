@@ -106,9 +106,28 @@ End Function
 
 Function make_coils()
   Call getDocument.beginUndoGroup("Create Coils")
-  match = ids_o.get_coil_components()
-  Call print(match)
-  Call print(ids_o.get_coil_paths())
+  match = ids_o.get_coil_paths()
+
+  Set re = new RegExp
+  re.Pattern = "[^\d]"
+  re.Global = True
+
+  For i=0 to UBound(match)
+    coil_path = match(i)
+    coil_name = ids_o.remove_substrings(match(i))
+    coil_num = CInt(re.Replace(coil_name,""))
+    coil_side = Right(coil_name,1)
+    'Call print(coil_side)
+
+    excitation_center = Array(0, rail_height/2,0)
+    excitation_normal = Array(0,1,0)
+    excitation_volume = Array(coil_path)
+
+    Call getDocument().makeCurrentFlowSurfaceCoil(1,coil_path,excitation_center,excitation_normal,excitation_volume)
+
+
+  Next
+
   'Call getDocument().makeCurrentFlowSurfaceCoil(1, "Coil#2 B,Body#1", Array(-36.6293039679939, 58.1243026498357, 80), Array(6.12323399573677e-17, 1, 0), Array("Coil#2 B,Body#1"))
 
   'Call getDocument().makeCurrentFlowSurfaceCoil(1,)
