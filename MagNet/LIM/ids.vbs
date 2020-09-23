@@ -76,6 +76,15 @@ Class ids
     get_a_components = find_all_components_with_match_replace(Array(a_postfix))
   End Function
 
+  'Gets component names for all coil elements'
+  Public Function get_coil_components()
+    get_coil_components = find_all_components_with_match_replace(Array("Coil"))
+  End Function
+
+  Public Function get_coil_paths()
+    get_coil_paths = find_all_components_with_match(Array("Coil"))
+  End Function
+
   'Removes predetermined substrings from (param) string '
   Private Function remove_substrings(str)
     For i=0 to UBound(remove_strings)

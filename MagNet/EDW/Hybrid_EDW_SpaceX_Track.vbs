@@ -42,11 +42,11 @@ numSpeedSteps = 5					' Number of tests, slip speed is linearly spaces from minS
 solveStepsPerMagnet = 8.0	' Number of steps needed for wheel to rotate the angle of one magnet
 numSteps = 8*18				' Number of simulation steps
 
+magneticCircumference = 1.04 * innerRadius*PI*2.0 / 1000.0		' Magnetic circumference of wheel (important for accurate slip speeds)
+
 ' Use min rps to calculate solve
 rps = (speed + minSlipSpeed) / magneticCircumference
 solveStep = 1000.0 / (rps * numMagnets * solveStepsPerMagnet)
-
-magneticCircumference = 1.04 * innerRadius*PI*2.0 / 1000.0		' Magnetic circumference of wheel (important for accurate slip speeds)
 
 ' Air boundaries
 airX = innerRadius * 3.0
@@ -175,7 +175,7 @@ ReDim MagnetsA(numMagnets - 1)
 Call view.getSlice().moveInAnArc(Px, Py, axisX, axisY, -360.0 / numMagnets / 2.0)
 
 For i = 1 To numMagnets
-	circleAngle = PI * 2.0 * (i - 1) / numMagnets 
+	circleAngle = PI * 2.0 * (i - 1) / numMagnets
 
 	' Circumferential vector
 	x1 = -Cos(wheelAngle)*Sin(circleAngle)
@@ -203,7 +203,7 @@ For i = 1 To numMagnets
 	Call getDocument().setMaxElementSize("Magnet#" & i & ",Face#4", magnetFaceResolution)
 
 	Call view.getSlice().moveInAnArc(Px, Py, axisX, axisY, 360.0 / numMagnets)
-	
+
 	MagnetsA(i - 1) = "Magnet#" & i
 Next
 
@@ -219,7 +219,7 @@ if NOT(BUILD_WITH_SYMMETRY) Then
     Call view.getSlice().moveInAnArc(Px, Py, axisX, axisY, 360.0 / numMagnets / 2.0)
 
     For i = 1 To numMagnets
-        circleAngle = PI * 2.0 * (i - 1) / numMagnets 
+        circleAngle = PI * 2.0 * (i - 1) / numMagnets
 
         ' Circumferential vector
         x1 = Cos(wheelAngle)*Sin(circleAngle)
@@ -239,7 +239,7 @@ if NOT(BUILD_WITH_SYMMETRY) Then
         z_hat = z1*Sin(magnetizationAngle) + z2*Cos(magnetizationAngle)
 
         direction = "[" & x_hat & "," & y_hat & "," & z_hat & "]"
-        
+
         Call view.selectAll(infoSetSelection, Array(infoSliceSurface))
 
         Call view.makeComponentInAnArc(Px, Py, axisX, axisY, -360.0 / numMagnets, Array("MagnetB#" & i), "Name=N50;Type=Uniform;Direction=" & direction, infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)

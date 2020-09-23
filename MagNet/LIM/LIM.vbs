@@ -14,6 +14,7 @@ air_gap = 14          'distance between DLIM cores
 slip = 0.01         'Per unit slip'
 v_r = 25            'Relative speed of pod'
 motion_length = 1   'track_length (in meters)'
+phase = 3           'Number of phases'
 
 'Build Flags'
 const SHOW_FORBIDDEN_AIR = False	  	' Show forbidden zones for design purposes (as red air regions)
@@ -107,8 +108,8 @@ Function build_motor()
     Call mirror_components()
   End If
   Call ids_o.update_names()
+  Call make_coils()
 End Function
-
 
 Sub Include(file)
   Dim fso, f
