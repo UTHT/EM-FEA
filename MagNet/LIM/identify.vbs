@@ -86,7 +86,7 @@ Class ids
   End Function
 
   'Removes predetermined substrings from (param) string '
-  Private Function remove_substrings(str)
+  Public Function remove_substrings(str)
     For i=0 to UBound(remove_strings)
       str = Replace(str,remove_strings(i),"")
     Next
@@ -94,7 +94,7 @@ Class ids
   End Function
 
   'Replaces (param) substring in (param) string'
-  Private Function replace_substrings(str,repl)
+  Public Function replace_substrings(str,repl)
     temp = str
     For i=0 to UBound(copy_replace_strings)
       If InStr(str,copy_replace_strings(i)) Then
@@ -105,7 +105,7 @@ Class ids
   End Function
 
   'Appends (param) substring to (param) string'
-  Private Function append_substrings(str,app)
+  Public Function append_substrings(str,app)
     append_substrings = str+app
   End Function
 
