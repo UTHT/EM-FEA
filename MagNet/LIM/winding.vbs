@@ -107,7 +107,6 @@ End Function
 Function make_single_side_coils()
   Call getDocument.beginUndoGroup("Create Coils")
   match = ids_o.get_winding_paths()
-  print(match)
   Set re = new RegExp
   re.Pattern = "[^\d]"
   re.Global = True
@@ -119,7 +118,6 @@ Function make_single_side_coils()
     coil_name = ids_o.remove_substrings(match(i))
     coil_num = CInt(re.Replace(coil_name,""))
     coil_side = Right(coil_name,1)
-    Call print(coil_path)
 
     excitation_center = get_global((lx1+rx1)/2+slot_pitch*i,(by1+ty1)/2)
     excitaiton_normal = Array(0,0,1)
@@ -134,10 +132,6 @@ Function make_single_side_coils()
     Call getDocument().makeCurrentFlowSurfaceCoil(1,coil_path,excitation_center,excitation_normal,excitation_volume)
 
   Next
-
-  'Call getDocument().makeCurrentFlowSurfaceCoil(1, "Coil#2 B,Body#1", Array(-36.6293039679939, 58.1243026498357, 80), Array(6.12323399573677e-17, 1, 0), Array("Coil#2 B,Body#1"))
-
-  'Call getDocument().makeCurrentFlowSurfaceCoil(1,)
   Call getDocument.endUndoGroup()
 End Function
 
