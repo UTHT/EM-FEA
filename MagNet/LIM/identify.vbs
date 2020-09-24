@@ -85,6 +85,14 @@ Class ids
     get_coil_paths = find_all_components_with_match(Array("Coil"))
   End Function
 
+  Public Function get_winding_components()
+    get_winding_components = find_all_components_with_match_replace(Array(copper_keyword))
+  End Function
+
+  Public Function get_winding_paths()
+    get_winding_paths = find_all_components_with_match(Array(copper_keyword))
+  End Function
+
   'Removes predetermined substrings from (param) string '
   Public Function remove_substrings(str)
     For i=0 to UBound(remove_strings)
