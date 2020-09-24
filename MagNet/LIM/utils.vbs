@@ -107,14 +107,14 @@ End Function
 
 Function get_global(local_x,local_y)
   Set view = getDocument().getView()
-  Dim global_points(3)
+  Dim global_points(2)
   Call view.getSlice().convertLocalToGlobal(local_x,local_y,global_points(0),global_points(1),global_points(2))
   get_global = global_points
 End Function
 
 Function get_local(global_x,global_y)
   Set view = getDocument().getView()
-  Dim local_points(2)
+  Dim local_points(1)
   Call view.getSlice().convertGlobalToLocal(global_x,global_y,local_points(0),local_points(1))
   get_local = local_points
 End Function
