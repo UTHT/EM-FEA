@@ -9,7 +9,7 @@ Class ids
 
   'Constructor
   Public Default Function init()
-    copper_keyword = "Winding"
+    copper_keyword = "CoilGeometry"
     core_matches = Array("Core",copper_keyword)
     remove_strings = Array(",","Body#1")
     copy_replace_strings = Array("Copy#1","Copy#9")
