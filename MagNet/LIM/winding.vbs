@@ -1,8 +1,6 @@
 Call Include("utils")
 
-Function make_winding()
-  Call view.getSlice().moveInALine(-length_core/2)
-
+Function get_coil_cross_section_coords(lx1,rx1,by1,ty1,lx2,rx2,by2,ty2)
   lx1 = -slot_teeth_width/2+coil_core_separation_x
   rx1 = -slot_teeth_width/2+coil_core_separation_x+coil_width
   by1 = coil_core_separation_y
@@ -11,6 +9,12 @@ Function make_winding()
   rx2 = rx1+distribute_distance*slot_pitch
   by2 = slot_height-ty1
   ty2 = slot_height-by1
+End Function
+
+Function make_winding()
+  Call view.getSlice().moveInALine(-length_core/2)
+
+  Call get_coil_cross_section_coords(lx1,rx1,by1,ty1,lx2,rx2,by2,ty2)
 
   Call view.newLine(lx1,by1,rx1,by1)
   Call view.newLine(lx1,ty1,rx1,ty1)
@@ -24,13 +28,9 @@ Function make_winding()
 
   Call view.getSlice().moveInALine(length_core/2)
 
-  Dim coil_p1_name
-  Dim coil_p2_name
-  Dim coil_name
-
-  coil_p1_name = "Coil#1p1"
-  coil_p2_name = "Coil#1p2"
-  coil_name = "Coil#1"
+  coil_p1_name = copper_keyword+"#1p1"
+  coil_p2_name = copper_keyword+"#1p2"
+  coil_name = copper_keyword+"#1"
   copy_keyword = " Copy#"
   union_keyword = " Union#"
 
@@ -98,33 +98,40 @@ Function make_single_side_windings(winding_name)
     Call getDocument().renameObject(winding_name+Replace(copy_keyword,"1",i),component_name)
   Next
   Call getDocument().endUndoGroup()
-  Call clear_construction_lines()
+  'Call clear_construction_lines()
 End Function
 
 'Call getDocument().makeCurrentFlowSurfaceCoil(1, "Coil#2 B,Body#1", Array(-36.6293039679939, 58.1243026498357, 80), Array(6.12323399573677e-17, 1, 0), Array("Coil#2 B,Body#1"))
 'Call getDocument().makeCurrentFlowSurfaceCoil(1, "Coil#1 B,Body#1", Array(-36.805637262673, 67.3861564175029, 120), Array(-6.12323399573677e-17, -1, -0))
 
-Function make_coils()
+Function make_single_side_coils()
   Call getDocument.beginUndoGroup("Create Coils")
-  match = ids_o.get_coil_paths()
-
+  match = ids_o.get_winding_paths()
+  print(match)
   Set re = new RegExp
   re.Pattern = "[^\d]"
   re.Global = True
+
+  Call get_coil_cross_section_coords(lx1,rx1,by1,ty1,lx2,rx2,by2,ty2)
 
   For i=0 to UBound(match)
     coil_path = match(i)
     coil_name = ids_o.remove_substrings(match(i))
     coil_num = CInt(re.Replace(coil_name,""))
     coil_side = Right(coil_name,1)
-    'Call print(coil_side)
+    Call print(coil_path)
 
-    excitation_center = Array(0, rail_height/2,0)
-    excitation_normal = Array(0,1,0)
+    excitation_center = get_global((lx1+rx1)/2+slot_pitch*i,(by1+ty1)/2)
+    excitaiton_normal = Array(0,0,1)
     excitation_volume = Array(coil_path)
 
-    Call getDocument().makeCurrentFlowSurfaceCoil(1,coil_path,excitation_center,excitation_normal,excitation_volume)
+    If(coil_num Mod 2=0) Then
+      excitation_normal = Array(0,0,1)
+    Else
+      excitation_normal = Array(0,0,-1)
+    End If
 
+    Call getDocument().makeCurrentFlowSurfaceCoil(1,coil_path,excitation_center,excitation_normal,excitation_volume)
 
   Next
 
