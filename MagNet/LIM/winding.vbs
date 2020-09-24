@@ -28,9 +28,9 @@ Function make_winding()
 
   Call view.getSlice().moveInALine(length_core/2)
 
-  coil_p1_name = copper_keyword+"#1p1"
-  coil_p2_name = copper_keyword+"#1p2"
-  coil_name = copper_keyword+"#1"
+  coil_p1_name = ids_o.get_winding_keyword()+"#1p1"
+  coil_p2_name = ids_o.get_winding_keyword()+"#1p2"
+  coil_name = ids_o.get_winding_keyword()+"#1"
   copy_keyword = " Copy#"
   union_keyword = " Union#"
 

@@ -5,10 +5,12 @@ Class ids
 
   Private a_postfix
   Private b_postfix
+  Private copper_keyword
 
   'Constructor
   Public Default Function init()
-    core_matches = Array("Core","Coil")
+    copper_keyword = "Winding"
+    core_matches = Array("Core",copper_keyword)
     remove_strings = Array(",","Body#1")
     copy_replace_strings = Array("Copy#1","Copy#9")
 
@@ -119,6 +121,10 @@ Class ids
 
   Public Property Get get_core_components()
     get_core_components = find_all_components_with_match_replace(core_matches)
+  End Property
+
+  Public Property Get get_winding_keyword()
+    get_winding_keyword = copper_keyword
   End Property
 
 End Class
