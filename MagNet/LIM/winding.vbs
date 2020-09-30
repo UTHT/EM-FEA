@@ -68,7 +68,7 @@ Function make_winding()
   Call union_components(coil_p1_name,coil_p2_name)
 
   'Mirror Single-sided Coil (Forms full single winding in two separate components)'
-  component_name = coil_p1_name+"+"+coil_p2_name+union_keyword+"1"
+  component_name = (ids_o.get_union_components())(0)
   Call getDocument().beginUndoGroup("Mirror Component")
   Call getDocument().mirrorComponent(getDocument().copyComponent(Array(component_name), 1), 0, 0, 0, 0, 0, 1, 1)
   Call getDocument().endUndoGroup()
@@ -94,6 +94,7 @@ Function make_single_side_windings(winding_name)
 
   For i=1 to num_coils-1
     Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding_name),1),slot_pitch*i, 0, 0, 1)
+    Call print("here3")
     component_name = Replace(winding_name,"1",i+1)
     Call getDocument().renameObject(winding_name+Replace(copy_keyword,"1",i),component_name)
   Next
@@ -125,9 +126,13 @@ Function make_single_side_coils()
     Else
       excitation_normal = Array(0,0,-1)
     End If
-
+    If(i=0) Then
+      Call print("here")
+    End If
     Call getDocument().makeCurrentFlowSurfaceCoil(1,coil_path,excitation_center,excitation_normal,excitation_volume)
-
+    If(i=0) Then
+      Call print("here2")
+    End If
   Next
   Call getDocument.endUndoGroup()
 End Function
