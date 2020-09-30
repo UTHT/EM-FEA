@@ -59,11 +59,11 @@ Class ids
 
   'Update core components to have postfix'
   'Need to call regardless of BUILD_WITH_SYMMETRY'
-  Public Function update_names()
+  Public Function update_names(append)
     matches = get_core_components()
     For i=0 to UBound(matches)
       If InStr(matches(i),b_postfix)=0 Then
-        Call rename_components(matches(i),append_substrings(matches(i)," "+a_postfix))
+        Call rename_components(matches(i),append_substrings(matches(i)," "+append))
       End If
     Next
   End Function
@@ -95,12 +95,30 @@ Class ids
     get_winding_paths = find_all_components_with_match(Array(copper_keyword))
   End Function
 
+  Public Property Get get_core_components()
+    get_core_components = find_all_components_with_match_replace(core_matches)
+  End Property
+
+  Public Property Get get_union_components()
+    get_union_components = find_all_components_with_match_replace(Array("Union"))
+  End Property
+
   'Removes predetermined substrings from (param) string '
   Public Function remove_substrings(str)
     For i=0 to UBound(remove_strings)
       str = Replace(str,remove_strings(i),"")
     Next
     remove_substrings = str
+  End Function
+
+  Public Function subtract_strings(str1,str2)
+    diff = ""
+    If (len(str1)>len(str2)) Then
+      diff = Replace(str1,str2,"")
+    Else
+      diff = Replace(str2,str1,"")
+    End If
+    subtract_strings = diff
   End Function
 
   'Replaces (param) substring in (param) string'
@@ -118,10 +136,6 @@ Class ids
   Public Function append_substrings(str,app)
     append_substrings = str+app
   End Function
-
-  Public Property Get get_core_components()
-    get_core_components = find_all_components_with_match_replace(core_matches)
-  End Property
 
   Public Property Get get_winding_keyword()
     get_winding_keyword = copper_keyword
