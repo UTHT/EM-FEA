@@ -20,31 +20,39 @@ Class ids
   End Function
 
   Public Function find_all_components_with_match(find)
-    ReDim matches(-1)
     components = getDocument().getAllComponentPaths()
-    For i=0 to UBound(components)
+    find_all_components_with_match = find_with_match(components,find)
+  End Function
+
+  Public Function find_with_match(arr,find)
+    ReDim matches(-1)
+    For i=0 to UBound(arr)
       For z=0 to UBound(find)
-        If InStr(components(i),find(z)) Then
+        If InStr(arr(i),find(z)) Then
           ReDim Preserve matches(UBound(matches) + 1)
-          matches(UBound(matches)) = (components(i))
+          matches(UBound(matches)) = (arr(i))
         End if
       Next
     Next
-    find_all_components_with_match = matches
+    find_with_match = matches
   End Function
 
   Public Function find_all_components_with_match_replace(find)
-    ReDim matches(-1)
     components = getDocument().getAllComponentPaths()
-    For i=0 to UBound(components)
+    find_all_components_with_match_replace = find_with_match_replace(components,find)
+  End Function
+
+  Public Function find_with_match_replace(arr,find)
+    ReDim matches(-1)
+    For i=0 to UBound(arr)
       For z=0 to UBound(find)
-        If InStr(components(i),find(z)) Then
+        If InStr(arr(i),find(z)) Then
           ReDim Preserve matches(UBound(matches) + 1)
-          matches(UBound(matches)) = remove_substrings(components(i))
+          matches(UBound(matches)) = remove_substrings(arr(i))
         End if
       Next
     Next
-    find_all_components_with_match_replace = matches
+    find_with_match_replace = matches
   End Function
 
   'Update core components to have postfix'
@@ -101,6 +109,10 @@ Class ids
 
   Public Property Get get_union_components()
     get_union_components = find_all_components_with_match_replace(Array("Union"))
+  End Property
+
+  Public Property Get get_copy_components()
+    get_copy_components = find_all_components_with_match_replace(Array("Copy"))
   End Property
 
   'Removes predetermined substrings from (param) string '

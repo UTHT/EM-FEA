@@ -94,9 +94,9 @@ Function make_single_side_windings(winding_name)
 
   For i=1 to num_coils-1
     Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding_name),1),slot_pitch*i, 0, 0, 1)
-    Call print("here3")
+    copy_component = ids_o.get_copy_components()(0)
+    copy_keyword = ids_o.subtract_strings(ids_o.get_winding_keyword+"#1",ids_o.get_copy_components()(0))
     component_name = Replace(winding_name,"1",i+1)
-    Call getDocument().renameObject(winding_name+Replace(copy_keyword,"1",i),component_name)
   Next
   Call getDocument().endUndoGroup()
   Call clear_construction_lines()
