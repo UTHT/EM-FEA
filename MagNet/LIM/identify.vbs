@@ -24,6 +24,11 @@ Class ids
     find_all_components_with_match = find_with_match(components,find)
   End Function
 
+  Public Function find_all_components_with_match_replace(find)
+    components = getDocument().getAllComponentPaths()
+    find_all_components_with_match_replace = find_with_match_replace(components,find)
+  End Function
+
   Public Function find_with_match(arr,find)
     ReDim matches(-1)
     For i=0 to UBound(arr)
@@ -37,11 +42,6 @@ Class ids
     find_with_match = matches
   End Function
 
-  Public Function find_all_components_with_match_replace(find)
-    components = getDocument().getAllComponentPaths()
-    find_all_components_with_match_replace = find_with_match_replace(components,find)
-  End Function
-
   Public Function find_with_match_replace(arr,find)
     ReDim matches(-1)
     For i=0 to UBound(arr)
@@ -53,6 +53,21 @@ Class ids
       Next
     Next
     find_with_match_replace = matches
+  End Function
+
+  Public Function find_with_not_match(arr,find)
+    ReDim matches(-1)
+    For i=0 to UBound(arr)
+      For z=0 to UBound(find)
+        If InStr(arr(i),find(z)) Then
+          d=0
+        Else
+          ReDim Preserve matches(UBound(matches) + 1)
+          matches(UBound(matches)) = (arr(i))
+        End if
+      Next
+    Next
+    find_with_not_match = matches
   End Function
 
   'Update core components to have postfix'
