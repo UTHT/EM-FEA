@@ -54,12 +54,21 @@ Function generate_two_sided_component(component_name,material,selection_x,select
   Call union_and_rename(component_name+"p1",component_name+"p2",component_name)
 End Function
 
-Function orient_core()
-  Call select_core_components()
+Function orient_core_a()
+  Call select_a_components()
   Call getDocument().beginUndoGroup("Rotate Core Component")
-  core_components = ids_o.get_core_components()
+  core_components = ids_o.get_a_components()
   Call getDocument().rotateComponent(core_components, 0, 0, 0, 0, 1, 0, 90, 1)
   Call getDocument().rotateComponent(core_components, 0, 0, 0, 0, 0, 1, 90, 1)
+  Call getDocument().endUndoGroup()
+End Function
+
+Function orient_core_b()
+  Call select_b_components()
+  Call getDocument().beginUndoGroup("Rotate Core Component")
+  core_components = ids_o.get_b_components()
+  Call getDocument().rotateComponent(core_components, 0, 0, 0, 0, 1, 0, 90, 1)
+  'Call getDocument().rotateComponent(core_components, 0, 0, 0, 0, 0, 1, 90, 1)
   Call getDocument().endUndoGroup()
 End Function
 
@@ -80,10 +89,24 @@ End Function
 
 Function select_core_components()
   components = ids_o.get_core_components()
-  Call getDocument().getView().selectObject(components(0),infoSetSelection)
-  For i=0 to UBound(components)-1
-    Call getDocument().getView().selectObject(components(i),infoAddToSelection)
+  select_components(components)
+End Function
+
+Function select_components(arr)
+  Call getDocument().getView().selectObject(arr(0),infoSetSelection)
+  For i=0 to UBound(arr)-1
+    Call getDocument().getView().selectObject(arr(i),infoAddToSelection)
   Next
+End Function
+
+Function select_a_components()
+  components = ids_o.get_a_components()
+  Call select_components(components)
+End Function
+
+Function select_b_components()
+  components = ids_o.get_b_components()
+  Call select_components(components)
 End Function
 
 Function print_arr(input_arr)
