@@ -98,7 +98,7 @@ Class ids
 
   'Gets component names for B side'
   Public Function get_b_components()
-    get_a_components = find_all_components_with_match_replace(Array(a_postfix))
+    get_b_components = find_all_components_with_match_replace(Array(a_postfix))
   End Function
 
   'Gets component names for all coil elements'
