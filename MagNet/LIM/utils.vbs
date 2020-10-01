@@ -68,22 +68,19 @@ Function orient_core_b()
   Call getDocument().beginUndoGroup("Rotate Core Component")
   core_components = ids_o.get_b_components()
   Call getDocument().rotateComponent(core_components, 0, 0, 0, 0, 1, 0, 90, 1)
-  'Call getDocument().rotateComponent(core_components, 0, 0, 0, 0, 0, 1, 90, 1)
+  Call getDocument().rotateComponent(core_components, 0, 0, 0, 0, 0, 1, -90, 1)
   Call getDocument().endUndoGroup()
 End Function
 
-Function move_core_to_midtrack()
+Function move_core_to_midtrack(core_components)
   Call getDocument().beginUndoGroup("Transform Component")
-  core_components = ids_o.get_core_components()
   Call getDocument().shiftComponent(core_components, 0, rail_height/2, 0, 1)
   Call getDocument().endUndoGroup()
 End Function
 
-Function insert_core_airgap()
-  Call select_core_components()
+Function insert_core_airgap(core_components,direction)
   Call getDocument().beginUndoGroup("Translate Core Component")
-  core_components = ids_o.get_core_components()
-  Call getDocument().shiftComponent(core_components, -air_gap/2, 0, 0, 1)
+  Call getDocument().shiftComponent(core_components,direction*-air_gap/2, 0, 0, 1)
   Call getDocument().endUndoGroup()
 End Function
 
@@ -94,7 +91,7 @@ End Function
 
 Function select_components(arr)
   Call getDocument().getView().selectObject(arr(0),infoSetSelection)
-  For i=0 to UBound(arr)-1
+  For i=0 to UBound(arr)
     Call getDocument().getView().selectObject(arr(i),infoAddToSelection)
   Next
 End Function
