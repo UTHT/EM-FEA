@@ -22,22 +22,24 @@ End Function
 
 
 Function make_core_component()
+  Call view.getSlice().moveInALine(-length_core/2)
   Call draw_core_geometry()
   Call view.selectAt(0,(thick_core+slot_height)/2,infoSetSelection,Array(infoSliceSurface))
 
+  core_name = "Core 1"
   REDIM component_name(0)
-  component_name(0) = "Core 1"
+  component_name(0) = core_name
   Call view.makeComponentInALine(length_core,component_name,format_material(core_material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
   Call clear_construction_lines()
+  Call view.getSlice().moveInALine(length_core/2)
 End Function
 
 
-Sub Include(file)
 
+Sub Include(file)
   Dim fso, f
   Set fso = CreateObject("Scripting.FileSystemObject")
   Set f = fso.OpenTextFile(file & ".vbs", 1)
   ExecuteGlobal f.ReadAll
   f.Close
-  'ExecuteGlobal str
 End Sub
