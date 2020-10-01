@@ -1,11 +1,12 @@
 Class ids
-  Private core_matches
-  Private remove_strings
   Public copy_replace_strings
 
+  Private core_matches
+  Private remove_strings
   Private a_postfix
   Private b_postfix
   Private copper_keyword
+  Private cores
 
   'Constructor
   Public Default Function init()
@@ -16,6 +17,7 @@ Class ids
 
     a_postfix = "A"
     b_postfix = "B"
+    cores = Array(a_postfix,b_postfix)
     Set init = Me
   End Function
 
@@ -84,6 +86,13 @@ Class ids
   'Need to call regardless of BUILD_WITH_SYMMETRY'
   Public Function update_names(append)
     matches = get_core_components()
+    For i=0 to UBound(cores)
+      If cores(i)<>append Then
+        Call print(matches)
+        matches = find_with_not_match(matches,Array(cores(i)))
+      End If
+    Next
+    Call print(matches)
     For i=0 to UBound(matches)
       If InStr(matches(i),b_postfix)=0 Then
         Call rename_components(matches(i),append_substrings(matches(i)," "+append))
