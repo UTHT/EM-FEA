@@ -71,6 +71,7 @@ Call Include("track")
 Call Include("air")
 Call Include("identify")
 Call Include("utils")
+Call Include("motor")
 
 'Document Setup'
 Call newDocument()
@@ -87,28 +88,13 @@ Set ids_o = new ids.init()
 
 Call make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
 'Call reset_local()
+'Call print(ids_o.subtract_strings("Coil#1 Copy#1","Coil#1"))
 Call build_motor()
 'components = get_core_components(num_coils)
 'Call getDocument().getApplication().MsgBox(components(0))
 
 
 'end main'
-
-
-Function build_motor()
-  Call make_core_component()
-  Call make_single_side_windings(make_winding())
-  'Call print(ids_o.get_core_components())
-  Call select_core_components()
-  Call orient_core()
-  Call move_core_to_midtrack()
-  Call insert_core_airgap()
-  If NOT (BUILD_WITH_SYMMETRY) Then
-    Call mirror_components()
-  End If
-  Call ids_o.update_names()
-  Call make_coils()
-End Function
 
 Sub Include(file)
   Dim fso, f
