@@ -48,7 +48,7 @@ Class ids
     ReDim matches(-1)
     For i=0 to UBound(arr)
       For z=0 to UBound(find)
-        If InStr(arr(i),find(z)) Then
+        If InStr(remove_substrings(arr(i)),find(z)) Then
           ReDim Preserve matches(UBound(matches) + 1)
           matches(UBound(matches)) = remove_substrings(arr(i))
         End if
@@ -88,11 +88,9 @@ Class ids
     matches = get_core_components()
     For i=0 to UBound(cores)
       If cores(i)<>append Then
-        Call print(matches)
         matches = find_with_not_match(matches,Array(cores(i)))
       End If
     Next
-    Call print(matches)
     For i=0 to UBound(matches)
       If InStr(matches(i),b_postfix)=0 Then
         Call rename_components(matches(i),append_substrings(matches(i)," "+append))
@@ -107,7 +105,7 @@ Class ids
 
   'Gets component names for B side'
   Public Function get_b_components()
-    get_b_components = find_all_components_with_match_replace(Array(a_postfix))
+    get_b_components = find_all_components_with_match_replace(Array(b_postfix))
   End Function
 
   'Gets component names for all coil elements'
