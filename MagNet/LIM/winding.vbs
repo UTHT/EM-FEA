@@ -95,8 +95,9 @@ Function make_single_side_windings(winding_name)
   For i=1 to num_coils-1
     Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding_name),1),slot_pitch*i, 0, 0, 1)
     copy_component = ids_o.get_copy_components()(0)
-    copy_keyword = ids_o.subtract_strings(ids_o.get_winding_keyword+"#1",ids_o.get_copy_components()(0))
+    copy_keyword = ids_o.subtract_strings(ids_o.get_winding_keyword+"#1",copy_component)
     component_name = Replace(winding_name,"1",i+1)
+    Call getDocument().renameObject(copy_component,component_name)
   Next
   Call getDocument().endUndoGroup()
   Call clear_construction_lines()
@@ -105,6 +106,7 @@ End Function
 Function make_single_side_coils()
   Call getDocument.beginUndoGroup("Create Coils")
   match = ids_o.get_winding_paths()
+  match = ids_o.find_with_not_match(match,Array("A"))
   Set re = new RegExp
   re.Pattern = "[^\d]"
   re.Global = True
@@ -126,13 +128,7 @@ Function make_single_side_coils()
     Else
       excitation_normal = Array(0,0,-1)
     End If
-    If(i=0) Then
-      Call print("here")
-    End If
     Call getDocument().makeCurrentFlowSurfaceCoil(1,coil_path,excitation_center,excitation_normal,excitation_volume)
-    If(i=0) Then
-      Call print("here2")
-    End If
   Next
   Call getDocument.endUndoGroup()
 End Function
