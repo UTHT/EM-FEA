@@ -71,7 +71,7 @@ Call Include("track")
 Call Include("air")
 Call Include("identify")
 Call Include("utils")
-Call Include("motor")
+'Call Include("buildmotor")
 
 'Document Setup'
 Call newDocument()
@@ -94,7 +94,54 @@ Call build_motor()
 'Call getDocument().getApplication().MsgBox(components(0))
 
 
+
+
 'end main'
+
+
+Function build_single_side_core()
+  Call make_core_component()
+  Call make_single_side_windings(make_winding())
+  Call make_single_side_coils()
+  'Call print(ids_o.get_core_components())
+End Function
+
+Function orient_A()
+  Call ids_o.update_names("A")
+  components = ids_o.get_a_components()
+  Call select_a_components()
+  Call orient_core_a()
+  Call move_core_to_midtrack(components)
+  Call insert_core_airgap(components,1)
+  Call getDocument().getView().unselectAll()
+End Function
+
+Function orient_B()
+  Call ids_o.update_names("B")
+  components = ids_o.get_b_components()
+  Call select_b_components()
+  Call orient_core_b()
+  Call move_core_to_midtrack(components)
+  Call insert_core_airgap(components,-1)
+  Call getDocument().getView().unselectAll()
+  For i = 1 to num_coils
+    component_coil = "Coil#"&(i+num_coils)
+    Call view.selectObject(component_coil, infoSetSelection)
+    Call getDocument().reverseCoilDirection(component_coil)
+  Next
+End Function
+
+
+Function build_motor()
+  build_single_side_core()
+  orient_A()
+  If NOT (BUILD_WITH_SYMMETRY) Then
+    build_single_side_core()
+    orient_B()
+  End If
+End Function
+
+
 
 Sub Include(file)
   Dim fso, f
