@@ -16,15 +16,8 @@ Function make_winding()
 
   Call get_coil_cross_section_coords(lx1,rx1,by1,ty1,lx2,rx2,by2,ty2)
 
-  Call view.newLine(lx1,by1,rx1,by1)
-  Call view.newLine(lx1,ty1,rx1,ty1)
-  Call view.newLine(lx1,by1,lx1,ty1)
-  Call view.newLine(rx1,by1,rx1,ty1)
-
-  Call view.newLine(lx2,by2,rx2,by2)
-  Call view.newLine(lx2,ty2,rx2,ty2)
-  Call view.newLine(lx2,by2,lx2,ty2)
-  Call view.newLine(rx2,by2,rx2,ty2)
+  Call draw_square(lx1,rx1,by1,ty1)
+  Call draw_square(lx2,rx2,by2,ty2)
 
   Set coilbuild = new build.init(ids_o.get_winding_keyword()+"#1")
 

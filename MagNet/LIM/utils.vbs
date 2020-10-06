@@ -9,6 +9,27 @@ Function clear_construction_lines()
   Call view.deleteSelection()
 End Function
 
+Function draw_square(x1,x2,y1,y2)
+  tx1 = x1
+  tx2 = x2
+  ty1 = y1
+  ty2 = y2
+  If(tx1 > tx2) Then
+    temp = tx1
+    tx1 = tx2
+    tx2 = temp
+  End If
+  If(ty1 > ty2) Then
+    temp = ty1
+    ty1 = ty2
+    ty2 = temp
+  End If
+  Call view.newLine(tx1,ty1,tx2,ty1)
+  Call view.newLine(tx1,ty2,tx2,ty2)
+  Call view.newLine(tx1,ty1,tx1,ty2)
+  Call view.newLine(tx2,ty1,tx2,ty2)
+End Function
+
 Function union_components(component_1,component_2)
   parts = Array(component_1,component_2)
   Call getDocument().beginUndoGroup("Union Components")
