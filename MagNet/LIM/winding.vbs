@@ -66,43 +66,13 @@ Function make_winding()
 
   'Merge Coil Parts (Forms one side of single winding)'
   Call coilbuild.union_all()
-  Call coilbuild.mirror(Array(0,0,1))
-
-  line_frame_1 = Array("Line",Array(0,0,length_core/2+coil_core_separation_x))
-  line_frame_2 = Array("Line",Array(((lx2+rx2)/2-(lx1+rx1)/2)/2,0,length_core/2+coil_core_separation_x+end_ext))
-  line_frame_3 = Array("Line",Array(((lx2+rx2)/2-(lx1+rx1)/2)/2,0,length_core/2+coil_core_separation_x+end_ext+coil_width))
-  multi_sweep_params = Array(frame_params,start_frame,line_frame_1,blend_frame,line_frame_2,blend_frame,line_frame_3)
-
-  unselect()
-  Call view.selectAt((lx1+rx1)/2,(ty1+by1)/2, infoSetSelection, Array(infoSliceSurface))
-  Call view.makeComponentInAMultiSweep(multi_sweep_params,Array(coilbuild.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
-
-  line_frame_7 = Array("Line",Array((lx2+rx2)/2-(lx1+rx1)/2,(ty2+by2)/2-(ty1+by1)/2,length_core/2+coil_core_separation_x))
-  line_frame_8 = Array("Line",Array(((lx2+rx2)/2-(lx1+rx1)/2)/2,(ty2+by2)/2-(ty1+by1)/2,length_core/2+coil_core_separation_x+end_ext))
-  line_frame_9 = Array("Line",Array(((lx2+rx2)/2-(lx1+rx1)/2)/2,(ty2+by2)/2-(ty1+by1)/2,length_core/2+coil_core_separation_x+end_ext+coil_width))
-  multi_sweep_params = Array(frame_params,start_frame,line_frame_7,blend_frame,line_frame_8,blend_frame,line_frame_9)
-
-  unselect()
-  Call view.selectAt((lx2+rx2)/2,(ty2+by2)/2, infoSetSelection, Array(infoSliceSurface))
-  Call view.makeComponentInAMultiSweep(multi_sweep_params,Array(coilbuild.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
-
+  Call coilbuild.mirror_copy(Array(0,0,1))
   Call coilbuild.union_all()
 
-  'Mirror Single-sided Coil (Forms full single winding in two separate components)'
-  'component_name = (ids_o.get_union_components())(0)
-  Call getDocument().beginUndoGroup("Mirror Component")
-  'Call getDocument().mirrorComponent(getDocument().copyComponent(Array(component_name), 1), 0, 0, 0, 0, 0, 1, 1)
-  Call getDocument().endUndoGroup()
-
-  'Union both coil sides (Form full single winding)'
-  'Call union_components(component_name,component_name+copy_keyword+"1")
-
-  'Rename Component'
-  final_component_name = component_name+"+"+component_name+copy_keyword+"1"+union_keyword+"1"
-  Call rename_components(final_component_name,coil_name)
-  make_winding = coil_name
+  make_winding = coilbuild.end_component_build()
 
   Call view.getSlice().moveInALine(length_core/2)
+
 End Function
 
 

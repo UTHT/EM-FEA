@@ -24,10 +24,12 @@ Class build
 
   Public Function union_all()
     temp_comps = up_complist()
+    temp = temp_comps(0)
     For i=1 to UBound(temp_comps)
-      Call union_components(temp_comps(0),temp_comps(i))
+      Call union_components(temp,temp_comps(i))
       union_comps = ids_o.get_spec_components(Array("Union"))
-      Call rename_components(union_comps(0),temp_comps(0))
+      temp = component_name()
+      Call rename_components(union_comps(0),temp)
     Next
     temp_comps = up_complist()
     Call rename_components(temp_comps(0),component_name())
@@ -36,13 +38,17 @@ Class build
   Public Function mirror(normal)
     temp_comps = up_complist()
     Call mirror_components(temp_comps,normal)
-
   End Function
 
-  Public Function end_component_build(name)
+  Public Function mirror_copy(normal)
+    temp_comps = up_complist()
+    Call mirror_components_copy(temp_comps,normal)
+  End Function
 
-
-
+  Public Function end_component_build()
+    temp_comps = up_complist()
+    Call rename_components(temp_comps(0),final_name)
+    end_component_build = final_name
   End Function
 
   Public Function component_name()
