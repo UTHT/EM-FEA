@@ -46,6 +46,19 @@ Function rename_copies(components,substr,newsubstr)
   Next
 End Function
 
+Function mirror_components_copy(components,normal)
+  Call getDocument().beginUndoGroup("Mirror Component")
+  Call getDocument().copyComponent(components, 1)
+  Call getDocument().mirrorComponent(components,0,0,0,normal(0),normal(1),normal(2),1)
+  Call getDocument().endUndoGroup()
+End Function
+
+Function mirror_components(components,normal)
+  Call getDocument().beginUndoGroup("Mirror Component")
+  Call getDocument().mirrorComponent(components,0,0,0,normal(0),normal(1),normal(2),1)
+  Call getDocument().endUndoGroup()
+End Function
+
 Function generate_two_sided_component(component_name,material,selection_x,selection_y,neg_val,pos_val)
   Call view.selectAt(selection_x, selection_y, infoSetSelection, Array(infoSliceSurface))
   Call view.makeComponentInALine(neg_val, Array(component_name+"p1"),format_material(material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
@@ -96,6 +109,10 @@ Function select_components(arr)
   Next
 End Function
 
+Function unselect()
+  Call getDocument().getView().unselectAll()
+End Function
+
 Function select_a_components()
   components = ids_o.get_a_components()
   Call select_components(components)
@@ -141,16 +158,6 @@ End Function
 
 Function get_origin_from_local()
   get_origin_from_local = get_global(0,0)
-End Function
-
-Function mirror_components()
-  Call getDocument().beginUndoGroup("Mirror Component")
-  components = ids_o.get_core_components()
-  Call getDocument().copyComponent(components, 1)
-  Call getDocument().mirrorComponent(components, 0, 0, 0, 1, 0, 0, 1)
-  Call ids_o.rename_mirror()
-
-  Call getDocument().endUndoGroup()
 End Function
 
 Function reset_local()
