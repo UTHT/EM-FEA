@@ -5,13 +5,13 @@ Class build
   Private build_step
   Private component_number
 
-  Public Default Function init(input,target_name)
-    Call start_component_build(input,target_name)
+  Public Default Function init(target_name)
+    Call start_component_build(target_name)
     Set init = Me
   End Function
 
-  Public Function start_component_build(input,target_name)
-    name = input
+  Public Function start_component_build(target_name)
+    name = "comp"
     final_name = target_name
     component_number=0
     build_step=0

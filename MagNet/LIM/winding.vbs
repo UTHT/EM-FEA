@@ -26,15 +26,9 @@ Function make_winding()
   Call view.newLine(lx2,by2,lx2,ty2)
   Call view.newLine(rx2,by2,rx2,ty2)
 
-  Set coilbuild = new build.init(ids_o.get_winding_keyword(),ids_o.get_winding_keyword()+"#1")
+  Set coilbuild = new build.init(ids_o.get_winding_keyword()+"#1")
 
   Call view.getSlice().moveInALine(length_core/2)
-
-  'coil_p1_name = ids_o.get_winding_keyword()+"#1p1"
-  'coil_p2_name = ids_o.get_winding_keyword()+"#1p2"
-  'coil_name = ids_o.get_winding_keyword()+"#1"
-  'copy_keyword = " Copy#"
-  'union_keyword = " Union#"
 
   init_coords = Array((lx1+rx1)/2,(by1+ty1)/2,0)
   unit_x_vec = Array(1,0,0)
