@@ -64,15 +64,6 @@ x_max = (length_core+air_gap)*2
 y_max = rail_height+10
 z_max = -z_min
 
-'Include Necessary Scripts'
-Call Include("winding")
-Call Include("core")
-Call Include("track")
-Call Include("air")
-Call Include("identify")
-Call Include("utils")
-'Call Include("buildmotor")
-
 'Document Setup'
 Call newDocument()
 Call SetLocale("en-us")
@@ -80,9 +71,19 @@ Call getDocument().setDefaultLengthUnit("Millimeters")
 Set view = getDocument().getView()
 Set app = getDocument().getApplication()
 
+
+'Include Necessary Scripts'
+Call Include("winding")
+Call Include("core")
+Call Include("track")
+Call Include("air")
+Call Include("identify")
+Call Include("utils")
+Call Include("build")
+'Call Include("buildmotor")
+
 'Ids Class Setup
 Set ids_o = new ids.init()
-
 
 'Main Code'
 

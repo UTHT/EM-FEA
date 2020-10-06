@@ -62,7 +62,7 @@ Class ids
     For i=0 to UBound(arr)
       For z=0 to UBound(find)
         If InStr(arr(i),find(z)) Then
-          d=0
+          asdf=0
         Else
           ReDim Preserve matches(UBound(matches) + 1)
           matches(UBound(matches)) = (arr(i))
@@ -138,8 +138,7 @@ Class ids
   End Property
 
   Public Property Get get_spec_components(arr_comps)
-    Call print(arr_comps)
-    get_spec_components = find_all_components_with_match_replace(arr_comp)
+    get_spec_components = find_all_components_with_match_replace(arr_comps)
   End Property
 
   'Removes predetermined substrings from (param) string '
