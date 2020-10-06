@@ -129,12 +129,17 @@ Class ids
     get_core_components = find_all_components_with_match_replace(core_matches)
   End Property
 
-  Public Property Get get_union_components()
-    get_union_components = find_all_components_with_match_replace(Array("Union"))
+  Public Property Get get_copy_components()
+    get_copy_components = get_spec_components(Array("Copy"))
   End Property
 
-  Public Property Get get_copy_components()
-    get_copy_components = find_all_components_with_match_replace(Array("Copy"))
+  Public Property Get get_union_components()
+    get_union_components = get_spec_components(Array("Union"))
+  End Property
+
+  Public Property Get get_spec_components(arr_comps)
+    Call print(arr_comps)
+    get_spec_components = find_all_components_with_match_replace(arr_comp)
   End Property
 
   'Removes predetermined substrings from (param) string '
