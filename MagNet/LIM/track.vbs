@@ -42,7 +42,7 @@ Function make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
   	End If
   End If
 
-  rail = "Rail"
+  rail = "Track"
   p1 = "Plate 1"
   p2 = "Plate 2"
 

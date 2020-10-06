@@ -33,6 +33,15 @@ coil_material = "Copper: 5.77e7 Siemens/meter"
 track_material = "Aluminum: 3.8e7 Siemens/meter"
 air_material = "AIR"
 
+'Mesh Resolution Setup'
+air_rail_boundary = 1
+air_resolution = 6
+aluminium_resolution = 5
+rail_surface_resolution = 2
+plate_surface_resolution = 3
+use_H_adaption = False
+use_P_adaption = False
+
 'Track Constants'
 const rail_height = 127
 const rail_width = 127
@@ -58,10 +67,10 @@ motion_length = motion_length*1000
 
 'Problem Bounds'
 x_min = 0
-y_min = -10
+y_min = -20
 z_min = -width_core*0.75
 x_max = (length_core+air_gap)*2
-y_max = rail_height+10
+y_max = rail_height+20
 z_max = -z_min
 
 'Document Setup'
@@ -93,7 +102,7 @@ Call make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
 Call build_motor()
 'components = get_core_components(num_coils)
 'Call getDocument().getApplication().MsgBox(components(0))
-
+Call make_airbox(BUILD_WITH_SYMMETRY)
 
 
 

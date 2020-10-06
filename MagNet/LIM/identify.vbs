@@ -141,6 +141,10 @@ Class ids
     get_spec_components = find_all_components_with_match_replace(arr_comps)
   End Property
 
+  Public Property Get get_spec_paths(arr_comps)
+    get_spec_paths = find_all_components_with_match(arr_comps)
+  End Property
+
   'Removes predetermined substrings from (param) string '
   Public Function remove_substrings(str)
     For i=0 to UBound(remove_strings)
