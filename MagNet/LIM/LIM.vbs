@@ -103,7 +103,7 @@ Call build_motor()
 'components = get_core_components(num_coils)
 'Call getDocument().getApplication().MsgBox(components(0))
 Call make_airbox(BUILD_WITH_SYMMETRY)
-
+Set drivecirc = new circuit.init()
 
 
 'end main'
