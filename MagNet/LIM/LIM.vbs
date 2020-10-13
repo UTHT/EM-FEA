@@ -26,6 +26,8 @@ const AUTO_RUN = False                ' Run simulation as soon as problam defini
 coil_core_separation_x = 4  'minimum separation between core and coil (one-sided, x-direction)'
 coil_core_separation_y = 4  'minimum separation between core and coil (one-sided, y-direction)'
 distribute_distance = 2     'distributed winding distance, in # of slots'
+v_max = 120                 'input voltage'
+freq = 15                   'source frequency'
 
 'Material Setup'
 core_material = "M330-35A"
@@ -692,7 +694,6 @@ Class power
   End Function
 
   Public Function draw_circuit()
-    Call print("here")
     For i=1 to num_coils
 
       Call draw_single_winding(i)
@@ -704,21 +705,27 @@ Class power
     Call circ.insertCoil("Coil#"&i, start_x, start_y+i*offset_y)
     Call circ.insertVoltageSource(start_x+offset_x, start_y+i*offset_y)
 
-    c_name_base = "Coil#"&i
-    s_name_base = "V"&i
+    coil_name = "Coil#"&i
+    source_name = "V"&i
 
     DIM ctx,cty,vstx,vsty
-    Call circ.getPositionOfTerminal(c_name_base&",T2",ctx,cty)
-    Call circ.getPositionOfTerminal(s_name_base&",T1",vstx,vsty)
+    Call circ.getPositionOfTerminal(coil_name&",T2",ctx,cty)
+    Call circ.getPositionOfTerminal(source_name&",T1",vstx,vsty)
     xconn = Array(ctx,vstx)
     yconn = Array(cty,vsty)
     Call circ.insertConnection(xconn, yconn)
 
-    Call circ.getPositionOfTerminal(c_name_base&",T1",ctx,cty)
-    Call circ.getPositionOfTerminal(s_name_base&",T2",vstx,vsty)
+    Call circ.getPositionOfTerminal(coil_name&",T1",ctx,cty)
+    Call circ.getPositionOfTerminal(source_name&",T2",vstx,vsty)
     xconn = Array(ctx,ctx,vstx,vstx)
     yconn = Array(cty,cty+connection_offset,vsty+connection_offset,vsty)
     Call circ.insertConnection(xconn, yconn)
+
+
+    Call getDocument().beginUndoGroup("Set V Source Properties", true)
+    props = Array(0,v_max,freq)
+    Call getDocument().setSourceWaveform(source_name,"SIN", props)
+    Call getDocument().endUndoGroup()
   End Function
 
 End Class
