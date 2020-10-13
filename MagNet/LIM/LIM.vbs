@@ -86,7 +86,6 @@ Set app = getDocument().getApplication()
 Set ids_o = new ids.init()
 
 'Main Code'
-
 Call make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
 'Call reset_local()
 'Call print(ids_o.subtract_strings("Coil#1 Copy#1","Coil#1"))
@@ -721,9 +720,9 @@ Class power
     yconn = Array(cty,cty+connection_offset,vsty+connection_offset,vsty)
     Call circ.insertConnection(xconn, yconn)
 
-
     Call getDocument().beginUndoGroup("Set V Source Properties", true)
-    props = Array(0,v_max,freq)
+    props = Array(0,v_max,freq,0,0,120*((i-1) mod phase))
+
     Call getDocument().setSourceWaveform(source_name,"SIN", props)
     Call getDocument().endUndoGroup()
   End Function
