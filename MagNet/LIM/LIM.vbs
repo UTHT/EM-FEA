@@ -19,7 +19,7 @@ phase = 3           'Number of phases'
 'Build Flags'
 const SHOW_FORBIDDEN_AIR = False	  	' Show forbidden zones for design purposes (as red air regions)
 const SHOW_FULL_GEOMETRY = False	   	' Build with flanges of track
-const BUILD_WITH_SYMMETRY = True   	' Build only half of the track and one wheel, with symmetry conditions
+const BUILD_WITH_SYMMETRY = False   	' Build only half of the track and one wheel, with symmetry conditions
 const AUTO_RUN = False                ' Run simulation as soon as problam definition is complete
 
 'Winding Setup'
@@ -39,6 +39,8 @@ air_material = "AIR"
 air_rail_boundary = 1
 air_resolution = 6
 aluminium_resolution = 5
+core_resolution = 3
+winding_resolution = 4
 rail_surface_resolution = 2
 plate_surface_resolution = 3
 use_H_adaption = False
@@ -93,7 +95,7 @@ Call build_motor()
 'components = get_core_components(num_coils)
 'Call getDocument().getApplication().MsgBox(components(0))
 Call make_airbox(BUILD_WITH_SYMMETRY)
-Set drive = new power.init()
+'Set drive = new power.init()
 
 
 'end main'
@@ -169,6 +171,7 @@ Function make_core_component()
   REDIM component_name(0)
   component_name(0) = core_name
   Call view.makeComponentInALine(length_core,component_name,format_material(core_material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call getDocument().setMaxElementSize(core_name,core_resolution)
   Call clear_construction_lines()
   Call view.getSlice().moveInALine(length_core/2)
 End Function
@@ -214,6 +217,8 @@ Function make_winding()
   unselect()
   Call view.selectAt((lx1+rx1)/2,(ty1+by1)/2, infoSetSelection, Array(infoSliceSurface))
   Call view.makeComponentInAMultiSweep(multi_sweep_params,Array(coilbuild.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call getDocument().setMaxElementSize(coilbuild.component_name(),winding_resolution)
+  Call coilbuild.increment_component_num()
 
   line_frame_7 = Array("Line",Array((lx2+rx2)/2-(lx1+rx1)/2,(ty2+by2)/2-(ty1+by1)/2,length_core/2+coil_core_separation_x))
   line_frame_8 = Array("Line",Array(((lx2+rx2)/2-(lx1+rx1)/2)/2,(ty2+by2)/2-(ty1+by1)/2,length_core/2+coil_core_separation_x+end_ext))
@@ -223,6 +228,8 @@ Function make_winding()
   unselect()
   Call view.selectAt((lx2+rx2)/2,(ty2+by2)/2, infoSetSelection, Array(infoSliceSurface))
   Call view.makeComponentInAMultiSweep(multi_sweep_params,Array(coilbuild.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call getDocument().setMaxElementSize(coilbuild.component_name(),winding_resolution)
+  Call coilbuild.increment_component_num()
 
   'Merge Coil Parts (Forms one side of single winding)'
   Call coilbuild.union_all()
@@ -330,7 +337,7 @@ Function make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
   p1 = "Plate 1"
   p2 = "Plate 2"
 
-  Call generate_two_sided_component(rail,track_material,0,rail_height/2.0,z_min,z_max+motion_length)
+  Call generate_two_sided_component(rail,track_material,0,rail_height/2.0,z_min,z_max+motion_length,aluminium_resolution)
   'Call getDocument().setMaxElementSize(rail, aluminiumResolution)
 
   Call view.newLine(-x_max, 0, -rail_width/2.0 - plate_gap, 0)
@@ -338,7 +345,7 @@ Function make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
   Call view.newLine(-rail_width/2.0 - plate_gap, plate_thickness, -x_max, plate_thickness)
   Call view.newLine(-x_max, plate_thickness, -x_max, 0)
 
-  Call generate_two_sided_component(p1,track_material,-rail_width/2.0-plate_gap-10,plate_thickness/2.0,z_min,z_max+motion_length)
+  Call generate_two_sided_component(p1,track_material,-rail_width/2.0-plate_gap-10,plate_thickness/2.0,z_min,z_max+motion_length,aluminium_resolution)
   'Call getDocument().setMaxElementSize(p1, aluminiumResolution)
 
   If NOT(BUILD_WITH_SYMMETRY) Then
@@ -347,7 +354,7 @@ Function make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
   	Call view.newLine(rail_width/2.0 + plate_gap, plate_thickness, x_max, plate_thickness)
   	Call view.newLine(x_max, plate_thickness, x_max, 0)
 
-    Call generate_two_sided_component(p2,track_material,rail_width/2.0+plate_gap+10,plate_thickness/2.0,z_min,z_max+motion_length)
+    Call generate_two_sided_component(p2,track_material,rail_width/2.0+plate_gap+10,plate_thickness/2.0,z_min,z_max+motion_length,aluminium_resolution)
   	'Call getDocument().setMaxElementSize(p2, aluminiumResolution)
   End If
 
@@ -368,11 +375,11 @@ Function generate_forbidden_zones()
   fa_name_1 = "Forbidden Air 1"
   fa_name_2 = "Forbidden Air 2"
 
-  Call generate_two_sided_component(fa_name_1,air_material,0,bottom_forbidden_height/2.0,z_min,z_max)
+  Call generate_two_sided_component(fa_name_1,air_material,0,bottom_forbidden_height/2.0,z_min,z_max,air_resolution)
   'Call getDocument().setMaxElementSize(fa_name_1, airResolution)
   Call getDocument().setComponentColor(fa_name_1, RGB(255, 0, 0), 50)
 
-  Call generate_two_sided_component(fa_name_2,air_material,0,rail_height-flange_thickness-top_forbidden_height/2.0,z_min,z_max)
+  Call generate_two_sided_component(fa_name_2,air_material,0,rail_height-flange_thickness-top_forbidden_height/2.0,z_min,z_max,air_resolution)
   'Call getDocument().setMaxElementSize("Forbidden Air 2", airResolution)
   Call getDocument().setComponentColor(fa_name_2, RGB(255, 0, 0), 50)
 
@@ -386,7 +393,7 @@ Function make_airbox(BUILD_WITH_SYMMETRY)
   Else
     Call draw_square(-x_max,x_max,y_min,y_max)
   End If
-  Call generate_two_sided_component(airbox,air_material,-x_max+1,y_max-1,z_min,z_max+motion_length)
+  Call generate_two_sided_component(airbox,air_material,-x_max+1,y_max-1,z_min,z_max+motion_length,air_resolution)
   Call getDocument().setMaxElementSize(airbox, air_resolution)
   Call getDocument().getView().setObjectVisible(airbox, False)
 
@@ -644,6 +651,9 @@ Class build
 
   Public Function component_name()
     component_name = name&component_number
+  End Function
+
+  Public Function increment_component_num()
     component_number=component_number+1
   End Function
 
@@ -702,10 +712,10 @@ Class power
   Public Function draw_single_winding(i)
     Set circ = getDocument().getCircuit()
     Call circ.insertCoil("Coil#"&i, start_x, start_y+i*offset_y)
-    Call circ.insertVoltageSource(start_x+offset_x, start_y+i*offset_y)
+    Call circ.insertCurrentSource(start_x+offset_x, start_y+i*offset_y)
 
     coil_name = "Coil#"&i
-    source_name = "V"&i
+    source_name = "I"&i
 
     DIM ctx,cty,vstx,vsty
     Call circ.getPositionOfTerminal(coil_name&",T2",ctx,cty)
@@ -721,6 +731,7 @@ Class power
     Call circ.insertConnection(xconn, yconn)
 
     Call getDocument().beginUndoGroup("Set V Source Properties", true)
+    phase_ang = 120*((i-1) mod phase)
     props = Array(0,v_max,freq,0,0,120*((i-1) mod phase))
 
     Call getDocument().setSourceWaveform(source_name,"SIN", props)
@@ -811,12 +822,13 @@ Function mirror_components(components,normal)
   Call getDocument().endUndoGroup()
 End Function
 
-Function generate_two_sided_component(component_name,material,selection_x,selection_y,neg_val,pos_val)
+Function generate_two_sided_component(component_name,material,selection_x,selection_y,neg_val,pos_val,resolution)
   Call view.selectAt(selection_x, selection_y, infoSetSelection, Array(infoSliceSurface))
   Call view.makeComponentInALine(neg_val, Array(component_name+"p1"),format_material(material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
   Call view.selectAt(selection_x, selection_y, infoSetSelection, Array(infoSliceSurface))
   Call view.makeComponentInALine(pos_val, Array(component_name+"p2"),format_material(material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
   Call union_and_rename(component_name+"p1",component_name+"p2",component_name)
+  Call getDocument().setMaxElementSize(component_name,resolution)
 End Function
 
 Function orient_core_a()

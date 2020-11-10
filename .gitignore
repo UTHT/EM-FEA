@@ -7,3 +7,4 @@
 *.mn
 *.ban
 .vs/*
+!requirements.txt
