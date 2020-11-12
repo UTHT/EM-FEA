@@ -18,17 +18,20 @@ phase = 3           'Number of phases'
 
 'Build Flags'
 const SHOW_FORBIDDEN_AIR = False	  	' Show forbidden zones for design purposes (as red air regions)
-const SHOW_FULL_GEOMETRY = False	   	' Build with flanges of track
+const SHOW_FULL_GEOMETRY = True	   	' Build with flanges of track
 const BUILD_WITH_SYMMETRY = False   	' Build only half of the track and one wheel, with symmetry conditions
+const BUILD_WITH_CIRCUIT = False      ' Build simulation with drive circuitry (useful to turn off for debugging)'
 const AUTO_RUN = False                ' Run simulation as soon as problam definition is complete
+
 
 'Winding Setup'
 coil_core_separation_x = 4  'minimum separation between core and coil (one-sided, x-direction)'
 coil_core_separation_y = 4  'minimum separation between core and coil (one-sided, y-direction)'
 distribute_distance = 2     'distributed winding distance, in # of slots'
-v_max = 50                 'input voltage'
+v_max = 50                  'input voltage'
 freq = 15                   'source frequency'
-winding_turns = 50         'number of winding turns'
+winding_turns = 50          'number of winding turns'
+inter_tc_offset = 50        'offset distance between teeth and coils'
 
 'Material Setup'
 core_material = "M330-35A"
@@ -96,7 +99,10 @@ Call build_motor()
 'components = get_core_components(num_coils)
 'Call getDocument().getApplication().MsgBox(components(0))
 Call make_airbox(BUILD_WITH_SYMMETRY)
-Set drive = new power.init()
+If(BUILD_WITH_CIRCUIT) Then
+  Set drive = new power.init()
+End If
+
 
 
 'end main'
@@ -151,11 +157,11 @@ Function draw_core_geometry()
 
   For i=0 to slots-1
     delta = slot_pitch*i
-    Call view.newLine(-slot_teeth_width/2+delta,0,-slot_teeth_width/2+delta,slot_height)
-    Call view.newLine(-slot_teeth_width/2+slot_gap+delta,0,-slot_teeth_width/2+slot_gap+delta,slot_height)
+    Call view.newLine(-slot_teeth_width/2+delta,-inter_tc_offset,-slot_teeth_width/2+delta,slot_height)
+    Call view.newLine(-slot_teeth_width/2+slot_gap+delta,-inter_tc_offset,-slot_teeth_width/2+slot_gap+delta,slot_height)
     Call view.newLine(-slot_teeth_width/2+delta,slot_height,-slot_teeth_width/2+slot_gap+delta,slot_height)
     If(i < slots-1) Then
-      Call view.newLine(-slot_teeth_width/2+slot_gap+delta,0,-slot_teeth_width/2+slot_gap+delta+teeth_width,0)
+      Call view.newLine(-slot_teeth_width/2+slot_gap+delta,-inter_tc_offset,-slot_teeth_width/2+slot_gap+delta+teeth_width,-inter_tc_offset)
     End If
   Next
 

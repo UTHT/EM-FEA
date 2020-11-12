@@ -20,6 +20,7 @@ phase = 3           'Number of phases'
 const SHOW_FORBIDDEN_AIR = False	  	' Show forbidden zones for design purposes (as red air regions)
 const SHOW_FULL_GEOMETRY = False	   	' Build with flanges of track
 const BUILD_WITH_SYMMETRY = False   	' Build only half of the track and one wheel, with symmetry conditions
+const BUILD_WITH_CIRCUIT = False      ' Build simulation with drive circuitry (useful to turn off for debugging)'
 const AUTO_RUN = False                ' Run simulation as soon as problam definition is complete
 
 'Winding Setup'
@@ -95,7 +96,9 @@ Call build_motor()
 'components = get_core_components(num_coils)
 'Call getDocument().getApplication().MsgBox(components(0))
 Call make_airbox(BUILD_WITH_SYMMETRY)
-'Set drive = new power.init()
+If(BUILD_WITH_CIRCUIT) Then
+  Set drive = new power.init()
+End If
 
 
 'end main'
