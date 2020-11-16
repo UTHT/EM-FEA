@@ -15,12 +15,14 @@ slip = 0.01         'Per unit slip'
 v_r = 25            'Relative speed of pod'
 motion_length = 1   'track_length (in meters)'
 phase = 3           'Number of phases'
+speed = 1           'Speed of pod'
 
 'Build Flags'
 const SHOW_FORBIDDEN_AIR = False	  	' Show forbidden zones for design purposes (as red air regions)
 const SHOW_FULL_GEOMETRY = False	   	' Build with flanges of track
 const BUILD_WITH_SYMMETRY = False   	' Build only half of the track and one wheel, with symmetry conditions
-const BUILD_WITH_CIRCUIT = False      ' Build simulation with drive circuitry (useful to turn off for debugging)'
+const BUILD_WITH_CIRCUIT = True       ' Build simulation with drive circuitry (useful to turn off for debugging)'
+const BUILD_STATIC = False             ' Build simulation with no motion components
 const AUTO_RUN = False                ' Run simulation as soon as problam definition is complete
 
 'Winding Setup'
@@ -69,6 +71,8 @@ coil_height = (slot_height-3*coil_core_separation_y)/2
 v_s = v_r/(1-slip)
 slip_speed = v_s-v_r
 motion_length = motion_length*1000
+remesh_padding = 0.25
+airbox_padding = 1
 
 'Problem Bounds'
 x_min = 0
@@ -100,9 +104,18 @@ If(BUILD_WITH_CIRCUIT) Then
   Set drive = new power.init()
 End If
 
+If NOT(BUILD_STATIC) Then
+  Call setup_motion()
+End If
+
+'Call getDocument().save("D:\Repos\EM-FEA\MagNet\LIM\temp.mn")
+Call setup_sim()
+
+If(AUTO_RUN) Then
+  Call getDocument().solveTransient3DWithMotion()
+End If
 
 'end main'
-
 
 Function build_single_side_core()
   Call make_core_component()
@@ -340,6 +353,8 @@ Function make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
   p1 = "Plate 1"
   p2 = "Plate 2"
 
+  rm1 = "Track Remesh"
+
   Call generate_two_sided_component(rail,track_material,0,rail_height/2.0,z_min,z_max+motion_length,aluminium_resolution)
   'Call getDocument().setMaxElementSize(rail, aluminiumResolution)
 
@@ -362,6 +377,15 @@ Function make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
   End If
 
   Call clear_construction_lines()
+
+  If NOT(BUILD_STATIC) Then
+    Call view.newLine(-web_thickness/2.0-remesh_padding, plate_thickness-remesh_padding, web_thickness/2.0+remesh_padding, plate_thickness-remesh_padding)
+    Call view.newLine(web_thickness/2.0+remesh_padding, plate_thickness-remesh_padding, web_thickness/2.0+remesh_padding, rail_height - flange_thickness + remesh_padding)
+    Call view.newLine(web_thickness/2.0+remesh_padding, rail_height - flange_thickness + remesh_padding, -web_thickness/2.0-remesh_padding, rail_height - flange_thickness + remesh_padding)
+    Call view.newLine(-web_thickness/2.0-remesh_padding, rail_height - flange_thickness + remesh_padding, -web_thickness/2.0-remesh_padding, plate_thickness-remesh_padding)
+    Call generate_two_sided_component(rm1,air_material,0,rail_height/2.0,z_min-motion_length,z_max+motion_length+airbox_padding/2,air_resolution)
+    Call clear_construction_lines()
+  End If
 End Function
 
 Function generate_forbidden_zones()
@@ -394,9 +418,9 @@ Function make_airbox(BUILD_WITH_SYMMETRY)
   If BUILD_WITH_SYMMETRY Then
     Call draw_square(x_min,-x_max,y_min,y_max)
   Else
-    Call draw_square(-x_max,x_max,y_min,y_max)
+    Call draw_square(-x_max-airbox_padding,x_max+airbox_padding,y_min-airbox_padding,y_max+airbox_padding)
   End If
-  Call generate_two_sided_component(airbox,air_material,-x_max+1,y_max-1,z_min,z_max+motion_length,air_resolution)
+  Call generate_two_sided_component(airbox,air_material,-x_max+1,y_max-1,zmin-motion_length-airbox_padding,z_max+motion_length+airbox_padding,air_resolution)
   Call getDocument().setMaxElementSize(airbox, air_resolution)
   Call getDocument().getView().setObjectVisible(airbox, False)
 
@@ -678,7 +702,7 @@ Class build
 
 End Class
 
-
+'CONTROL/DRIVE CIRCUITRY'
 Class power
 
   Private coil_comps
@@ -743,7 +767,52 @@ Class power
 
 End Class
 
+
+Function setup_motion()
+  m1 = "Motion#1"
+  m2 = "Motion#2"
+  m3 = "Motion#3"
+  Call getDocument().makeMotionComponent(Array("Track,Body#1"))
+  Call getDocument().setMotionSourceType(m1, infoVelocityDriven)
+  Call getDocument().setMotionType(m1, infoLinear)
+  Call getDocument().setMotionLinearDirection(m1, Array(0, 0, -1))
+  Call getDocument().setMotionPositionAtStartup(m1, 0)
+  ' Call getDocument().setMotionSpeedAtStartup(m1, speed)
+  Call getDocument().setMotionSpeedVsTime(m1, Array(0), Array(speed))
+
+  If(False) Then
+    Call getDocument().makeMotionComponent(Array("Plate 1,Body#1"))
+    Call getDocument().setMotionSourceType(m2, infoVelocityDriven)
+    Call getDocument().setMotionType(m2, infoLinear)
+    Call getDocument().setMotionLinearDirection(m2, Array(0, 0, -1))
+    Call getDocument().setMotionPositionAtStartup(m2, 0)
+    ' Call getDocument().setMotionSpeedAtStartup(m2, speed)
+    Call getDocument().setMotionSpeedVsTime(m2, Array(0), Array(speed))
+
+    If NOT(BUILD_WITH_SYMMETRY) Then
+      Call getDocument().makeMotionComponent(Array("Plate 2,Body#1"))
+      Call getDocument().setMotionSourceType(m3, infoVelocityDriven)
+      Call getDocument().setMotionType(m3, infoLinear)
+      Call getDocument().setMotionLinearDirection(m3, Array(0, 0, -1))
+      Call getDocument().setMotionPositionAtStartup(m3, 0)
+      ' Call getDocument().setMotionSpeedAtStartup(m3, speed)
+      Call getDocument().setMotionSpeedVsTime(m3, Array(0), Array(speed))
+    End If
+  End If
+End Function
+
+Function setup_sim()
+  Call getDocument().beginUndoGroup("Set Transient Options", true)
+  Call getDocument().setFixedIntervalTimeSteps(0, 100, 5)
+  Call getDocument().deleteTimeStepMaximumDelta()
+  Call getDocument().setParameter("", "TransientAveragePowerLossStartTime", "0%ms", infoNumberParameter)
+  Call getDocument().setParameter("", "TransientAveragePowerLossStopTime", "100%ms", infoNumberParameter)
+  Call getDocument().endUndoGroup()
+End Function
+
 'UTIL FUNCTIONS'
+
+
 Function format_material(material)
   format_material = "Name="+material
 End Function

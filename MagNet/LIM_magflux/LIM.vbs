@@ -31,7 +31,7 @@ distribute_distance = 2     'distributed winding distance, in # of slots'
 v_max = 50                  'input voltage'
 freq = 15                   'source frequency'
 winding_turns = 50          'number of winding turns'
-inter_tc_offset = 50        'offset distance between teeth and coils'
+inter_tc_offset = 55        'offset distance between teeth and coils'
 
 'Material Setup'
 core_material = "M330-35A"
@@ -151,8 +151,8 @@ End Function
 
 Function draw_core_geometry()
   Call view.newLine(-width_core/2-core_endlengths,thick_core,width_core/2+core_endlengths,thick_core)
-  Call view.newLine(width_core/2+core_endlengths,0,width_core/2+core_endlengths,thick_core)
-  Call view.newLine(-width_core/2-core_endlengths,0,-width_core/2-core_endlengths,thick_core)
+  Call view.newLine(width_core/2+core_endlengths,-inter_tc_offset,width_core/2+core_endlengths,thick_core)
+  Call view.newLine(-width_core/2-core_endlengths,-inter_tc_offset,-width_core/2-core_endlengths,thick_core)
   ' Call view.newLine()
 
   For i=0 to slots-1
@@ -867,7 +867,7 @@ End Function
 
 Function insert_core_airgap(core_components,direction)
   Call getDocument().beginUndoGroup("Translate Core Component")
-  Call getDocument().shiftComponent(core_components,direction*-air_gap/2, 0, 0, 1)
+  Call getDocument().shiftComponent(core_components,direction*(-air_gap/2-inter_tc_offset), 0, 0, 1)
   Call getDocument().endUndoGroup()
 End Function
 
