@@ -16,6 +16,7 @@ v_r = 25            'Relative speed of pod'
 motion_length = 1   'track_length (in meters)'
 phase = 3           'Number of phases'
 speed = 1           'Speed of pod'
+sim_time = 100      'Simulation time in ms'
 
 'Build Flags'
 const SHOW_FORBIDDEN_AIR = False	  	' Show forbidden zones for design purposes (as red air regions)
@@ -92,6 +93,11 @@ Set app = getDocument().getApplication()
 'Ids Class Setup
 Set ids_o = new ids.init()
 
+
+
+
+
+
 'Main Code'
 Call make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
 'Call reset_local()
@@ -115,7 +121,14 @@ If(AUTO_RUN) Then
   Call getDocument().solveTransient3DWithMotion()
 End If
 
+Call setup_parameters()
+
 'end main'
+
+
+
+
+
 
 Function build_single_side_core()
   Call make_core_component()
@@ -759,14 +772,17 @@ Class power
 
     Call getDocument().beginUndoGroup("Set V Source Properties", true)
     phase_ang = 120*((i-1) mod phase)
-    props = Array(0,v_max,freq,0,0,120*((i-1) mod phase))
+    props = Array(0,v_max,freq,0,0,phase_ang)
 
     Call getDocument().setSourceWaveform(source_name,"SIN", props)
+    'Call getDocument().setParameter(source_name, "WaveFormValues", "[0, %sourceSteps, 15, 1, 0, 0]", infoArrayParameter)
+    Call getDocument().setParameter(source_name, "WaveFormValues", "[0, %sourceSteps,"&freq&", 0, 0, 0, "&phase_ang&"]", infoArrayParameter)
     Call getDocument().endUndoGroup()
   End Function
 
 End Class
 
+'MOTION SETUP'
 
 Function setup_motion()
   m1 = "Motion#1"
@@ -778,7 +794,7 @@ Function setup_motion()
   Call getDocument().setMotionLinearDirection(m1, Array(0, 0, -1))
   Call getDocument().setMotionPositionAtStartup(m1, 0)
   ' Call getDocument().setMotionSpeedAtStartup(m1, speed)
-  Call getDocument().setMotionSpeedVsTime(m1, Array(0), Array(speed))
+  Call getDocument().setMotionSpeedVsTime(m1, Array(0,sim_time), Array(0,speed))
 
   If(False) Then
     Call getDocument().makeMotionComponent(Array("Plate 1,Body#1"))
@@ -787,7 +803,7 @@ Function setup_motion()
     Call getDocument().setMotionLinearDirection(m2, Array(0, 0, -1))
     Call getDocument().setMotionPositionAtStartup(m2, 0)
     ' Call getDocument().setMotionSpeedAtStartup(m2, speed)
-    Call getDocument().setMotionSpeedVsTime(m2, Array(0), Array(speed))
+    Call getDocument().setMotionSpeedVsTime(m2, Array(0,sim_time), Array(0,speed))
 
     If NOT(BUILD_WITH_SYMMETRY) Then
       Call getDocument().makeMotionComponent(Array("Plate 2,Body#1"))
@@ -796,7 +812,7 @@ Function setup_motion()
       Call getDocument().setMotionLinearDirection(m3, Array(0, 0, -1))
       Call getDocument().setMotionPositionAtStartup(m3, 0)
       ' Call getDocument().setMotionSpeedAtStartup(m3, speed)
-      Call getDocument().setMotionSpeedVsTime(m3, Array(0), Array(speed))
+      Call getDocument().setMotionSpeedVsTime(m3, Array(0,sim_time), Array(0,speed))
     End If
   End If
 End Function
@@ -809,6 +825,13 @@ Function setup_sim()
   Call getDocument().setParameter("", "TransientAveragePowerLossStopTime", "100%ms", infoNumberParameter)
   Call getDocument().endUndoGroup()
 End Function
+
+'DOCUMENT PARAMETER SETUP'
+
+Function setup_parameters()
+  Call getDocument().setParameter("", "sourceSteps", v_max&", "&v_max*2&", "&v_max*3, infoNumber)
+End Function
+
 
 'UTIL FUNCTIONS'
 
