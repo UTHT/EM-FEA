@@ -119,10 +119,6 @@ If(BUILD_WITH_CIRCUIT) Then
   Set drive = new power.init()
 End If
 
-Call print(copperdiam)
-Call print(copperarea)
-
-
 If NOT(BUILD_STATIC) Then
   Call setup_motion()
 End If
@@ -134,7 +130,7 @@ If(AUTO_RUN) Then
   Call getDocument().solveTransient3DWithMotion()
 End If
 
-Call setup_parameters()
+'Call setup_parameters()
 
 'end main'
 
