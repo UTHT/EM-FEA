@@ -1,3 +1,5 @@
+const PI = 3.141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825342117067
+
 'Geometry Parameters Setup'
 width_core = 370      'core width (motion direction)
 thick_core = 60       'core thickness (away from track)
@@ -16,15 +18,17 @@ v_r = 25            'Relative speed of pod'
 motion_length = 1   'track_length (in meters)'
 phase = 3           'Number of phases'
 speed = 1           'Speed of pod'
-sim_time = 100      'Simulation time in ms'
+sim_time = 300      'Simulation time in ms'
+time_step = 50       'Time step in ms'
 
 'Build Flags'
 const SHOW_FORBIDDEN_AIR = False	  	' Show forbidden zones for design purposes (as red air regions)
 const SHOW_FULL_GEOMETRY = False	   	' Build with flanges of track
 const BUILD_WITH_SYMMETRY = False   	' Build only half of the track and one wheel, with symmetry conditions
 const BUILD_WITH_CIRCUIT = True       ' Build simulation with drive circuitry (useful to turn off for debugging)'
-const BUILD_STATIC = False             ' Build simulation with no motion components
+const BUILD_STATIC = False            ' Build simulation with no motion components
 const AUTO_RUN = False                ' Run simulation as soon as problam definition is complete
+const RECORD_TRANSIENT_POWER = True   ' Run simulation with transient average power loss'
 
 'Winding Setup'
 coil_core_separation_x = 4  'minimum separation between core and coil (one-sided, x-direction)'
@@ -32,6 +36,8 @@ coil_core_separation_y = 4  'minimum separation between core and coil (one-sided
 distribute_distance = 2     'distributed winding distance, in # of slots'
 v_max = 120                 'input voltage'
 freq = 15                   'source frequency'
+awg = 20                    'winding gauge'
+nt = 50                     'number of coil turns (set nt=1 for solid winding)'
 
 'Material Setup'
 core_material = "M330-35A"
@@ -74,6 +80,9 @@ slip_speed = v_s-v_r
 motion_length = motion_length*1000
 remesh_padding = 0.25
 airbox_padding = 1
+copperdiam = 0.127*92^((36-awg)/39)
+copperarea = PI*(copperdiam/2)^2
+time_start = 0
 
 'Problem Bounds'
 x_min = 0
@@ -109,6 +118,10 @@ Call make_airbox(BUILD_WITH_SYMMETRY)
 If(BUILD_WITH_CIRCUIT) Then
   Set drive = new power.init()
 End If
+
+Call print(copperdiam)
+Call print(copperarea)
+
 
 If NOT(BUILD_STATIC) Then
   Call setup_motion()
@@ -774,9 +787,16 @@ Class power
     phase_ang = 120*((i-1) mod phase)
     props = Array(0,v_max,freq,0,0,phase_ang)
 
+    If(nt > 1) Then
+      'Call print(copperdiam)
+      Call getDocument().setCoilType(coil_name, infoStrandedCoil)
+      Call getDocument().setCoilNumberOfTurns(coil_name, nt)
+      Call getDocument().setParameter(coil_name, "StrandArea", CStr(copperarea/(1000^2)), infoNumberParameter)
+    End If
+
     Call getDocument().setSourceWaveform(source_name,"SIN", props)
     'Call getDocument().setParameter(source_name, "WaveFormValues", "[0, %sourceSteps, 15, 1, 0, 0]", infoArrayParameter)
-    Call getDocument().setParameter(source_name, "WaveFormValues", "[0, %sourceSteps,"&freq&", 0, 0, 0, "&phase_ang&"]", infoArrayParameter)
+    'Call getDocument().setParameter(source_name, "WaveFormValues", "[0, %sourceSteps,"&freq&", 0, 0, 0, "&phase_ang&"]", infoArrayParameter)
     Call getDocument().endUndoGroup()
   End Function
 
@@ -794,7 +814,7 @@ Function setup_motion()
   Call getDocument().setMotionLinearDirection(m1, Array(0, 0, -1))
   Call getDocument().setMotionPositionAtStartup(m1, 0)
   ' Call getDocument().setMotionSpeedAtStartup(m1, speed)
-  Call getDocument().setMotionSpeedVsTime(m1, Array(0,sim_time), Array(0,speed))
+  Call getDocument().setMotionSpeedVsTime(m1, Array(0,sim_time/3,sim_time*2/3,sim_time), Array(0,speed,0,speed))
 
   If(False) Then
     Call getDocument().makeMotionComponent(Array("Plate 1,Body#1"))
@@ -819,10 +839,10 @@ End Function
 
 Function setup_sim()
   Call getDocument().beginUndoGroup("Set Transient Options", true)
-  Call getDocument().setFixedIntervalTimeSteps(0, 100, 5)
+  Call getDocument().setFixedIntervalTimeSteps(time_start, sim_time, time_step)
   Call getDocument().deleteTimeStepMaximumDelta()
-  Call getDocument().setParameter("", "TransientAveragePowerLossStartTime", "0%ms", infoNumberParameter)
-  Call getDocument().setParameter("", "TransientAveragePowerLossStopTime", "100%ms", infoNumberParameter)
+  Call getDocument().setParameter("", "TransientAveragePowerLossStartTime", CStr(time_start)&"%ms", infoNumberParameter)
+  Call getDocument().setParameter("", "TransientAveragePowerLossStopTime", CStr(sim_time)&"%ms", infoNumberParameter)
   Call getDocument().endUndoGroup()
 End Function
 
