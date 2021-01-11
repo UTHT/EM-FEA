@@ -22,7 +22,7 @@ sim_time = 300      'Simulation time in ms'
 time_step = 50       'Time step in ms'
 
 'Build Flags'
-const SHOW_FORBIDDEN_AIR = False	  	' Show forbidden zones for design purposes (as red air regions)
+const SHOW_FORBIDDEN_AIR = True	  	' Show forbidden zones for design purposes (as red air regions)
 const SHOW_FULL_GEOMETRY = False	   	' Build with flanges of track
 const BUILD_WITH_SYMMETRY = False   	' Build only half of the track and one wheel, with symmetry conditions
 const BUILD_WITH_CIRCUIT = True       ' Build simulation with drive circuitry (useful to turn off for debugging)'
@@ -120,7 +120,14 @@ If(BUILD_WITH_CIRCUIT) Then
 End If
 
 If NOT(BUILD_STATIC) Then
-  Call setup_motion()
+  target_speed = 750 'kmph'
+  target_speed_mps = target_speed/3.6
+  accel = 9.8 'm/s^2'
+  sim_time = (target_speed_mps)/accel
+  time_steps = Array(0)
+  vel_steps = Array(1)
+  'time_step =
+  Call setup_motion(time_steps,vel_steps)
 End If
 
 'Call getDocument().save("D:\Repos\EM-FEA\MagNet\LIM\temp.mn")
@@ -800,7 +807,7 @@ End Class
 
 'MOTION SETUP'
 
-Function setup_motion()
+Function setup_motion(time_steps,vel_steps)
   m1 = "Motion#1"
   m2 = "Motion#2"
   m3 = "Motion#3"
@@ -810,7 +817,7 @@ Function setup_motion()
   Call getDocument().setMotionLinearDirection(m1, Array(0, 0, -1))
   Call getDocument().setMotionPositionAtStartup(m1, 0)
   ' Call getDocument().setMotionSpeedAtStartup(m1, speed)
-  Call getDocument().setMotionSpeedVsTime(m1, Array(0,sim_time/3,sim_time*2/3,sim_time), Array(0,speed,0,speed))
+  Call getDocument().setMotionSpeedVsTime(m1,time_steps,vel_steps)
 
   If(False) Then
     Call getDocument().makeMotionComponent(Array("Plate 1,Body#1"))
