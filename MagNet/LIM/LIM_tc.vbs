@@ -13,7 +13,7 @@ end_ext = 15          'one sided winding extension value (TODO: replace with dyn
 air_gap = 14          'distance between DLIM cores
 
 'Problem Variables'
-slip_speed = kphTomps(500) 'Slip speed of motor'
+slip_speed = kphTomps(100) 'Slip speed of motor'
 speed_steps = 5            'Number of speed steps to solve for'
 accel = 10                 'constant acceleration (in N)'
 phase = 3
@@ -44,7 +44,7 @@ air_material = "AIR"
 
 'Mesh Resolution Setup'
 air_rail_boundary = 1
-air_resolution = 6
+air_resolution = 8
 aluminium_resolution = 5
 core_resolution = 3
 winding_resolution = 4
@@ -72,7 +72,6 @@ core_track_gap = (air_gap-web_thickness)/2
 num_coils = slots-distribute_distance
 coil_width = slot_gap-2*coil_core_separation_x
 coil_height = (slot_height-3*coil_core_separation_y)/2
-motion_length = motion_length*1000
 remesh_padding = 0.25
 airbox_padding = 1
 copperdiam = 0.127*92^((36-awg)/39)
@@ -82,7 +81,7 @@ time_start = 0
 'Problem Dependent Internal Variables'
 sim_time = 0
 time_step = 0
-
+motion_length = 0
 
 'Problem Bounds'
 x_min = 0
@@ -108,27 +107,24 @@ Set ids_o = new ids.init()
 
 
 'Main Code'
+motion_length = (slip_speed*slip_speed)/(2*accel)*1000
 Call make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
-'Call reset_local()
-'Call print(ids_o.subtract_strings("Coil#1 Copy#1","Coil#1"))
 Call build_motor()
-'components = get_core_components(num_coils)
-'Call getDocument().getApplication().MsgBox(components(0))
 Call make_airbox(BUILD_WITH_SYMMETRY)
 If(BUILD_WITH_CIRCUIT) Then
   Set drive = new power.init()
 End If
 
 If NOT(BUILD_STATIC) Then
+
   time_steps=Array(-1)
   vel_steps=Array(-1)
 
+  speed_increment = slip_speed/speed_steps
+  time_increment = speed_increment/accel
+
   Redim Preserve time_steps(speed_steps)
   Redim Preserve vel_steps(speed_steps)
-
-  speed_increment = slip_speed/speed_steps
-
-  time_increment = speed_increment/accel
 
   time_steps(0)=0
   vel_steps(0)=0
@@ -137,22 +133,19 @@ If NOT(BUILD_STATIC) Then
     time_steps(i)=time_increment*i
     vel_steps(i)=speed_increment*i
   Next
+
+  Call print(motion_length)
   Call setup_motion(time_steps,vel_steps)
 
   sim_time = time_steps(UBound(time_steps))
   time_step = time_increment
-
 End If
 
-'Call getDocument().save("D:\Repos\EM-FEA\MagNet\LIM\temp.mn")
 Call setup_sim()
 
 If(AUTO_RUN) Then
   Call getDocument().solveTransient3DWithMotion()
 End If
-
-'Call setup_parameters()
-
 'end main'
 
 
@@ -406,7 +399,7 @@ Function make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
   Call view.newLine(-rail_width/2.0 - plate_gap, plate_thickness, -x_max, plate_thickness)
   Call view.newLine(-x_max, plate_thickness, -x_max, 0)
 
-  Call generate_two_sided_component(p1,track_material,-rail_width/2.0-plate_gap-10,plate_thickness/2.0,z_min,z_max+motion_length,aluminium_resolution)
+  'Call generate_two_sided_component(p1,track_material,-rail_width/2.0-plate_gap-10,plate_thickness/2.0,z_min,z_max+motion_length,aluminium_resolution)
   'Call getDocument().setMaxElementSize(p1, aluminiumResolution)
 
   If NOT(BUILD_WITH_SYMMETRY) Then
@@ -415,7 +408,7 @@ Function make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
   	Call view.newLine(rail_width/2.0 + plate_gap, plate_thickness, x_max, plate_thickness)
   	Call view.newLine(x_max, plate_thickness, x_max, 0)
 
-    Call generate_two_sided_component(p2,track_material,rail_width/2.0+plate_gap+10,plate_thickness/2.0,z_min,z_max+motion_length,aluminium_resolution)
+    'Call generate_two_sided_component(p2,track_material,rail_width/2.0+plate_gap+10,plate_thickness/2.0,z_min,z_max+motion_length,aluminium_resolution)
   	'Call getDocument().setMaxElementSize(p2, aluminiumResolution)
   End If
 
@@ -463,7 +456,7 @@ Function make_airbox(BUILD_WITH_SYMMETRY)
   Else
     Call draw_square(-x_max-airbox_padding,x_max+airbox_padding,y_min-airbox_padding,y_max+airbox_padding)
   End If
-  Call generate_two_sided_component(airbox,air_material,-x_max+1,y_max-1,zmin-motion_length-airbox_padding,z_max+motion_length+airbox_padding,air_resolution)
+  Call generate_two_sided_component(airbox,air_material,-x_max+1,y_max-1,z_min-airbox_padding,z_max+airbox_padding,air_resolution)
   Call getDocument().setMaxElementSize(airbox, air_resolution)
   Call getDocument().getView().setObjectVisible(airbox, False)
 
