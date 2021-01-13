@@ -13,16 +13,13 @@ end_ext = 15          'one sided winding extension value (TODO: replace with dyn
 air_gap = 14          'distance between DLIM cores
 
 'Problem Variables'
-slip_speed = kphTomps(100) 'Slip speed of motor'
-speed_steps = 5            'Number of speed steps to solve for'
-accel = 10                 'constant acceleration (in N)'
-phase = 3
+slip_speed = kphTomps(500) 'Slip speed of motor'
 
 'Build Flags'
 const SHOW_FORBIDDEN_AIR = False	  	' Show forbidden zones for design purposes (as red air regions)
 const SHOW_FULL_GEOMETRY = False	   	' Build with flanges of track
 const BUILD_WITH_SYMMETRY = False   	' Build only half of the track and one wheel, with symmetry conditions
-const BUILD_WITH_CIRCUIT = False       ' Build simulation with drive circuitry (useful to turn off for debugging)'
+const BUILD_WITH_CIRCUIT = True       ' Build simulation with drive circuitry (useful to turn off for debugging)'
 const BUILD_STATIC = False            ' Build simulation with no motion components
 const AUTO_RUN = False                ' Run simulation as soon as problam definition is complete
 const RECORD_TRANSIENT_POWER = True   ' Run simulation with transient average power loss'
@@ -35,6 +32,7 @@ v_max = 120                 'input voltage'
 freq = 15                   'source frequency'
 awg = 20                    'winding gauge'
 nt = 50                     'number of coil turns (set nt=1 for solid winding)'
+phase = 3                   'number of phases'
 
 'Material Setup'
 core_material = "M330-35A"
@@ -76,12 +74,12 @@ remesh_padding = 0.25
 airbox_padding = 1
 copperdiam = 0.127*92^((36-awg)/39)
 copperarea = PI*(copperdiam/2)^2
-time_start = 0
 
 'Problem Dependent Internal Variables'
-sim_time = 0
-time_step = 0
-motion_length = 0
+time_start = 0
+sim_time = 10
+time_step = 1
+motion_length = slip_speed*sim_time
 
 'Problem Bounds'
 x_min = 0
@@ -105,9 +103,7 @@ Set ids_o = new ids.init()
 
 
 
-
 'Main Code'
-motion_length = (slip_speed*slip_speed)/(2*accel)*1000
 Call make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
 Call build_motor()
 Call make_airbox(BUILD_WITH_SYMMETRY)
@@ -120,25 +116,14 @@ If NOT(BUILD_STATIC) Then
   time_steps=Array(-1)
   vel_steps=Array(-1)
 
-  speed_increment = slip_speed/speed_steps
-  time_increment = speed_increment/accel
-
   Redim Preserve time_steps(speed_steps)
   Redim Preserve vel_steps(speed_steps)
 
   time_steps(0)=0
-  vel_steps(0)=0
+  vel_steps(0)=kphTomps(499)'relative speed value'
 
-  For i = 1 to speed_steps
-    time_steps(i)=time_increment*i
-    vel_steps(i)=speed_increment*i
-  Next
-
-  Call print(motion_length)
   Call setup_motion(time_steps,vel_steps)
 
-  sim_time = time_steps(UBound(time_steps))
-  time_step = time_increment
 End If
 
 Call setup_sim()
@@ -147,7 +132,6 @@ If(AUTO_RUN) Then
   Call getDocument().solveTransient3DWithMotion()
 End If
 'end main'
-
 
 
 
@@ -456,7 +440,7 @@ Function make_airbox(BUILD_WITH_SYMMETRY)
   Else
     Call draw_square(-x_max-airbox_padding,x_max+airbox_padding,y_min-airbox_padding,y_max+airbox_padding)
   End If
-  Call generate_two_sided_component(airbox,air_material,-x_max+1,y_max-1,z_min-airbox_padding,z_max+airbox_padding,air_resolution)
+  Call generate_two_sided_component(airbox,air_material,-x_max+1,y_max-1,z_min-airbox_padding-motion_length,z_max+airbox_padding+motion_length,air_resolution)
   Call getDocument().setMaxElementSize(airbox, air_resolution)
   Call getDocument().getView().setObjectVisible(airbox, False)
 
