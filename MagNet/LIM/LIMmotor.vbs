@@ -410,9 +410,9 @@ End Function
 Function make_airbox(BUILD_WITH_SYMMETRY)
   airbox = "AirBox"
   If BUILD_WITH_SYMMETRY Then
-    Call draw_square(x_min,-x_max-10,y_min,y_max)
+    Call draw_square(x_min,-x_max-80,y_min,y_max)
   Else
-    Call draw_square(-x_max-airbox_padding-10,x_max+airbox_padding+10,y_min-airbox_padding,y_max+airbox_padding)
+    Call draw_square(-x_max-airbox_padding-80,x_max+airbox_padding+80,y_min-airbox_padding,y_max+airbox_padding)
   End If
   Call generate_two_sided_component(airbox,air_material,-x_max-1,y_max-1,zmin-motion_length-airbox_padding,z_max+motion_length+airbox_padding,air_resolution)
   Call getDocument().setMaxElementSize(airbox, air_resolution)
