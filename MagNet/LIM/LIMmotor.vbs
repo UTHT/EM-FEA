@@ -22,7 +22,7 @@ const SHOW_FORBIDDEN_AIR = True	  	' Show forbidden zones for design purposes (a
 const SHOW_FULL_GEOMETRY = True	   	' Build with flanges of track
 const BUILD_WITH_SYMMETRY = False   	' Build only half of the track and one wheel, with symmetry conditions
 const BUILD_WITH_CIRCUIT = False      ' Build simulation with drive circuitry (useful to turn off for debugging)'
-const BUILD_STATIC = TRUE             ' Build simulation with no motion components, 
+const BUILD_STATIC = True             ' Build simulation with no motion components, 
 const AUTO_RUN = False                ' Run simulation as soon as problam definition is complete
 
 'Winding Setup'
@@ -94,11 +94,7 @@ Set ids_o = new ids.init()
 
 'Main Code'
 Call make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
-'Call reset_local()
-'Call print(ids_o.subtract_strings("Coil#1 Copy#1","Coil#1"))
 Call build_motor()
-'components = get_core_components(num_coils)
-'Call getDocument().getApplication().MsgBox(components(0))
 Call make_airbox(BUILD_WITH_SYMMETRY)
 If(BUILD_WITH_CIRCUIT) Then
   Set drive = new power.init()
@@ -121,7 +117,6 @@ Function build_single_side_core()
   Call make_core_component()
   Call make_single_side_windings(make_winding())
   Call make_single_side_coils()
-  'Call print(ids_o.get_core_components())
 End Function
 
 Function orient_A()
@@ -162,7 +157,6 @@ Function draw_core_geometry()
   Call view.newLine(-width_core/2-core_endlengths,thick_core,width_core/2+core_endlengths,thick_core)
   Call view.newLine(width_core/2+core_endlengths,0,width_core/2+core_endlengths,thick_core)
   Call view.newLine(-width_core/2-core_endlengths,0,-width_core/2-core_endlengths,thick_core)
-  ' Call view.newLine()
 
   For i=0 to slots-1
     delta = slot_pitch*i
@@ -265,7 +259,7 @@ Function make_single_side_windings(winding_name)
   Call getDocument().beginUndoGroup("Transform Component")
   Call view.getSlice().moveInALine(-length_core/2)
 
-  For i=1 to num_coils-1
+  For i = 1 to num_coils-1
     Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding_name),1),slot_pitch*i, 0, 0, 1)
     copy_component = ids_o.get_copy_components()(0)
     copy_keyword = ids_o.subtract_strings(ids_o.get_winding_keyword+"#1",copy_component)
@@ -1109,11 +1103,6 @@ If NOT getUserMaterialDatabase().isMaterialInDatabase(railMaterial) Then
 	Call getUserMaterialDatabase().setMassDensity(railMaterial, ArrayOfValues)
 End If
 
-'Call newDocument()
-'Call SetLocale("en-us")
-'Call getDocument().setDefaultLengthUnit("Millimeters")
-'Set view = getDocument().getView()
-
 ' Air
 
 If BUILD_WITH_SYMMETRY Then
@@ -1135,18 +1124,10 @@ End If
 
 Call view.getSlice().moveInALine(-airZ/2.0)
 Call view.selectAt(1, 0, infoSetSelection, Array(infoSliceSurface))
-' Call view.makeComponentInALine(airZ, Array("Outer Air"), "Name=AIR", infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
-' Call getDocument().setMaxElementSize("Outer Air", airResolution)
 Call view.getSlice().moveInALine(airZ/2.0)
-' Call getDocument().getView().setObjectVisible("Outer Air", False)
 
 Call view.selectAll(infoSetSelection, Array(infoSliceLine))
 Call view.deleteSelection()
-
-'If BUILD_WITH_SYMMETRY Then
-'	Call getDocument().createBoundaryCondition(Array("Outer Air,Face#6"), "BoundaryCondition#1")
-'	Call getDocument().setMagneticFieldNormal("BoundaryCondition#1")
-'End If
 
 ' Aluminium
 
@@ -1161,31 +1142,9 @@ Else
 	Call view.newLine(rail_thickness/2.0, railY, -rail_thickness/2.0, railY)
 	Call view.newLine(-rail_thickness/2.0, railY, -rail_thickness/2.0, -railY)
 End If
-' creates the aluminum block 
-' moves the construction slice i.e. 'building' faces
-' Call view.getSlice().moveInALine(-airZ/2.0)
-' Call view.selectAt(1, 0, infoSetSelection, Array(infoSliceSurface))
-' extrude that shape in a certain distance
-' Call view.makeComponentInALine(airZ, Array("Aluminium"), "Name=" & railMaterial, infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
-' Call getDocument().setMaxElementSize("Aluminium", aluminiumResolution)
-' Call view.getSlice().moveInALine(airZ/2.0)
 
 Call view.selectAll(infoSetSelection, Array(infoSliceLine))
 Call view.deleteSelection()
-
-' sets the resolution of the faces - controls the maximum edge length i.e. mesh surface 
-' Call getDocument().setMaxElementSize("Aluminium,Face#4", railSurfaceResolution)
-
-' If DOUBLE_SIDED AND NOT BUILD_WITH_SYMMETRY Then
-' 	Call getDocument().setMaxElementSize("Aluminium,Face#6", railSurfaceResolution)
-' End If
-
-' Call getDocument().makeMotionComponent(Array("Aluminium"))
-' Call getDocument().setMotionSourceType("Motion#1", infoVelocityDriven)
-' Call getDocument().setMotionType("Motion#1", infoLinear)
-' Call getDocument().setMotionLinearDirection("Motion#1", Array(0, 1, 0))
-' Call getDocument().setMotionPositionAtStartup("Motion#1", -motionLength/2.0)
-' Call getDocument().setMotionSpeedVsTime("Motion#1", Array(0), Array(speed))
 
 ' Magnets
 
@@ -1231,12 +1190,24 @@ For wheel = 1 To numWheels
 
 		Magnets(i - 1) = name
 	Next
-                                              'x          'y 'z
-	Call getDocument().shiftComponent(Magnets, offsetX + 50, 0, 0, 1)
-                                    ' (path array, x, y, z, x axis, y axis, z axis, rotation angle, problem ID)
-  Call getDocument().rotateComponent(Magnets, offsetX + 1000, 50, 0, 50, 0, 0, 90, 1)
-  'shiftComponent (path array, x shift, y shift, z shift, problem ID)
-  Call getDocument().shiftComponent(Magnets, offsetX-70 , 13, 370, 1)
+
+  'circularmagent addition 
+  circmag_x_shift = offsetX + 50      'circular magnet offset in x direction
+  circmag_y_shift = 0      'circular magnet offset in y direction
+  circmag_z_shift = 0      'circular magnet offset in z direction
+	Call getDocument().shiftComponent(Magnets, circmag_x_offset, circmag_y_offset, circmag_z_offset, 1)
+  circmag_x_rotate = offsetX + 1000      'circular magnet offset in x direction
+  circmag_y_rotate = 50      'circular magnet offset in y direction
+  circmag_z_rotate = 0      'circular magnet offset in z direction
+  circmag_xAxis_rotate = 50      'circular magnet offset in x direction
+  circmag_yAxis_rotate = 0      'circular magnet offset in y direction
+  circmag_zAxis_rotate = 0      'circular magnet offset in z direction
+  circmag_angle_rotate = 90      'circular magnet offset in z direction
+  Call getDocument().rotateComponent(Magnets, circmag_x_rotate, circmag_y_rotate, circmag_z_rotate, circmag_xAxis_rotate, circmag_yAxis_rotate, circmag_zAxis_rotate, circmag_angle_rotate, 1)
+  circmag_x_shift = offsetX + 25      'circular magnet offset in x direction
+  circmag_y_shift = 13      'circular magnet offset in y direction
+  circmag_z_shift = 370      'circular magnet offset in z direction
+  Call getDocument().shiftComponent(Magnets, circmag_x_shift , circmag_y_shift, circmag_z_shift, 1)
 
 	If DOUBLE_SIDED AND NOT BUILD_WITH_SYMMETRY Then
 		Call view.newCircle(-(r2 + rail_thickness/2.0 + gap), wheel_y, r1)
@@ -1303,13 +1274,7 @@ For wheel = 1 To numWheels
 Next
 
 Call view.getSlice().moveInALine(thickness/2.0)
-
 Call getDocument().setTimeStepMethod(infoFixedIntervalTimeStep)
-' Call getDocument().setFixedIntervalTimeSteps(0, solveStep*numSteps, solveStep)
-' Call getDocument().deleteTimeStepMaximumDelta()
-' Call getDocument().setAdaptiveTimeSteps(0, solveStep*numSteps, solveStep, solveStep * 4)
-' Call getDocument().setTimeAdaptionTolerance(0.03)
-
 Call getDocument().useHAdaption(useHAdaption)
 Call getDocument().usePAdaption(usePAdaption)
 
