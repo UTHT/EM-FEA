@@ -1,4 +1,4 @@
-  %Define LIM Parameters (Parallel to ANSYS rmXprt LinearMCore definition)
+%Define LIM Parameters (Parallel to ANSYS rmXprt LinearMCore definition)
 WIDTH_CORE = 370; %Core width in motion direction
 THICK_CORE = 60; %Core thickness
 LENGTH = 50; %Core length
