@@ -110,8 +110,9 @@ Set ids_o = new ids.init()
 'Main Code'
 
 Call make_core_component()
-Call make_single_side_windings(make_single_d_winding())
-Call make_single_side_coils()
+'Call make_single_t_winding()
+Call make_single_side_windings(make_single_t_winding())
+'Call make_single_side_coils()
 
 
 'Call setup_parameters()
@@ -152,7 +153,14 @@ Function make_core_component()
   Call view.getSlice().moveInALine(length_core/2)
 End Function
 
-Function get_coil_cross_section_coords(lx1,rx1,by1,ty1,lx2,rx2,by2,ty2)
+'MAKE DISTRIBUTED WINDING'
+'returns:
+'winding A component name
+'winding B component name
+'number of duplicates down core length
+Function make_single_d_winding()
+  Call view.getSlice().moveInALine(-length_core/2)
+
   lx1 = -slot_teeth_width/2+coil_core_separation_x
   rx1 = -slot_teeth_width/2+coil_core_separation_x+coil_width
   by1 = coil_core_separation_y
@@ -161,13 +169,6 @@ Function get_coil_cross_section_coords(lx1,rx1,by1,ty1,lx2,rx2,by2,ty2)
   rx2 = rx1+distribute_distance*slot_pitch
   by2 = slot_height-ty1
   ty2 = slot_height-by1
-End Function
-
-'MAKE DISTRIBUTED WINDING'
-Function make_single_d_winding()
-  Call view.getSlice().moveInALine(-length_core/2)
-
-  Call get_coil_cross_section_coords(lx1,rx1,by1,ty1,lx2,rx2,by2,ty2)
 
   Call draw_square(lx1,rx1,by1,ty1)
   Call draw_square(lx2,rx2,by2,ty2)
@@ -188,30 +189,81 @@ Function make_single_d_winding()
   Call unselect()
   windings(1) = coilbuild_b.end_component_build()
 
-  make_winding = windings
+  make_single_d_winding = Array(windings(0),windings(1),(slots-distribute_distance))
+  Call view.getSlice().moveInALine(length_core/2)
+End Function
+
+'MAKE TOOTH COIL WINDING'
+'returns:
+'winding A component name
+'winding B component name
+'number of duplicates down core length
+Function make_single_t_winding()
+  Call view.getSlice().moveInALine(-length_core/2)
+
+  lx1 = -slot_teeth_width/2+coil_core_separation_x+coil_width/2
+  rx1 = -slot_teeth_width/2+coil_core_separation_x+coil_width
+  by1 = coil_core_separation_y
+  ty1 = coil_core_separation_y+slot_height
+  lx2 = lx1+slot_pitch-coil_width/2
+  rx2 = rx1+slot_pitch-coil_width/2
+  by2 = by1
+  ty2 = ty1
+
+  Call draw_square(lx1,rx1,by1,ty1)
+  Call draw_square(lx2,rx2,by2,ty2)
+
+  Dim windings(1)
+
+  Set coilbuild_a = new build.init(ids_o.get_winding_keyword()+"#1.1")
+  Call view.selectAt((lx1+rx1)/2,(ty1+by1)/2, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInALine(length_core,Array(coilbuild_a.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call coilbuild_a.increment_component_num()
+  Call unselect()
+  windings(0) = coilbuild_a.end_component_build()
+
+  set coilbuild_b = new build.init(ids_o.get_winding_keyword()+"#1.2")
+  Call view.selectAt((lx2+rx2)/2,(ty2+by2)/2, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInALine(length_core,Array(coilbuild_b.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call coilbuild_b.increment_component_num()
+  Call unselect()
+  windings(1) = coilbuild_b.end_component_build()
+
+  make_single_t_winding = Array(windings(0),windings(1),slots)
   Call view.getSlice().moveInALine(length_core/2)
 
+End Function
+
+'MAKE GRAMME RING WINDING'
+'returns:
+'winding A component name
+'winding B component name
+'number of duplicates down core length
+Function make_single_g_winding()
 
 End Function
 
-Function make_single_a_winding()
-
-
-End Function
-
-Function make_single_side_windings(winding_name)
+Function make_single_side_windings(params)
   Dim component_name
   copy_keyword = " Copy#1"
+
+  Print(params)
+
+  winding1 = params(0)
+  winding2 = params(1)
+  numcoils = params(2)
 
   Call getDocument().beginUndoGroup("Transform Component")
   Call view.getSlice().moveInALine(-length_core/2)
 
-  For i=1 to num_coils-1
-    Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding_name),1),slot_pitch*i, 0, 0, 1)
+  For i=1 to numcoils
+    Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding1),1),slot_pitch*i, 0, 0, 1)
     copy_component = ids_o.get_copy_components()(0)
     copy_keyword = ids_o.subtract_strings(ids_o.get_winding_keyword+"#1",copy_component)
     component_name = Replace(winding_name,"1",i+1)
     Call getDocument().renameObject(copy_component,component_name)
+
+    
   Next
   Call getDocument().endUndoGroup()
   Call clear_construction_lines()
