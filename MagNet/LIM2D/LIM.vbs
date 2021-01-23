@@ -158,6 +158,7 @@ End Function
 'winding A component name
 'winding B component name
 'number of duplicates down core length
+'duplicate distance'
 Function make_single_d_winding()
   Call view.getSlice().moveInALine(-length_core/2)
 
@@ -189,7 +190,7 @@ Function make_single_d_winding()
   Call unselect()
   windings(1) = coilbuild_b.end_component_build()
 
-  make_single_d_winding = Array(windings(0),windings(1),(slots-distribute_distance))
+  make_single_d_winding = Array(windings(0),windings(1),(slots-distribute_distance-1),slot_pitch)
   Call view.getSlice().moveInALine(length_core/2)
 End Function
 
@@ -198,6 +199,7 @@ End Function
 'winding A component name
 'winding B component name
 'number of duplicates down core length
+'duplicate distance'
 Function make_single_t_winding()
   Call view.getSlice().moveInALine(-length_core/2)
 
@@ -229,7 +231,7 @@ Function make_single_t_winding()
   Call unselect()
   windings(1) = coilbuild_b.end_component_build()
 
-  make_single_t_winding = Array(windings(0),windings(1),slots)
+  make_single_t_winding = Array(windings(0),windings(1),slots-2,slot_pitch)
   Call view.getSlice().moveInALine(length_core/2)
 
 End Function
@@ -239,6 +241,7 @@ End Function
 'winding A component name
 'winding B component name
 'number of duplicates down core length
+'duplicate distance'
 Function make_single_g_winding()
 
 End Function
@@ -247,23 +250,25 @@ Function make_single_side_windings(params)
   Dim component_name
   copy_keyword = " Copy#1"
 
-  Print(params)
-
   winding1 = params(0)
   winding2 = params(1)
   numcoils = params(2)
+  dist = params(3)
 
   Call getDocument().beginUndoGroup("Transform Component")
   Call view.getSlice().moveInALine(-length_core/2)
 
   For i=1 to numcoils
-    Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding1),1),slot_pitch*i, 0, 0, 1)
+    Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding1),1),dist*i, 0, 0, 1)
     copy_component = ids_o.get_copy_components()(0)
-    copy_keyword = ids_o.subtract_strings(ids_o.get_winding_keyword+"#1",copy_component)
-    component_name = Replace(winding_name,"1",i+1)
+    component_name = Replace(winding1,"1.1",(i+1)&".1")
     Call getDocument().renameObject(copy_component,component_name)
 
-    
+    Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding2),1),dist*i, 0, 0, 1)
+    copy_component = ids_o.get_copy_components()(0)
+    component_name = Replace(winding2,"1.2",(i+1)&".2")
+    Call getDocument().renameObject(copy_component,component_name)
+
   Next
   Call getDocument().endUndoGroup()
   Call clear_construction_lines()
@@ -637,7 +642,6 @@ Class build
 
   Public Function update()
     temp_comps = up_complist()
-    Call print(temp_comps)
   End Function
 
   Public Function union_all()
@@ -871,8 +875,6 @@ Function union_components(component_1,component_2)
 End Function
 
 Function rename_components(component,name)
-  Print(component)
-  Print(name)
   Call getDocument().beginUndoGroup("Rename Component", true)
   Call getDocument().renameObject(component,name)
   Call getDocument().endUndoGroup()
