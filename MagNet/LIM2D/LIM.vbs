@@ -136,23 +136,43 @@ Call getDocument().shiftComponent(select_core_components(), 0, 50, 0, 1)
 'end main'
 
 Function draw_core_geometry()
-  Call view.newLine(-width_core/2-core_endlengths,thick_core,width_core/2+core_endlengths,thick_core)
-  Call view.newLine(width_core/2+core_endlengths,0,width_core/2+core_endlengths,thick_core)
-  Call view.newLine(-width_core/2-core_endlengths,0,-width_core/2-core_endlengths,thick_core)
+  y_offset = air_gap/2
+  Call view.newLine(-width_core/2-core_endlengths,thick_core+y_offset,width_core/2+core_endlengths,thick_core+y_offset)
+  Call view.newLine(width_core/2+core_endlengths,y_offset,width_core/2+core_endlengths,thick_core+y_offset)
+  Call view.newLine(-width_core/2-core_endlengths,y_offset,-width_core/2-core_endlengths,thick_core+y_offset)
   ' Call view.newLine()
 
   For i=0 to slots-1
     delta = slot_pitch*i
-    Call view.newLine(-slot_teeth_width/2+delta,0,-slot_teeth_width/2+delta,slot_height)
-    Call view.newLine(-slot_teeth_width/2+slot_gap+delta,0,-slot_teeth_width/2+slot_gap+delta,slot_height)
-    Call view.newLine(-slot_teeth_width/2+delta,slot_height,-slot_teeth_width/2+slot_gap+delta,slot_height)
+    Call view.newLine(-slot_teeth_width/2+delta,y_offset,-slot_teeth_width/2+delta,slot_height+y_offset)
+    Call view.newLine(-slot_teeth_width/2+slot_gap+delta,y_offset,-slot_teeth_width/2+slot_gap+delta,slot_height+y_offset)
+    Call view.newLine(-slot_teeth_width/2+delta,slot_height+y_offset,-slot_teeth_width/2+slot_gap+delta,slot_height+y_offset)
     If(i < slots-1) Then
-      Call view.newLine(-slot_teeth_width/2+slot_gap+delta,0,-slot_teeth_width/2+slot_gap+delta+teeth_width,0)
+      Call view.newLine(-slot_teeth_width/2+slot_gap+delta,y_offset,-slot_teeth_width/2+slot_gap+delta+teeth_width,y_offset)
     End If
   Next
 
-  Call view.newLine(-width_core/2-core_endlengths,0,-slot_teeth_width/2,0)
-  Call view.newLine(slot_teeth_width/2,0,width_core/2+core_endlengths,0)
+  Call view.newLine(-width_core/2-core_endlengths,y_offset,-slot_teeth_width/2,y_offset)
+  Call view.newLine(slot_teeth_width/2,y_offset,width_core/2+core_endlengths,y_offset)
+
+  Call view.newLine(-width_core/2-core_endlengths,-(thick_core+y_offset),width_core/2+core_endlengths,-(thick_core+y_offset))
+  Call view.newLine(width_core/2+core_endlengths,-y_offset,width_core/2+core_endlengths,-(thick_core+y_offset))
+  Call view.newLine(-width_core/2-core_endlengths,-y_offset,-width_core/2-core_endlengths,-(thick_core+y_offset))
+  ' Call view.newLine()
+
+  For i=0 to slots-1
+    delta = slot_pitch*i
+    Call view.newLine(-slot_teeth_width/2+delta,-y_offset,-slot_teeth_width/2+delta,-(slot_height+y_offset))
+    Call view.newLine(-slot_teeth_width/2+slot_gap+delta,-y_offset,-slot_teeth_width/2+slot_gap+delta,-(slot_height+y_offset))
+    Call view.newLine(-slot_teeth_width/2+delta,-(slot_height+y_offset),-slot_teeth_width/2+slot_gap+delta,-(slot_height+y_offset))
+    If(i < slots-1) Then
+      Call view.newLine(-slot_teeth_width/2+slot_gap+delta,-y_offset,-slot_teeth_width/2+slot_gap+delta+teeth_width,-y_offset)
+    End If
+  Next
+
+  Call view.newLine(-width_core/2-core_endlengths,-y_offset,-slot_teeth_width/2,-y_offset)
+  Call view.newLine(slot_teeth_width/2,-y_offset,width_core/2+core_endlengths,-y_offset)
+
 End Function
 
 Function make_core_component()
