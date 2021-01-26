@@ -87,14 +87,14 @@ time_start = 0
 
 'End Effect Compensator Variables'
 n = 32
-r1 = 120 / 2
-r2 = 200 / 2
+r1 = 60 / 2
+r2 = 120 / 2
 ra = 45 * PI / 180
 gap = 20.5
 thickness = 60
 rail_thickness = 10.5
-rpm = 360
-core_separation = 0
+rpm = 2*pi*freq
+core_separation = 5
 
 'Problem Bounds'
 x_padding = 10
@@ -123,7 +123,7 @@ Call make_core_component()
 Call make_single_side_windings(make_single_t_winding())
 Call make_single_side_coils()
 Call make_ee_compensator()
-
+'Set drive = new power.init()
 
 'Call setup_parameters()
 
@@ -197,6 +197,8 @@ Function make_ee_compensator()
   x_offset = width_core/2+r2+core_separation+core_endlengths
   z_offset = (thickness-length_core)/2+length_core/2
 
+  rotation_axis = Array(0,0,-1)
+
   Call view.getSlice().moveInALine(-z_offset)
 
   Call view.newCircle(x_offset, y_offset, r1)
@@ -236,6 +238,20 @@ Function make_ee_compensator()
   	Magnets(i - 1) = ids_o.get_magnet_keyword()&"1#" & i
   Next
 
+  Call getDocument().makeMotionComponent(Magnets)
+  Call getDocument().setMotionSourceType("Motion#1", infoVelocityDriven)
+  Call getDocument().setMotionRotaryCenter("Motion#1", Array(x_offset, y_offset, 0))
+  Call getDocument().setMotionRotaryAxis("Motion#1",rotation_axis)
+
+  Call getDocument().setMotionPositionAtStartup("Motion#1", 0)
+  Call getDocument().setMotionSpeedAtStartup("Motion#1", 0)
+  REDIM ArrayOfValues1(0)
+  ArrayOfValues1(0)= 0
+  REDIM ArrayOfValues2(0)
+  ArrayOfValues2(0)= rpm*6.0
+  Call getDocument().setMotionSpeedVsTime("Motion#1", ArrayOfValues1, ArrayOfValues2)
+
+
   Call view.newCircle(x_offset, -y_offset, r1)
   Call view.newCircle(x_offset, -y_offset, r2)
 
@@ -267,6 +283,20 @@ Function make_ee_compensator()
 
   	Magnets(i - 1) = ids_o.get_magnet_keyword()&"2#" & i
   Next
+
+  Call getDocument().makeMotionComponent(Magnets)
+  Call getDocument().setMotionSourceType("Motion#2", infoVelocityDriven)
+  Call getDocument().setMotionRotaryCenter("Motion#2", Array(x_offset, -y_offset, 0))
+  Call getDocument().setMotionRotaryAxis("Motion#2",rotation_axis)
+
+  Call getDocument().setMotionPositionAtStartup("Motion#2", 0)
+  Call getDocument().setMotionSpeedAtStartup("Motion#2", 0)
+  REDIM ArrayOfValues1(0)
+  ArrayOfValues1(0)= 0
+  REDIM ArrayOfValues2(0)
+  ArrayOfValues2(0)= -rpm*6.0
+  Call getDocument().setMotionSpeedVsTime("Motion#2", ArrayOfValues1, ArrayOfValues2)
+
 
   Call view.getSlice().moveInALine(z_offset)
 End Function
@@ -841,6 +871,7 @@ Class power
   Public Default Function init()
     coil_comps = ids_o.get_coil_components()
     num_coils = CInt(UBound(coil_comps)+1)
+    print(coil_comps)
 
     start_x = 100
     start_y = 100
