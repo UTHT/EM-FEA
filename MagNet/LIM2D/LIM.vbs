@@ -84,6 +84,17 @@ copperdiam = 0.127*92^((36-awg)/39)
 copperarea = PI*(copperdiam/2)^2
 time_start = 0
 
+'End Effect Compensator Variables'
+n = 32
+r1 = 120 / 2
+r2 = 200 / 2
+ra = 45 * PI / 180
+gap = 20.5
+thickness = 60
+rail_thickness = 10.5
+rpm = 360
+core_separation = 0
+
 'Problem Bounds'
 x_min = 0
 y_min = -20
@@ -109,10 +120,15 @@ Set ids_o = new ids.init()
 
 'Main Code'
 
+Print(ids_o.get_magnet_keyword())
+
 Call make_core_component()
 'Call make_single_t_winding()
 Call make_single_side_windings(make_single_t_winding())
-'Call make_single_side_coils()
+Call make_single_side_coils()
+Call make_ee_compensator()
+Call getDocument().shiftComponent(select_core_components(), 0, 50, 0, 1)
+
 
 
 'Call setup_parameters()
@@ -149,8 +165,56 @@ Function make_core_component()
   component_name(0) = core_name
   Call view.makeComponentInALine(length_core,component_name,format_material(core_material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
   Call getDocument().setMaxElementSize(core_name,core_resolution)
-  Call clear_construction_lines()
+  'Call clear_construction_lines()
   Call view.getSlice().moveInALine(length_core/2)
+End Function
+
+Function make_ee_compensator()
+
+  y_offset = r2
+  x_offset = width_core/2+r2+core_separation+core_endlengths
+  z_offset = (thickness-length_core)/2+length_core/2
+
+  Call view.getSlice().moveInALine(-z_offset)
+
+  Call view.newCircle(x_offset, y_offset, r1)
+  Call view.newCircle(x_offset, y_offset, r2)
+  Dim x_hat
+  Dim y_hat
+
+  For i = 1 To n
+  	x_hat = Sin(PI * 2.0 * (i + 0.5) / n)
+  	y_hat = Cos(PI * 2.0 * (i + 0.5) / n)
+
+  	Call view.newLine(x_offset + x_hat*r1, y_hat*r1+y_offset, x_offset + x_hat*r2, y_hat*r2+y_offset)
+  Next
+
+  ReDim Magnets(n - 1)
+  Dim mid
+  Dim direction
+
+  For i = 1 To n
+  	x_hat = Sin(PI * 2.0 * i / n)
+  	y_hat = Cos(PI * 2.0 * i / n)
+  	mid = (r1 + r2) / 2.0
+
+  	Call view.selectAt(x_offset + x_hat*mid, y_hat*mid+y_offset, infoSetSelection, Array(infoSliceSurface))
+
+  	x_hat = Sin(PI * 2.0 * i / n - i * ra)
+  	y_hat = Cos(PI * 2.0 * i / n - i * ra)
+
+  	direction = "[" & x_hat & "," & y_hat & ",0]"
+
+  	REDIM ArrayOfValues(0)
+  	ArrayOfValues(0)= ids_o.get_magnet_keyword()&"#" & i
+  	Call view.makeComponentInALine(thickness, ArrayOfValues, "Name=N50;Type=Uniform;Direction=" & direction, True)
+
+  	Call getDocument().setMaxElementSize(ids_o.get_magnet_keyword()&"#" & i, 1)
+
+  	Magnets(i - 1) = ids_o.get_magnet_keyword()&"#" & i
+  Next
+
+  Call view.getSlice().moveInALine(z_offset)
 End Function
 
 'MAKE DISTRIBUTED WINDING'
@@ -271,7 +335,8 @@ Function make_single_side_windings(params)
 
   Next
   Call getDocument().endUndoGroup()
-  Call clear_construction_lines()
+  Call view.getSlice().moveInALine(length_core/2)
+  'Call clear_construction_lines()
 End Function
 
 Function make_single_side_coils()
@@ -281,8 +346,6 @@ Function make_single_side_coils()
   Set re = new RegExp
   re.Pattern = "[^\d]"
   re.Global = True
-
-  Call get_coil_cross_section_coords(lx1,rx1,by1,ty1,lx2,rx2,by2,ty2)
 
   For i=0 to UBound(match)
     coil_path = match(i)
@@ -294,12 +357,14 @@ Function make_single_side_coils()
     excitaiton_normal = Array(0,0,1)
     excitation_volume = Array(coil_path)
 
+    Call getDocument().getView().selectObject(coil_path, infoSetSelection)
+    Call getDocument().makeSimpleCoil(1, Array(coil_path))
+
     If(coil_num Mod 2=0) Then
       excitation_normal = Array(0,0,1)
     Else
       excitation_normal = Array(0,0,-1)
     End If
-    Call getDocument().makeCurrentFlowSurfaceCoil(1,coil_path,excitation_center,excitation_normal,excitation_volume)
   Next
   Call getDocument.endUndoGroup()
 End Function
@@ -441,12 +506,14 @@ Class ids
   Private a_postfix
   Private b_postfix
   Private copper_keyword
+  Private magnet_keyword
   Private cores
 
   'Constructor
   Public Default Function init()
     copper_keyword = "CoilGeometry"
-    core_matches = Array("Core",copper_keyword)
+    magnet_keyword = "Magnet"
+    core_matches = Array("Core",copper_keyword,magnet_keyword)
     remove_strings = Array(",","Body#1")
     copy_replace_strings = Array("Copy#1","Copy#9")
 
@@ -616,6 +683,10 @@ Class ids
 
   Public Property Get get_winding_keyword()
     get_winding_keyword = copper_keyword
+  End Property
+
+  Public Property Get get_magnet_keyword()
+    get_magnet_keyword = magnet_keyword
   End Property
 
 End Class
