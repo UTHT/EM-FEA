@@ -119,9 +119,6 @@ Set ids_o = new ids.init()
 
 
 'Main Code'
-
-Print(ids_o.get_magnet_keyword())
-
 Call make_core_component()
 'Call make_single_t_winding()
 Call make_single_side_windings(make_single_t_winding())
@@ -178,20 +175,28 @@ End Function
 Function make_core_component()
   Call view.getSlice().moveInALine(-length_core/2)
   Call draw_core_geometry()
-  Call view.selectAt(0,(thick_core+slot_height)/2,infoSetSelection,Array(infoSliceSurface))
 
+  Call view.selectAt(0,(thick_core+slot_height)/2,infoSetSelection,Array(infoSliceSurface))
   core_name = "Core 1"
   REDIM component_name(0)
   component_name(0) = core_name
   Call view.makeComponentInALine(length_core,component_name,format_material(core_material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
   Call getDocument().setMaxElementSize(core_name,core_resolution)
+
+  Call view.selectAt(0,-(thick_core+slot_height)/2,infoSetSelection,Array(infoSliceSurface))
+  core_name = "Core 2"
+  REDIM component_name(0)
+  component_name(0) = core_name
+  Call view.makeComponentInALine(length_core,component_name,format_material(core_material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call getDocument().setMaxElementSize(core_name,core_resolution)
+
   'Call clear_construction_lines()
   Call view.getSlice().moveInALine(length_core/2)
 End Function
 
 Function make_ee_compensator()
 
-  y_offset = r2
+  y_offset = r2+air_gap/2
   x_offset = width_core/2+r2+core_separation+core_endlengths
   z_offset = (thickness-length_core)/2+length_core/2
 
@@ -226,12 +231,44 @@ Function make_ee_compensator()
   	direction = "[" & x_hat & "," & y_hat & ",0]"
 
   	REDIM ArrayOfValues(0)
-  	ArrayOfValues(0)= ids_o.get_magnet_keyword()&"#" & i
+  	ArrayOfValues(0)= ids_o.get_magnet_keyword()&"1#" & i
   	Call view.makeComponentInALine(thickness, ArrayOfValues, "Name=N50;Type=Uniform;Direction=" & direction, True)
 
-  	Call getDocument().setMaxElementSize(ids_o.get_magnet_keyword()&"#" & i, 1)
+  	Call getDocument().setMaxElementSize(ids_o.get_magnet_keyword()&"1#" & i, 1)
 
-  	Magnets(i - 1) = ids_o.get_magnet_keyword()&"#" & i
+  	Magnets(i - 1) = ids_o.get_magnet_keyword()&"1#" & i
+  Next
+
+  Call view.newCircle(x_offset, -y_offset, r1)
+  Call view.newCircle(x_offset, -y_offset, r2)
+
+  For i = 1 To n
+  	x_hat = Sin(PI * 2.0 * (i + 0.5) / n)
+  	y_hat = Cos(PI * 2.0 * (i + 0.5) / n)
+
+  	Call view.newLine(x_offset + x_hat*r1,-(y_hat*r1+y_offset), x_offset + x_hat*r2,-(y_hat*r2+y_offset))
+  Next
+
+  ReDim Magnets(n - 1)
+  For i = 1 To n
+  	x_hat = Sin(PI * 2.0 * i / n)
+  	y_hat = Cos(PI * 2.0 * i / n)
+  	mid = (r1 + r2) / 2.0
+
+  	Call view.selectAt(x_offset + x_hat*mid,-(y_hat*mid+y_offset), infoSetSelection, Array(infoSliceSurface))
+
+  	x_hat = Sin(PI * 2.0 * i / n - i * ra)
+  	y_hat = Cos(PI * 2.0 * i / n - i * ra)
+
+  	direction = "[" & x_hat & "," & y_hat & ",0]"
+
+  	REDIM ArrayOfValues(0)
+  	ArrayOfValues(0)= ids_o.get_magnet_keyword()&"2#" & i
+  	Call view.makeComponentInALine(thickness, ArrayOfValues, "Name=N50;Type=Uniform;Direction=" & direction, True)
+
+  	Call getDocument().setMaxElementSize(ids_o.get_magnet_keyword()&"2#" & i, 1)
+
+  	Magnets(i - 1) = ids_o.get_magnet_keyword()&"2#" & i
   Next
 
   Call view.getSlice().moveInALine(z_offset)
