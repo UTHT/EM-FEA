@@ -283,6 +283,8 @@ End Function
 Function make_single_d_winding()
   Call view.getSlice().moveInALine(-length_core/2)
 
+  y_offset = air_gap/2
+
   lx1 = -slot_teeth_width/2+coil_core_separation_x
   rx1 = -slot_teeth_width/2+coil_core_separation_x+coil_width
   by1 = coil_core_separation_y
@@ -292,26 +294,47 @@ Function make_single_d_winding()
   by2 = slot_height-ty1
   ty2 = slot_height-by1
 
-  Call draw_square(lx1,rx1,by1,ty1)
-  Call draw_square(lx2,rx2,by2,ty2)
+  numcoils = (slots-distribute_distance-1)
+  dist = slot_pitch
 
-  Dim windings(1)
+  For i = 0 To numcoils
+    Call draw_square(lx1+i*dist,rx1+i*dist,by1+y_offset,ty1+y_offset)
+    Call draw_square(lx2+i*dist,rx2+i*dist,by2+y_offset,ty2+y_offset)
+    Call draw_square(lx1+i*dist,rx1+i*dist,-by1-y_offset,-ty1-y_offset)
+    Call draw_square(lx2+i*dist,rx2+i*dist,-by2-y_offset,-ty2-y_offset)
+  Next
 
-  Set coilbuild_a = new build.init(ids_o.get_winding_keyword()+"#1.1")
-  Call view.selectAt((lx1+rx1)/2,(ty1+by1)/2, infoSetSelection, Array(infoSliceSurface))
+  Dim windings(3)
+
+  Set coilbuild_a = new build.init(ids_o.get_winding_keyword()+"1#1.1")
+  Call view.selectAt((lx1+rx1)/2,(ty1+by1)/2+y_offset, infoSetSelection, Array(infoSliceSurface))
   Call view.makeComponentInALine(length_core,Array(coilbuild_a.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
   Call coilbuild_a.increment_component_num()
   Call unselect()
   windings(0) = coilbuild_a.end_component_build()
 
-  set coilbuild_b = new build.init(ids_o.get_winding_keyword()+"#1.2")
-  Call view.selectAt((lx2+rx2)/2,(ty2+by2)/2, infoSetSelection, Array(infoSliceSurface))
+  set coilbuild_b = new build.init(ids_o.get_winding_keyword()+"1#1.2")
+  Call view.selectAt((lx2+rx2)/2,(ty2+by2)/2+y_offset, infoSetSelection, Array(infoSliceSurface))
   Call view.makeComponentInALine(length_core,Array(coilbuild_b.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
   Call coilbuild_b.increment_component_num()
   Call unselect()
   windings(1) = coilbuild_b.end_component_build()
 
-  make_single_d_winding = Array(windings(0),windings(1),(slots-distribute_distance-1),slot_pitch)
+  Set coilbuild_c = new build.init(ids_o.get_winding_keyword()+"2#1.1")
+  Call view.selectAt((lx1+rx1)/2,-(ty1+by1)/2-y_offset, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInALine(length_core,Array(coilbuild_c.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call coilbuild_c.increment_component_num()
+  Call unselect()
+  windings(2) = coilbuild_c.end_component_build()
+
+  set coilbuild_d = new build.init(ids_o.get_winding_keyword()+"2#1.2")
+  Call view.selectAt((lx2+rx2)/2,-(ty2+by2)/2-y_offset, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInALine(length_core,Array(coilbuild_d.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call coilbuild_d.increment_component_num()
+  Call unselect()
+  windings(3) = coilbuild_d.end_component_build()
+
+  make_single_d_winding = Array(windings(0),windings(1),windings(2),windings(3),num_coils,dist)
   Call view.getSlice().moveInALine(length_core/2)
 End Function
 
@@ -324,6 +347,8 @@ End Function
 Function make_single_t_winding()
   Call view.getSlice().moveInALine(-length_core/2)
 
+  y_offset = air_gap/2
+
   lx1 = -slot_teeth_width/2+coil_core_separation_x+coil_width/2
   rx1 = -slot_teeth_width/2+coil_core_separation_x+coil_width
   by1 = coil_core_separation_y
@@ -333,26 +358,47 @@ Function make_single_t_winding()
   by2 = by1
   ty2 = ty1
 
-  Call draw_square(lx1,rx1,by1,ty1)
-  Call draw_square(lx2,rx2,by2,ty2)
+  numcoils = slots-2
+  dist = slot_pitch
 
-  Dim windings(1)
+  For i = 0 To numcoils
+    Call draw_square(lx1+i*dist,rx1+i*dist,by1+y_offset,ty1+y_offset)
+    Call draw_square(lx2+i*dist,rx2+i*dist,by2+y_offset,ty2+y_offset)
+    Call draw_square(lx1+i*dist,rx1+i*dist,-by1-y_offset,-ty1-y_offset)
+    Call draw_square(lx2+i*dist,rx2+i*dist,-by2-y_offset,-ty2-y_offset)
+  Next
 
-  Set coilbuild_a = new build.init(ids_o.get_winding_keyword()+"#1.1")
-  Call view.selectAt((lx1+rx1)/2,(ty1+by1)/2, infoSetSelection, Array(infoSliceSurface))
+  Dim windings(3)
+
+  Set coilbuild_a = new build.init(ids_o.get_winding_keyword()+"1#1.1")
+  Call view.selectAt((lx1+rx1)/2,(ty1+by1)/2+y_offset, infoSetSelection, Array(infoSliceSurface))
   Call view.makeComponentInALine(length_core,Array(coilbuild_a.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
   Call coilbuild_a.increment_component_num()
   Call unselect()
   windings(0) = coilbuild_a.end_component_build()
 
-  set coilbuild_b = new build.init(ids_o.get_winding_keyword()+"#1.2")
-  Call view.selectAt((lx2+rx2)/2,(ty2+by2)/2, infoSetSelection, Array(infoSliceSurface))
+  set coilbuild_b = new build.init(ids_o.get_winding_keyword()+"1#1.2")
+  Call view.selectAt((lx2+rx2)/2,(ty2+by2)/2+y_offset, infoSetSelection, Array(infoSliceSurface))
   Call view.makeComponentInALine(length_core,Array(coilbuild_b.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
   Call coilbuild_b.increment_component_num()
   Call unselect()
   windings(1) = coilbuild_b.end_component_build()
 
-  make_single_t_winding = Array(windings(0),windings(1),slots-2,slot_pitch)
+  Set coilbuild_c = new build.init(ids_o.get_winding_keyword()+"2#1.1")
+  Call view.selectAt((lx1+rx1)/2,-(ty1+by1)/2-y_offset, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInALine(length_core,Array(coilbuild_c.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call coilbuild_c.increment_component_num()
+  Call unselect()
+  windings(2) = coilbuild_c.end_component_build()
+
+  set coilbuild_d = new build.init(ids_o.get_winding_keyword()+"2#1.2")
+  Call view.selectAt((lx2+rx2)/2,-(ty2+by2)/2-y_offset, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInALine(length_core,Array(coilbuild_d.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call coilbuild_d.increment_component_num()
+  Call unselect()
+  windings(3) = coilbuild_d.end_component_build()
+
+  make_single_t_winding = Array(windings(0),windings(1),windings(2),windings(3),num_coils,dist)
   Call view.getSlice().moveInALine(length_core/2)
 
 End Function
@@ -373,8 +419,10 @@ Function make_single_side_windings(params)
 
   winding1 = params(0)
   winding2 = params(1)
-  numcoils = params(2)
-  dist = params(3)
+  winding3 = params(2)
+  winding4 = params(3)
+  numcoils = params(4)
+  dist = params(5)
 
   Call getDocument().beginUndoGroup("Transform Component")
   Call view.getSlice().moveInALine(-length_core/2)
