@@ -1057,3 +1057,10 @@ Function print(input)
     Call app.MsgBox(input)
   End If
 End Function
+
+Function get_global(local_x,local_y)
+  Set view = getDocument().getView()
+  Dim global_points(2)
+  Call view.getSlice().convertLocalToGlobal(local_x,local_y,global_points(0),global_points(1),global_points(2))
+  get_global = global_points
+End Function
