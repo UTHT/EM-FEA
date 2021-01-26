@@ -532,31 +532,6 @@ Function make_track()
   Call view.getSlice().moveInALine(rail_height/2)
 End Function
 
-Function generate_forbidden_zones()
-  Call view.newLine(-rail_width/2.0 - plate_gap, 0, -rail_width/2.0 - plate_gap, bottom_forbidden_height)
-  Call view.newLine(-rail_width/2.0 - plate_gap, bottom_forbidden_height, rail_width/2.0 + plate_gap, bottom_forbidden_height)
-  Call view.newLine(rail_width/2.0 + plate_gap, bottom_forbidden_height, rail_width/2.0 + plate_gap, 0)
-  Call view.newLine(rail_width/2.0 + plate_gap, 0, -rail_width/2.0 - plate_gap, 0)
-
-  Call view.newLine(-top_forbidden_width/2.0, rail_height - flange_thickness - top_forbidden_height, -top_forbidden_width/2.0, rail_height - flange_thickness)
-  Call view.newLine(-top_forbidden_width/2.0, rail_height - flange_thickness, top_forbidden_width/2.0, rail_height - flange_thickness)
-  Call view.newLine(top_forbidden_width/2.0, rail_height - flange_thickness, top_forbidden_width/2.0, rail_height - flange_thickness - top_forbidden_height)
-  Call view.newLine(top_forbidden_width/2.0, rail_height - flange_thickness - top_forbidden_height, -top_forbidden_width/2.0, rail_height - flange_thickness - top_forbidden_height)
-
-  fa_name_1 = "Forbidden Air 1"
-  fa_name_2 = "Forbidden Air 2"
-
-  Call generate_two_sided_component(fa_name_1,air_material,0,bottom_forbidden_height/2.0,z_min,z_max,air_resolution)
-  'Call getDocument().setMaxElementSize(fa_name_1, airResolution)
-  Call getDocument().setComponentColor(fa_name_1, RGB(255, 0, 0), 50)
-
-  Call generate_two_sided_component(fa_name_2,air_material,0,rail_height-flange_thickness-top_forbidden_height/2.0,z_min,z_max,air_resolution)
-  'Call getDocument().setMaxElementSize("Forbidden Air 2", airResolution)
-  Call getDocument().setComponentColor(fa_name_2, RGB(255, 0, 0), 50)
-
-  Call clear_construction_lines()
-End Function
-
 Function make_airbox()
   Call view.getSlice().moveInALine(-rail_height/2-z_padding)
 
@@ -985,15 +960,8 @@ End Function
 
 'UTIL FUNCTIONS'
 
-
 Function format_material(material)
   format_material = "Name="+material
-End Function
-
-Function clear_construction_lines()
-  'Set view = getDocument().getView()
-  'Call view.selectAll(infoSetSelection, Array(infoSliceLine, infoSliceArc))
-  'Call view.deleteSelection()
 End Function
 
 Function draw_square(x1,x2,y1,y2)
@@ -1067,69 +1035,8 @@ Function mirror_components(components,normal)
   Call getDocument().endUndoGroup()
 End Function
 
-Function generate_two_sided_component(component_name,material,selection_x,selection_y,neg_val,pos_val,resolution)
-  Call view.selectAt(selection_x, selection_y, infoSetSelection, Array(infoSliceSurface))
-  Call view.makeComponentInALine(neg_val, Array(component_name+"p1"),format_material(material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
-  Call view.selectAt(selection_x, selection_y, infoSetSelection, Array(infoSliceSurface))
-  Call view.makeComponentInALine(pos_val, Array(component_name+"p2"),format_material(material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
-  Call union_and_rename(component_name+"p1",component_name+"p2",component_name)
-  Call getDocument().setMaxElementSize(component_name,resolution)
-End Function
-
-Function orient_core_a()
-  Call select_a_components()
-  Call getDocument().beginUndoGroup("Rotate Core Component")
-  core_components = ids_o.get_a_components()
-  Call getDocument().rotateComponent(core_components, 0, 0, 0, 0, 1, 0, 90, 1)
-  Call getDocument().rotateComponent(core_components, 0, 0, 0, 0, 0, 1, 90, 1)
-  Call getDocument().endUndoGroup()
-End Function
-
-Function orient_core_b()
-  Call select_b_components()
-  Call getDocument().beginUndoGroup("Rotate Core Component")
-  core_components = ids_o.get_b_components()
-  Call getDocument().rotateComponent(core_components, 0, 0, 0, 0, 1, 0, 90, 1)
-  Call getDocument().rotateComponent(core_components, 0, 0, 0, 0, 0, 1, -90, 1)
-  Call getDocument().endUndoGroup()
-End Function
-
-Function move_core_to_midtrack(core_components)
-  Call getDocument().beginUndoGroup("Transform Component")
-  Call getDocument().shiftComponent(core_components, 0, rail_height/2, 0, 1)
-  Call getDocument().endUndoGroup()
-End Function
-
-Function insert_core_airgap(core_components,direction)
-  Call getDocument().beginUndoGroup("Translate Core Component")
-  Call getDocument().shiftComponent(core_components,direction*-air_gap/2, 0, 0, 1)
-  Call getDocument().endUndoGroup()
-End Function
-
-Function select_core_components()
-  components = ids_o.get_core_components()
-  select_components(components)
-End Function
-
-Function select_components(arr)
-  Call getDocument().getView().selectObject(arr(0),infoSetSelection)
-  For i=0 to UBound(arr)
-    Call getDocument().getView().selectObject(arr(i),infoAddToSelection)
-  Next
-End Function
-
 Function unselect()
   Call getDocument().getView().unselectAll()
-End Function
-
-Function select_a_components()
-  components = ids_o.get_a_components()
-  Call select_components(components)
-End Function
-
-Function select_b_components()
-  components = ids_o.get_b_components()
-  Call select_components(components)
 End Function
 
 Function print_arr(input_arr)
@@ -1149,28 +1056,4 @@ Function print(input)
   Else
     Call app.MsgBox(input)
   End If
-End Function
-
-Function get_global(local_x,local_y)
-  Set view = getDocument().getView()
-  Dim global_points(2)
-  Call view.getSlice().convertLocalToGlobal(local_x,local_y,global_points(0),global_points(1),global_points(2))
-  get_global = global_points
-End Function
-
-Function get_local(global_x,global_y)
-  Set view = getDocument().getView()
-  Dim local_points(1)
-  Call view.getSlice().convertGlobalToLocal(global_x,global_y,local_points(0),local_points(1))
-  get_local = local_points
-End Function
-
-Function get_origin_from_local()
-  get_origin_from_local = get_global(0,0)
-End Function
-
-Function reset_local()
-  'This doesn't work
-  unit_z_vec = Array(0,0,1)
-  CALL getDocument().getView().getSlice().moveToAPlane(0, 0, 0, 0, 0, 1, 0, 0, -1)
 End Function
