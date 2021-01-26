@@ -78,6 +78,7 @@ coil_height = (slot_height-3*coil_core_separation_y)/2
 v_s = v_r/(1-slip)
 slip_speed = v_s-v_r
 motion_length = motion_length*1000
+track_length = motion_length
 remesh_padding = 0.25
 airbox_padding = 1
 copperdiam = 0.127*92^((36-awg)/39)
@@ -96,12 +97,9 @@ rpm = 360
 core_separation = 0
 
 'Problem Bounds'
-x_min = 0
-y_min = -20
-z_min = -width_core*0.75
-x_max = (length_core+air_gap)*2
-y_max = rail_height+20
-z_max = -z_min
+x_padding = 10
+y_padding = 10
+z_padding = 5
 
 'Document Setup'
 Call newDocument()
@@ -119,13 +117,12 @@ Set ids_o = new ids.init()
 
 
 'Main Code'
+Call make_airbox()
+Call make_track()
 Call make_core_component()
-'Call make_single_t_winding()
 Call make_single_side_windings(make_single_t_winding())
 Call make_single_side_coils()
 Call make_ee_compensator()
-Call getDocument().shiftComponent(select_core_components(), 0, 50, 0, 1)
-
 
 
 'Call setup_parameters()
@@ -278,6 +275,8 @@ End Function
 'returns:
 'winding A component name
 'winding B component name
+'winding C component name
+'winding D component name
 'number of duplicates down core length
 'duplicate distance'
 Function make_single_d_winding()
@@ -342,6 +341,8 @@ End Function
 'returns:
 'winding A component name
 'winding B component name
+'winding C component name
+'winding D component name
 'number of duplicates down core length
 'duplicate distance'
 Function make_single_t_winding()
@@ -407,6 +408,8 @@ End Function
 'returns:
 'winding A component name
 'winding B component name
+'winding C component name'
+'winding D component name'
 'number of duplicates down core length
 'duplicate distance'
 Function make_single_g_winding()
@@ -430,6 +433,7 @@ Function make_single_side_windings(params)
   For i=1 to numcoils
     Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding1),1),dist*i, 0, 0, 1)
     copy_component = ids_o.get_copy_components()(0)
+    'Print(winding1)
     component_name = Replace(winding1,"1#1.1","1#"&(i+1)&".1")
     Call getDocument().renameObject(copy_component,component_name)
 
@@ -441,7 +445,6 @@ Function make_single_side_windings(params)
     Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding3),1),dist*i, 0, 0, 1)
     copy_component = ids_o.get_copy_components()(0)
     component_name = Replace(winding3,"2#1.1","2#"&(i+1)&".1")
-    Print(component_name)
     Call getDocument().renameObject(copy_component,component_name)
 
     Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding4),1),dist*i, 0, 0, 1)
@@ -485,86 +488,18 @@ Function make_single_side_coils()
   Call getDocument.endUndoGroup()
 End Function
 
-Function make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
-  If SHOW_FORBIDDEN_AIR Then
-  	Call generate_forbidden_zones()
-  End If
+Function make_track()
+  Call view.getSlice().moveInALine(-rail_height/2)
+  Call view.newLine(-track_length,-web_thickness/2,-track_length,web_thickness/2)
+  Call view.newLine(track_length,-web_thickness/2,track_length,web_thickness/2)
+  Call view.newLine(-track_length,web_thickness/2,track_length,web_thickness/2)
+  Call view.newLine(-track_length,-web_thickness/2,track_length,-web_thickness/2)
 
-  If BUILD_WITH_SYMMETRY Then
-  	If SHOW_FULL_GEOMETRY Then
-  		Call view.newLine(-rail_width/2.0, 0, 0, 0)
-  		Call view.newLine(0, 0, 0, rail_height)
-  		Call view.newLine(0, rail_height, -rail_width/2.0, rail_height)
-  		Call view.newLine(-rail_width/2.0, rail_height, -rail_width/2.0, rail_height - flange_thickness)
-  		Call view.newLine(-rail_width/2.0, rail_height - flange_thickness, -web_thickness/2.0, rail_height - flange_thickness)
-  		Call view.newLine(-web_thickness/2.0, rail_height - flange_thickness, -web_thickness/2.0, flange_thickness)
-  		Call view.newLine(-web_thickness/2.0, flange_thickness, -rail_width/2.0, flange_thickness)
-  		Call view.newLine(-rail_width/2.0, flange_thickness, -rail_width/2.0, 0)
-  	Else
-  		Call view.newLine(-web_thickness/2.0, plate_thickness, 0, plate_thickness)
-  		Call view.newLine(0, plate_thickness, 0, rail_height - flange_thickness)
-  		Call view.newLine(0, rail_height - flange_thickness, -web_thickness/2.0, rail_height - flange_thickness)
-  		Call view.newLine(-web_thickness/2.0, rail_height - flange_thickness, -web_thickness/2.0, plate_thickness)
-  	End If
-  Else
-  	If SHOW_FULL_GEOMETRY Then
-  		Call view.newLine(-rail_width/2.0, 0, rail_width/2.0, 0)
-  		Call view.newLine(rail_width/2.0, 0, rail_width/2.0, flange_thickness)
-  		Call view.newLine(rail_width/2.0, flange_thickness, web_thickness/2.0, flange_thickness)
-  		Call view.newLine(web_thickness/2.0, flange_thickness, web_thickness/2.0, rail_height - flange_thickness)
-  		Call view.newLine(web_thickness/2.0, rail_height - flange_thickness, rail_width/2.0, rail_height - flange_thickness)
-  		Call view.newLine(rail_width/2.0, rail_height - flange_thickness, rail_width/2.0, rail_height)
-  		Call view.newLine(rail_width/2.0, rail_height, -rail_width/2.0, rail_height)
-  		Call view.newLine(-rail_width/2.0, rail_height, -rail_width/2.0, rail_height - flange_thickness)
-  		Call view.newLine(-rail_width/2.0, rail_height - flange_thickness, -web_thickness/2.0, rail_height - flange_thickness)
-  		Call view.newLine(-web_thickness/2.0, rail_height - flange_thickness, -web_thickness/2.0, flange_thickness)
-  		Call view.newLine(-web_thickness/2.0, flange_thickness, -rail_width/2.0, flange_thickness)
-  		Call view.newLine(-rail_width/2.0, flange_thickness, -rail_width/2.0, 0)
-  	Else
-  		Call view.newLine(-web_thickness/2.0, plate_thickness, web_thickness/2.0, plate_thickness)
-  		Call view.newLine(web_thickness/2.0, plate_thickness, web_thickness/2.0, rail_height - flange_thickness)
-  		Call view.newLine(web_thickness/2.0, rail_height - flange_thickness, -web_thickness/2.0, rail_height - flange_thickness)
-  		Call view.newLine(-web_thickness/2.0, rail_height - flange_thickness, -web_thickness/2.0, plate_thickness)
-  	End If
-  End If
+  Call view.selectAt(0, 0, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInALine(rail_height, Array(ids_o.get_track_keyword), format_material(track_material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call getDocument().setMaxElementSize(ids_o.get_track_keyword, aluminium_resolution)
 
-  rail = "Track"
-  p1 = "Plate 1"
-  p2 = "Plate 2"
-
-  rm1 = "Track Remesh"
-
-  Call generate_two_sided_component(rail,track_material,0,rail_height/2.0,z_min,z_max+motion_length,aluminium_resolution)
-  'Call getDocument().setMaxElementSize(rail, aluminiumResolution)
-
-  Call view.newLine(-x_max, 0, -rail_width/2.0 - plate_gap, 0)
-  Call view.newLine(-rail_width/2.0 - plate_gap, 0, -rail_width/2.0 - plate_gap, plate_thickness)
-  Call view.newLine(-rail_width/2.0 - plate_gap, plate_thickness, -x_max, plate_thickness)
-  Call view.newLine(-x_max, plate_thickness, -x_max, 0)
-
-  Call generate_two_sided_component(p1,track_material,-rail_width/2.0-plate_gap-10,plate_thickness/2.0,z_min,z_max+motion_length,aluminium_resolution)
-  'Call getDocument().setMaxElementSize(p1, aluminiumResolution)
-
-  If NOT(BUILD_WITH_SYMMETRY) Then
-  	Call view.newLine(x_max, 0, rail_width/2.0 + plate_gap, 0)
-  	Call view.newLine(rail_width/2.0 + plate_gap, 0, rail_width/2.0 + plate_gap, plate_thickness)
-  	Call view.newLine(rail_width/2.0 + plate_gap, plate_thickness, x_max, plate_thickness)
-  	Call view.newLine(x_max, plate_thickness, x_max, 0)
-
-    Call generate_two_sided_component(p2,track_material,rail_width/2.0+plate_gap+10,plate_thickness/2.0,z_min,z_max+motion_length,aluminium_resolution)
-  	'Call getDocument().setMaxElementSize(p2, aluminiumResolution)
-  End If
-
-  Call clear_construction_lines()
-
-  If NOT(BUILD_STATIC) Then
-    Call view.newLine(-web_thickness/2.0-remesh_padding, plate_thickness-remesh_padding, web_thickness/2.0+remesh_padding, plate_thickness-remesh_padding)
-    Call view.newLine(web_thickness/2.0+remesh_padding, plate_thickness-remesh_padding, web_thickness/2.0+remesh_padding, rail_height - flange_thickness + remesh_padding)
-    Call view.newLine(web_thickness/2.0+remesh_padding, rail_height - flange_thickness + remesh_padding, -web_thickness/2.0-remesh_padding, rail_height - flange_thickness + remesh_padding)
-    Call view.newLine(-web_thickness/2.0-remesh_padding, rail_height - flange_thickness + remesh_padding, -web_thickness/2.0-remesh_padding, plate_thickness-remesh_padding)
-    Call generate_two_sided_component(rm1,air_material,0,rail_height/2.0,z_min-motion_length,z_max+motion_length+airbox_padding/2,air_resolution)
-    Call clear_construction_lines()
-  End If
+  Call view.getSlice().moveInALine(rail_height/2)
 End Function
 
 Function generate_forbidden_zones()
@@ -592,25 +527,19 @@ Function generate_forbidden_zones()
   Call clear_construction_lines()
 End Function
 
-Function make_airbox(BUILD_WITH_SYMMETRY)
-  airbox = "AirBox"
-  If BUILD_WITH_SYMMETRY Then
-    Call draw_square(x_min,-x_max,y_min,y_max)
-  Else
-    Call draw_square(-x_max-airbox_padding,x_max+airbox_padding,y_min-airbox_padding,y_max+airbox_padding)
-  End If
-  Call generate_two_sided_component(airbox,air_material,-x_max+1,y_max-1,zmin-motion_length-airbox_padding,z_max+motion_length+airbox_padding,air_resolution)
+Function make_airbox()
+  Call view.getSlice().moveInALine(-rail_height/2-z_padding)
+
+  airbox = ids_o.get_airbox_keyword()
+
+  Call draw_square(-track_length-x_padding,track_length+x_padding,-(r2*2+air_gap/2+y_padding),(r2*2+air_gap/2+y_padding))
+  Call view.selectAt(0, (length_core+r2*2)/2+air_gap+y_padding, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInALine(rail_height+2*z_padding, Array(ids_o.get_airbox_keyword), format_material(air_material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
   Call getDocument().setMaxElementSize(airbox, air_resolution)
   Call getDocument().getView().setObjectVisible(airbox, False)
 
-  Call view.selectAll(infoSetSelection, Array(infoSliceLine))
-  Call view.deleteSelection()
-  If BUILD_WITH_SYMMETRY Then
-    airbox_comp = ids_o.get_spec_paths(Array(airbox))
-    temp = Array(airbox_comp(0)+",Face#3")
-    Call getDocument().createBoundaryCondition(temp, "BoundaryCondition#1")
-    Call getDocument().setMagneticFieldNormal("BoundaryCondition#1")
-  End If
+  Call view.getSlice().moveInALine(rail_height/2+z_padding)
+
 End Function
 
 
@@ -623,12 +552,16 @@ Class ids
   Private b_postfix
   Private copper_keyword
   Private magnet_keyword
+  Private track_keyword
+  Private airbox_keyword
   Private cores
 
   'Constructor
   Public Default Function init()
     copper_keyword = "CoilGeometry"
     magnet_keyword = "Magnet"
+    track_keyword = "Track"
+    airbox_keyword = "AirBox"
     core_matches = Array("Core",copper_keyword,magnet_keyword)
     remove_strings = Array(",","Body#1")
     copy_replace_strings = Array("Copy#1","Copy#9")
@@ -803,6 +736,14 @@ Class ids
 
   Public Property Get get_magnet_keyword()
     get_magnet_keyword = magnet_keyword
+  End Property
+
+  Public Property Get get_track_keyword()
+    get_track_keyword = track_keyword
+  End Property
+
+  Public Property Get get_airbox_keyword()
+    get_airbox_keyword = airbox_keyword
   End Property
 
 End Class
