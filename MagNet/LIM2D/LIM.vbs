@@ -430,12 +430,23 @@ Function make_single_side_windings(params)
   For i=1 to numcoils
     Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding1),1),dist*i, 0, 0, 1)
     copy_component = ids_o.get_copy_components()(0)
-    component_name = Replace(winding1,"1.1",(i+1)&".1")
+    component_name = Replace(winding1,"1#1.1","1#"&(i+1)&".1")
     Call getDocument().renameObject(copy_component,component_name)
 
     Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding2),1),dist*i, 0, 0, 1)
     copy_component = ids_o.get_copy_components()(0)
-    component_name = Replace(winding2,"1.2",(i+1)&".2")
+    component_name = Replace(winding2,"1#1.2","1#"&(i+1)&".2")
+    Call getDocument().renameObject(copy_component,component_name)
+
+    Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding3),1),dist*i, 0, 0, 1)
+    copy_component = ids_o.get_copy_components()(0)
+    component_name = Replace(winding3,"2#1.1","2#"&(i+1)&".1")
+    Print(component_name)
+    Call getDocument().renameObject(copy_component,component_name)
+
+    Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding4),1),dist*i, 0, 0, 1)
+    copy_component = ids_o.get_copy_components()(0)
+    component_name = Replace(winding4,"2#1.2","2#"&(i+1)&".2")
     Call getDocument().renameObject(copy_component,component_name)
 
   Next
