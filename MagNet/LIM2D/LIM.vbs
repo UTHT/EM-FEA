@@ -123,7 +123,7 @@ Call make_core_component()
 Call make_single_side_windings(make_single_t_winding())
 Call make_single_side_coils()
 Call make_ee_compensator()
-'Set drive = new power.init()
+Set drive = new power.init()
 
 'Call setup_parameters()
 
@@ -861,19 +861,19 @@ Class power
   End Function
 
   Public Function draw_circuit()
-    For i=1 to num_coils
-
+    For i=1 to 2
       Call draw_single_winding(i)
     Next
   End Function
 
   Public Function draw_single_winding(i)
     Set circ = getDocument().getCircuit()
-    Call circ.insertCoil("Coil#"&i, start_x, start_y+i*offset_y)
-    Call circ.insertCurrentSource(start_x+offset_x, start_y+i*offset_y)
 
     coil_name = "Coil#"&i
     source_name = "I"&i
+
+    Call circ.insertCoil(coil_name, start_x, start_y+i*offset_y)
+    Call circ.insertCurrentSource(start_x+offset_x, start_y+i*offset_y)
 
     DIM ctx,cty,vstx,vsty
     Call circ.getPositionOfTerminal(coil_name&",T2",ctx,cty)
@@ -893,7 +893,6 @@ Class power
     props = Array(0,v_max,freq,0,0,phase_ang)
 
     If(nt > 1) Then
-      'Call print(copperdiam)
       Call getDocument().setCoilType(coil_name, infoStrandedCoil)
       Call getDocument().setCoilNumberOfTurns(coil_name, nt)
       Call getDocument().setParameter(coil_name, "StrandArea", CStr(copperarea/(1000^2)), infoNumberParameter)
@@ -903,6 +902,10 @@ Class power
     'Call getDocument().setParameter(source_name, "WaveFormValues", "[0, %sourceSteps, 15, 1, 0, 0]", infoArrayParameter)
     'Call getDocument().setParameter(source_name, "WaveFormValues", "[0, %sourceSteps,"&freq&", 0, 0, 0, "&phase_ang&"]", infoArrayParameter)
     Call getDocument().endUndoGroup()
+  End Function
+
+  Public Function flip_coil_direction(coil_name)
+    Call getDocument().reverseCoilDirection(coil_name)
   End Function
 
 End Class
