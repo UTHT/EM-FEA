@@ -201,10 +201,11 @@ Function make_ee_compensator()
 
   Call view.getSlice().moveInALine(-z_offset)
 
-  Call view.newCircle(x_offset, y_offset, r1)
-  Call view.newCircle(x_offset, y_offset, r2)
+  'Magnet 1'
   Dim x_hat
   Dim y_hat
+  Call view.newCircle(x_offset, y_offset, r1)
+  Call view.newCircle(x_offset, y_offset, r2)
 
   For i = 1 To n
   	x_hat = Sin(PI * 2.0 * (i + 0.5) / n)
@@ -251,7 +252,7 @@ Function make_ee_compensator()
   ArrayOfValues2(0)= rpm*6.0
   Call getDocument().setMotionSpeedVsTime("Motion#1", ArrayOfValues1, ArrayOfValues2)
 
-
+  'Magnet 2'
   Call view.newCircle(x_offset, -y_offset, r1)
   Call view.newCircle(x_offset, -y_offset, r2)
 
@@ -259,7 +260,7 @@ Function make_ee_compensator()
   	x_hat = Sin(PI * 2.0 * (i + 0.5) / n)
   	y_hat = Cos(PI * 2.0 * (i + 0.5) / n)
 
-  	Call view.newLine(x_offset + x_hat*r1,-(y_hat*r1+y_offset), x_offset + x_hat*r2,-(y_hat*r2+y_offset))
+  	Call view.newLine(x_offset + x_hat*r1,y_hat*r1-y_offset, x_offset + x_hat*r2,y_hat*r2-y_offset)
   Next
 
   ReDim Magnets(n - 1)
@@ -268,10 +269,10 @@ Function make_ee_compensator()
   	y_hat = Cos(PI * 2.0 * i / n)
   	mid = (r1 + r2) / 2.0
 
-  	Call view.selectAt(x_offset + x_hat*mid,-(y_hat*mid+y_offset), infoSetSelection, Array(infoSliceSurface))
+  	Call view.selectAt(x_offset + x_hat*mid,y_hat*mid-y_offset, infoSetSelection, Array(infoSliceSurface))
 
-  	x_hat = Sin(PI * 2.0 * i / n - i * ra)
-  	y_hat = Cos(PI * 2.0 * i / n - i * ra)
+    x_hat = Sin(PI * 2.0 * i / n - i * ra - PI)
+  	y_hat = Cos(PI * 2.0 * i / n - i * ra - PI)
 
   	direction = "[" & x_hat & "," & y_hat & ",0]"
 
@@ -846,7 +847,6 @@ Class power
   Public Default Function init()
     coil_comps = ids_o.get_coil_components()
     num_coils = CInt(UBound(coil_comps)+1)
-    print(coil_comps)
 
     start_x = 100
     start_y = 100
@@ -861,16 +861,38 @@ Class power
   End Function
 
   Public Function draw_circuit()
-    For i=1 to 2
-      Call draw_single_winding(i)
+    circuit_t()
+  End Function
+
+  Public Function circuit_t()
+    For i=0 to num_coils-1
+      base = int(i/8)
+      'Print(base)
+      phase_num = (base mod phase)
+      coil_orientation = -2*int(i/(96/2))+1
+      Call draw_single_winding(i+1,phase_num,coil_orientation)
     Next
   End Function
 
-  Public Function draw_single_winding(i)
+  'unused (old code)'
+  'might be useful for distributed winding simulations'
+  Public Function circuit_d()
+    For i=1 to num_coils
+      phase_num = 120*((i-1) mod phase)
+      coil_orientation = 1
+      Call draw_single_winding(i,phase_num,coil_orientation)
+    Next
+  End Function
+
+  Public Function draw_single_winding(i,phase_num,coil_orientation)
     Set circ = getDocument().getCircuit()
 
     coil_name = "Coil#"&i
     source_name = "I"&i
+
+    If(coil_orientation=-1) Then
+      flip_coil_direction(coil_name)
+    End If
 
     Call circ.insertCoil(coil_name, start_x, start_y+i*offset_y)
     Call circ.insertCurrentSource(start_x+offset_x, start_y+i*offset_y)
@@ -889,7 +911,8 @@ Class power
     Call circ.insertConnection(xconn, yconn)
 
     Call getDocument().beginUndoGroup("Set V Source Properties", true)
-    phase_ang = 120*((i-1) mod phase)
+
+    phase_ang = phase_num*120 'phase_num is an integer [1,2,3]'
     props = Array(0,v_max,freq,0,0,phase_ang)
 
     If(nt > 1) Then
