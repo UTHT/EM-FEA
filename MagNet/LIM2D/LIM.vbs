@@ -1,19 +1,25 @@
 const PI = 3.141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825342117067
 
 'Geometry Parameters Setup'
-width_core = 370      'core width (motion direction)
+width_core = 860      'core width (motion direction)
 thick_core = 60       'core thickness (away from track)
 length_core = 50      'core length (into the page)
 core_endlengths = 30  'core end width
-slots = 11            'number of slots
+slots = 24            'number of slots
 slot_pitch = 40       'slot pitch
-slot_gap = 20         'slot gap width (teeth_width is generated with slot_pitch and slot_gap)
+slot_gap = 10         'slot gap width (teeth_width is generated with slot_pitch and slot_gap)
 slot_height = 40      'slot height
 end_ext = 15          'one sided winding extension value (TODO: replace with dynamic sizing)
 air_gap = 14          'distance between DLIM cores
 
 'Problem Variables'
-slip_speed = kphTomps(500) 'Slip speed of motor'
+slip = 0.01         'Per unit slip'
+v_r = 25            'Relative speed of pod'
+motion_length = 1   'track_length (in meters)'
+phase = 3           'Number of phases'
+speed = 1           'Speed of pod'
+sim_time = 300      'Simulation time in ms'
+time_step = 50       'Time step in ms'
 
 'Build Flags'
 const SHOW_FORBIDDEN_AIR = False	  	' Show forbidden zones for design purposes (as red air regions)
@@ -25,14 +31,13 @@ const AUTO_RUN = False                ' Run simulation as soon as problam defini
 const RECORD_TRANSIENT_POWER = True   ' Run simulation with transient average power loss'
 
 'Winding Setup'
-coil_core_separation_x = 4  'minimum separation between core and coil (one-sided, x-direction)'
-coil_core_separation_y = 4  'minimum separation between core and coil (one-sided, y-direction)'
+coil_core_separation_x = 0  'minimum separation between core and coil (one-sided, x-direction)'
+coil_core_separation_y = 0  'minimum separation between core and coil (one-sided, y-direction)'
 distribute_distance = 2     'distributed winding distance, in # of slots'
 v_max = 120                 'input voltage'
 freq = 15                   'source frequency'
 awg = 20                    'winding gauge'
 nt = 50                     'number of coil turns (set nt=1 for solid winding)'
-phase = 3                   'number of phases'
 
 'Material Setup'
 core_material = "M330-35A"
@@ -42,7 +47,7 @@ air_material = "AIR"
 
 'Mesh Resolution Setup'
 air_rail_boundary = 1
-air_resolution = 8
+air_resolution = 6
 aluminium_resolution = 5
 core_resolution = 3
 winding_resolution = 4
@@ -70,24 +75,31 @@ core_track_gap = (air_gap-web_thickness)/2
 num_coils = slots-distribute_distance
 coil_width = slot_gap-2*coil_core_separation_x
 coil_height = (slot_height-3*coil_core_separation_y)/2
+v_s = v_r/(1-slip)
+slip_speed = v_s-v_r
+motion_length = motion_length*1000
+track_length = motion_length
 remesh_padding = 0.25
 airbox_padding = 1
 copperdiam = 0.127*92^((36-awg)/39)
 copperarea = PI*(copperdiam/2)^2
-
-'Problem Dependent Internal Variables'
 time_start = 0
-sim_time = 10
-time_step = 1
-motion_length = slip_speed*sim_time
+
+'End Effect Compensator Variables'
+n = 32
+r1 = 60 / 2
+r2 = 120 / 2
+ra = 45 * PI / 180
+gap = 20.5
+thickness = 60
+rail_thickness = 10.5
+rpm = 2*pi*freq
+core_separation = 5
 
 'Problem Bounds'
-x_min = 0
-y_min = -20
-z_min = -width_core*0.75
-x_max = (length_core+air_gap)*2
-y_max = rail_height+20
-z_max = -z_min
+x_padding = 10
+y_padding = 10
+z_padding = 5
 
 'Document Setup'
 Call newDocument()
@@ -103,116 +115,206 @@ Set ids_o = new ids.init()
 
 
 
+
 'Main Code'
-Call make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
-Call build_motor()
-Call make_airbox(BUILD_WITH_SYMMETRY)
-If(BUILD_WITH_CIRCUIT) Then
-  Set drive = new power.init()
-End If
+Call make_airbox()
+Call make_track()
+Call make_core_component()
+Call make_single_side_windings(make_single_t_winding())
+Call make_single_side_coils()
+Call make_ee_compensator()
+Set drive = new power.init()
 
-If NOT(BUILD_STATIC) Then
+'Call setup_parameters()
 
-  time_steps=Array(-1)
-  vel_steps=Array(-1)
-
-  Redim Preserve time_steps(speed_steps)
-  Redim Preserve vel_steps(speed_steps)
-
-  time_steps(0)=0
-  vel_steps(0)=kphTomps(499)'relative speed value'
-
-  Call setup_motion(time_steps,vel_steps)
-
-End If
-
-Call setup_sim()
-
-If(AUTO_RUN) Then
-  Call getDocument().solveTransient3DWithMotion()
-End If
 'end main'
 
-
-
-
-
-Function build_single_side_core()
-  Call make_core_component()
-  Call make_single_side_windings(make_winding())
-  Call make_single_side_coils()
-  'Call print(ids_o.get_core_components())
-End Function
-
-Function orient_A()
-  Call ids_o.update_names("A")
-  components = ids_o.get_a_components()
-  Call select_a_components()
-  Call orient_core_a()
-  Call move_core_to_midtrack(components)
-  Call insert_core_airgap(components,1)
-  Call getDocument().getView().unselectAll()
-End Function
-
-Function orient_B()
-  Call ids_o.update_names("B")
-  components = ids_o.get_b_components()
-  Call select_b_components()
-  Call orient_core_b()
-  Call move_core_to_midtrack(components)
-  Call insert_core_airgap(components,-1)
-  Call getDocument().getView().unselectAll()
-  For i = 1 to num_coils
-    component_coil = "Coil#"&(i+num_coils)
-    Call view.selectObject(component_coil, infoSetSelection)
-    Call getDocument().reverseCoilDirection(component_coil)
-  Next
-End Function
-
-Function build_motor()
-  build_single_side_core()
-  orient_A()
-  If NOT (BUILD_WITH_SYMMETRY) Then
-    build_single_side_core()
-    orient_B()
-  End If
-End Function
-
 Function draw_core_geometry()
-  Call view.newLine(-width_core/2-core_endlengths,thick_core,width_core/2+core_endlengths,thick_core)
-  Call view.newLine(width_core/2+core_endlengths,0,width_core/2+core_endlengths,thick_core)
-  Call view.newLine(-width_core/2-core_endlengths,0,-width_core/2-core_endlengths,thick_core)
+  y_offset = air_gap/2
+  Call view.newLine(-width_core/2-core_endlengths,thick_core+y_offset,width_core/2+core_endlengths,thick_core+y_offset)
+  Call view.newLine(width_core/2+core_endlengths,y_offset,width_core/2+core_endlengths,thick_core+y_offset)
+  Call view.newLine(-width_core/2-core_endlengths,y_offset,-width_core/2-core_endlengths,thick_core+y_offset)
   ' Call view.newLine()
 
   For i=0 to slots-1
     delta = slot_pitch*i
-    Call view.newLine(-slot_teeth_width/2+delta,0,-slot_teeth_width/2+delta,slot_height)
-    Call view.newLine(-slot_teeth_width/2+slot_gap+delta,0,-slot_teeth_width/2+slot_gap+delta,slot_height)
-    Call view.newLine(-slot_teeth_width/2+delta,slot_height,-slot_teeth_width/2+slot_gap+delta,slot_height)
+    Call view.newLine(-slot_teeth_width/2+delta,y_offset,-slot_teeth_width/2+delta,slot_height+y_offset)
+    Call view.newLine(-slot_teeth_width/2+slot_gap+delta,y_offset,-slot_teeth_width/2+slot_gap+delta,slot_height+y_offset)
+    Call view.newLine(-slot_teeth_width/2+delta,slot_height+y_offset,-slot_teeth_width/2+slot_gap+delta,slot_height+y_offset)
     If(i < slots-1) Then
-      Call view.newLine(-slot_teeth_width/2+slot_gap+delta,0,-slot_teeth_width/2+slot_gap+delta+teeth_width,0)
+      Call view.newLine(-slot_teeth_width/2+slot_gap+delta,y_offset,-slot_teeth_width/2+slot_gap+delta+teeth_width,y_offset)
     End If
   Next
 
-  Call view.newLine(-width_core/2-core_endlengths,0,-slot_teeth_width/2,0)
-  Call view.newLine(slot_teeth_width/2,0,width_core/2+core_endlengths,0)
+  Call view.newLine(-width_core/2-core_endlengths,y_offset,-slot_teeth_width/2,y_offset)
+  Call view.newLine(slot_teeth_width/2,y_offset,width_core/2+core_endlengths,y_offset)
+
+  Call view.newLine(-width_core/2-core_endlengths,-(thick_core+y_offset),width_core/2+core_endlengths,-(thick_core+y_offset))
+  Call view.newLine(width_core/2+core_endlengths,-y_offset,width_core/2+core_endlengths,-(thick_core+y_offset))
+  Call view.newLine(-width_core/2-core_endlengths,-y_offset,-width_core/2-core_endlengths,-(thick_core+y_offset))
+  ' Call view.newLine()
+
+  For i=0 to slots-1
+    delta = slot_pitch*i
+    Call view.newLine(-slot_teeth_width/2+delta,-y_offset,-slot_teeth_width/2+delta,-(slot_height+y_offset))
+    Call view.newLine(-slot_teeth_width/2+slot_gap+delta,-y_offset,-slot_teeth_width/2+slot_gap+delta,-(slot_height+y_offset))
+    Call view.newLine(-slot_teeth_width/2+delta,-(slot_height+y_offset),-slot_teeth_width/2+slot_gap+delta,-(slot_height+y_offset))
+    If(i < slots-1) Then
+      Call view.newLine(-slot_teeth_width/2+slot_gap+delta,-y_offset,-slot_teeth_width/2+slot_gap+delta+teeth_width,-y_offset)
+    End If
+  Next
+
+  Call view.newLine(-width_core/2-core_endlengths,-y_offset,-slot_teeth_width/2,-y_offset)
+  Call view.newLine(slot_teeth_width/2,-y_offset,width_core/2+core_endlengths,-y_offset)
+
 End Function
 
 Function make_core_component()
   Call view.getSlice().moveInALine(-length_core/2)
   Call draw_core_geometry()
-  Call view.selectAt(0,(thick_core+slot_height)/2,infoSetSelection,Array(infoSliceSurface))
 
+  Call view.selectAt(0,(thick_core+slot_height)/2,infoSetSelection,Array(infoSliceSurface))
   core_name = "Core 1"
   REDIM component_name(0)
   component_name(0) = core_name
   Call view.makeComponentInALine(length_core,component_name,format_material(core_material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
   Call getDocument().setMaxElementSize(core_name,core_resolution)
-  Call clear_construction_lines()
+
+  Call view.selectAt(0,-(thick_core+slot_height)/2,infoSetSelection,Array(infoSliceSurface))
+  core_name = "Core 2"
+  REDIM component_name(0)
+  component_name(0) = core_name
+  Call view.makeComponentInALine(length_core,component_name,format_material(core_material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call getDocument().setMaxElementSize(core_name,core_resolution)
+
+  'Call clear_construction_lines()
   Call view.getSlice().moveInALine(length_core/2)
 End Function
 
-Function get_coil_cross_section_coords(lx1,rx1,by1,ty1,lx2,rx2,by2,ty2)
+Function make_ee_compensator()
+
+  y_offset = r2+air_gap/2
+  x_offset = width_core/2+r2+core_separation+core_endlengths
+  z_offset = (thickness-length_core)/2+length_core/2
+
+  rotation_axis = Array(0,0,-1)
+
+  Call view.getSlice().moveInALine(-z_offset)
+
+  'Magnet 1'
+  Dim x_hat
+  Dim y_hat
+  Call view.newCircle(x_offset, y_offset, r1)
+  Call view.newCircle(x_offset, y_offset, r2)
+
+  For i = 1 To n
+  	x_hat = Sin(PI * 2.0 * (i + 0.5) / n)
+  	y_hat = Cos(PI * 2.0 * (i + 0.5) / n)
+
+  	Call view.newLine(x_offset + x_hat*r1, y_hat*r1+y_offset, x_offset + x_hat*r2, y_hat*r2+y_offset)
+  Next
+
+  ReDim Magnets(n - 1)
+  Dim mid
+  Dim direction
+
+  For i = 1 To n
+  	x_hat = Sin(PI * 2.0 * i / n)
+  	y_hat = Cos(PI * 2.0 * i / n)
+  	mid = (r1 + r2) / 2.0
+
+  	Call view.selectAt(x_offset + x_hat*mid, y_hat*mid+y_offset, infoSetSelection, Array(infoSliceSurface))
+
+  	x_hat = Sin(PI * 2.0 * i / n - i * ra)
+  	y_hat = Cos(PI * 2.0 * i / n - i * ra)
+
+  	direction = "[" & x_hat & "," & y_hat & ",0]"
+
+  	REDIM ArrayOfValues(0)
+  	ArrayOfValues(0)= ids_o.get_magnet_keyword()&"1#" & i
+  	Call view.makeComponentInALine(thickness, ArrayOfValues, "Name=N50;Type=Uniform;Direction=" & direction, True)
+
+  	Call getDocument().setMaxElementSize(ids_o.get_magnet_keyword()&"1#" & i, 1)
+
+  	Magnets(i - 1) = ids_o.get_magnet_keyword()&"1#" & i
+  Next
+
+  Call getDocument().makeMotionComponent(Magnets)
+  Call getDocument().setMotionSourceType("Motion#1", infoVelocityDriven)
+  Call getDocument().setMotionRotaryCenter("Motion#1", Array(x_offset, y_offset, 0))
+  Call getDocument().setMotionRotaryAxis("Motion#1",rotation_axis)
+
+  Call getDocument().setMotionPositionAtStartup("Motion#1", 0)
+  Call getDocument().setMotionSpeedAtStartup("Motion#1", 0)
+  REDIM ArrayOfValues1(0)
+  ArrayOfValues1(0)= 0
+  REDIM ArrayOfValues2(0)
+  ArrayOfValues2(0)= rpm*6.0
+  Call getDocument().setMotionSpeedVsTime("Motion#1", ArrayOfValues1, ArrayOfValues2)
+
+  'Magnet 2'
+  Call view.newCircle(x_offset, -y_offset, r1)
+  Call view.newCircle(x_offset, -y_offset, r2)
+
+  For i = 1 To n
+  	x_hat = Sin(PI * 2.0 * (i + 0.5) / n)
+  	y_hat = Cos(PI * 2.0 * (i + 0.5) / n)
+
+  	Call view.newLine(x_offset + x_hat*r1,y_hat*r1-y_offset, x_offset + x_hat*r2,y_hat*r2-y_offset)
+  Next
+
+  ReDim Magnets(n - 1)
+  For i = 1 To n
+  	x_hat = Sin(PI * 2.0 * i / n)
+  	y_hat = Cos(PI * 2.0 * i / n)
+  	mid = (r1 + r2) / 2.0
+
+  	Call view.selectAt(x_offset + x_hat*mid,y_hat*mid-y_offset, infoSetSelection, Array(infoSliceSurface))
+
+    x_hat = Sin(PI * 2.0 * i / n - i * ra - PI)
+  	y_hat = Cos(PI * 2.0 * i / n - i * ra - PI)
+
+  	direction = "[" & x_hat & "," & y_hat & ",0]"
+
+  	REDIM ArrayOfValues(0)
+  	ArrayOfValues(0)= ids_o.get_magnet_keyword()&"2#" & i
+  	Call view.makeComponentInALine(thickness, ArrayOfValues, "Name=N50;Type=Uniform;Direction=" & direction, True)
+
+  	Call getDocument().setMaxElementSize(ids_o.get_magnet_keyword()&"2#" & i, 1)
+
+  	Magnets(i - 1) = ids_o.get_magnet_keyword()&"2#" & i
+  Next
+
+  Call getDocument().makeMotionComponent(Magnets)
+  Call getDocument().setMotionSourceType("Motion#2", infoVelocityDriven)
+  Call getDocument().setMotionRotaryCenter("Motion#2", Array(x_offset, -y_offset, 0))
+  Call getDocument().setMotionRotaryAxis("Motion#2",rotation_axis)
+
+  Call getDocument().setMotionPositionAtStartup("Motion#2", 0)
+  Call getDocument().setMotionSpeedAtStartup("Motion#2", 0)
+  REDIM ArrayOfValues1(0)
+  ArrayOfValues1(0)= 0
+  REDIM ArrayOfValues2(0)
+  ArrayOfValues2(0)= -rpm*6.0
+  Call getDocument().setMotionSpeedVsTime("Motion#2", ArrayOfValues1, ArrayOfValues2)
+
+
+  Call view.getSlice().moveInALine(z_offset)
+End Function
+
+'MAKE DISTRIBUTED WINDING'
+'returns:
+'winding A component name
+'winding B component name
+'winding C component name
+'winding D component name
+'number of duplicates down core length
+'duplicate distance'
+Function make_single_d_winding()
+  Call view.getSlice().moveInALine(-length_core/2)
+
+  y_offset = air_gap/2
+
   lx1 = -slot_teeth_width/2+coil_core_separation_x
   rx1 = -slot_teeth_width/2+coil_core_separation_x+coil_width
   by1 = coil_core_separation_y
@@ -221,79 +323,170 @@ Function get_coil_cross_section_coords(lx1,rx1,by1,ty1,lx2,rx2,by2,ty2)
   rx2 = rx1+distribute_distance*slot_pitch
   by2 = slot_height-ty1
   ty2 = slot_height-by1
+
+  numcoils = (slots-distribute_distance-1)
+  dist = slot_pitch
+
+  For i = 0 To numcoils
+    Call draw_square(lx1+i*dist,rx1+i*dist,by1+y_offset,ty1+y_offset)
+    Call draw_square(lx2+i*dist,rx2+i*dist,by2+y_offset,ty2+y_offset)
+    Call draw_square(lx1+i*dist,rx1+i*dist,-by1-y_offset,-ty1-y_offset)
+    Call draw_square(lx2+i*dist,rx2+i*dist,-by2-y_offset,-ty2-y_offset)
+  Next
+
+  Dim windings(3)
+
+  Set coilbuild_a = new build.init(ids_o.get_winding_keyword()+"1#1.1")
+  Call view.selectAt((lx1+rx1)/2,(ty1+by1)/2+y_offset, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInALine(length_core,Array(coilbuild_a.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call coilbuild_a.increment_component_num()
+  Call unselect()
+  windings(0) = coilbuild_a.end_component_build()
+
+  set coilbuild_b = new build.init(ids_o.get_winding_keyword()+"1#1.2")
+  Call view.selectAt((lx2+rx2)/2,(ty2+by2)/2+y_offset, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInALine(length_core,Array(coilbuild_b.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call coilbuild_b.increment_component_num()
+  Call unselect()
+  windings(1) = coilbuild_b.end_component_build()
+
+  Set coilbuild_c = new build.init(ids_o.get_winding_keyword()+"2#1.1")
+  Call view.selectAt((lx1+rx1)/2,-(ty1+by1)/2-y_offset, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInALine(length_core,Array(coilbuild_c.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call coilbuild_c.increment_component_num()
+  Call unselect()
+  windings(2) = coilbuild_c.end_component_build()
+
+  set coilbuild_d = new build.init(ids_o.get_winding_keyword()+"2#1.2")
+  Call view.selectAt((lx2+rx2)/2,-(ty2+by2)/2-y_offset, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInALine(length_core,Array(coilbuild_d.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call coilbuild_d.increment_component_num()
+  Call unselect()
+  windings(3) = coilbuild_d.end_component_build()
+
+  make_single_d_winding = Array(windings(0),windings(1),windings(2),windings(3),num_coils,dist)
+  Call view.getSlice().moveInALine(length_core/2)
 End Function
 
-Function make_winding()
+'MAKE TOOTH COIL WINDING'
+'returns:
+'winding A component name
+'winding B component name
+'winding C component name
+'winding D component name
+'number of duplicates down core length
+'duplicate distance'
+Function make_single_t_winding()
   Call view.getSlice().moveInALine(-length_core/2)
 
-  Call get_coil_cross_section_coords(lx1,rx1,by1,ty1,lx2,rx2,by2,ty2)
+  y_offset = air_gap/2
 
-  Call draw_square(lx1,rx1,by1,ty1)
-  Call draw_square(lx2,rx2,by2,ty2)
+  lx1 = -slot_teeth_width/2+coil_core_separation_x+coil_width/2
+  rx1 = -slot_teeth_width/2+coil_core_separation_x+coil_width
+  by1 = coil_core_separation_y
+  ty1 = coil_core_separation_y+slot_height
+  lx2 = lx1+slot_pitch-coil_width/2
+  rx2 = rx1+slot_pitch-coil_width/2
+  by2 = by1
+  ty2 = ty1
 
-  Set coilbuild = new build.init(ids_o.get_winding_keyword()+"#1")
+  numcoils = slots-2
+  dist = slot_pitch
 
-  Call view.getSlice().moveInALine(length_core/2)
+  For i = 0 To numcoils
+    Call draw_square(lx1+i*dist,rx1+i*dist,by1+y_offset,ty1+y_offset)
+    Call draw_square(lx2+i*dist,rx2+i*dist,by2+y_offset,ty2+y_offset)
+    Call draw_square(lx1+i*dist,rx1+i*dist,-by1-y_offset,-ty1-y_offset)
+    Call draw_square(lx2+i*dist,rx2+i*dist,-by2-y_offset,-ty2-y_offset)
+  Next
 
-  init_coords = Array((lx1+rx1)/2,(by1+ty1)/2,0)
-  unit_x_vec = Array(1,0,0)
-  unit_y_vec = Array(0,1,0)
-  unit_z_vec = Array(0,0,1)
+  Dim windings(3)
 
-  frame_params = Array("Frame","Cartesian",init_coords,unit_x_vec,unit_y_vec,unit_z_vec)
-  start_frame = Array("Start")
-  blend_frame = Array("Blend","Automatic")
+  Set coilbuild_a = new build.init(ids_o.get_winding_keyword()+"1#1.1")
+  Call view.selectAt((lx1+rx1)/2,(ty1+by1)/2+y_offset, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInALine(length_core,Array(coilbuild_a.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call coilbuild_a.increment_component_num()
+  Call unselect()
+  windings(0) = coilbuild_a.end_component_build()
 
-  line_frame_1 = Array("Line",Array(0,0,length_core/2+coil_core_separation_x))
-  line_frame_2 = Array("Line",Array(((lx2+rx2)/2-(lx1+rx1)/2)/2,0,length_core/2+coil_core_separation_x+end_ext))
-  line_frame_3 = Array("Line",Array(((lx2+rx2)/2-(lx1+rx1)/2)/2,0,length_core/2+coil_core_separation_x+end_ext+coil_width))
-  arc_frame_4 = Array("Arc",180,Array(((lx2+rx2)/2-(lx1+rx1)/2)/2,(ty2+by2)/4-(ty1+by1)/4,length_core/2+coil_core_separation_x+end_ext+coil_width),Array(-1,0,0))
-  multi_sweep_params = Array(frame_params,start_frame,line_frame_1,blend_frame,line_frame_2,blend_frame,line_frame_3,blend_frame,arc_frame_4)
+  set coilbuild_b = new build.init(ids_o.get_winding_keyword()+"1#1.2")
+  Call view.selectAt((lx2+rx2)/2,(ty2+by2)/2+y_offset, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInALine(length_core,Array(coilbuild_b.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call coilbuild_b.increment_component_num()
+  Call unselect()
+  windings(1) = coilbuild_b.end_component_build()
 
-  unselect()
-  Call view.selectAt((lx1+rx1)/2,(ty1+by1)/2, infoSetSelection, Array(infoSliceSurface))
-  Call view.makeComponentInAMultiSweep(multi_sweep_params,Array(coilbuild.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
-  Call getDocument().setMaxElementSize(coilbuild.component_name(),winding_resolution)
-  Call coilbuild.increment_component_num()
+  Set coilbuild_c = new build.init(ids_o.get_winding_keyword()+"2#1.1")
+  Call view.selectAt((lx1+rx1)/2,-(ty1+by1)/2-y_offset, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInALine(length_core,Array(coilbuild_c.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call coilbuild_c.increment_component_num()
+  Call unselect()
+  windings(2) = coilbuild_c.end_component_build()
 
-  line_frame_7 = Array("Line",Array((lx2+rx2)/2-(lx1+rx1)/2,(ty2+by2)/2-(ty1+by1)/2,length_core/2+coil_core_separation_x))
-  line_frame_8 = Array("Line",Array(((lx2+rx2)/2-(lx1+rx1)/2)/2,(ty2+by2)/2-(ty1+by1)/2,length_core/2+coil_core_separation_x+end_ext))
-  line_frame_9 = Array("Line",Array(((lx2+rx2)/2-(lx1+rx1)/2)/2,(ty2+by2)/2-(ty1+by1)/2,length_core/2+coil_core_separation_x+end_ext+coil_width))
-  multi_sweep_params = Array(frame_params,start_frame,line_frame_7,blend_frame,line_frame_8,blend_frame,line_frame_9)
+  set coilbuild_d = new build.init(ids_o.get_winding_keyword()+"2#1.2")
+  Call view.selectAt((lx2+rx2)/2,-(ty2+by2)/2-y_offset, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInALine(length_core,Array(coilbuild_d.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call coilbuild_d.increment_component_num()
+  Call unselect()
+  windings(3) = coilbuild_d.end_component_build()
 
-  unselect()
-  Call view.selectAt((lx2+rx2)/2,(ty2+by2)/2, infoSetSelection, Array(infoSliceSurface))
-  Call view.makeComponentInAMultiSweep(multi_sweep_params,Array(coilbuild.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
-  Call getDocument().setMaxElementSize(coilbuild.component_name(),winding_resolution)
-  Call coilbuild.increment_component_num()
-
-  'Merge Coil Parts (Forms one side of single winding)'
-  Call coilbuild.union_all()
-  Call coilbuild.mirror_copy(Array(0,0,1))
-  Call coilbuild.union_all()
-
-  make_winding = coilbuild.end_component_build()
-
+  make_single_t_winding = Array(windings(0),windings(1),windings(2),windings(3),num_coils,dist)
   Call view.getSlice().moveInALine(length_core/2)
 
 End Function
 
-Function make_single_side_windings(winding_name)
+'MAKE GRAMME RING WINDING'
+'returns:
+'winding A component name
+'winding B component name
+'winding C component name'
+'winding D component name'
+'number of duplicates down core length
+'duplicate distance'
+Function make_single_g_winding()
+
+End Function
+
+Function make_single_side_windings(params)
   Dim component_name
   copy_keyword = " Copy#1"
+
+  winding1 = params(0)
+  winding2 = params(1)
+  winding3 = params(2)
+  winding4 = params(3)
+  numcoils = params(4)
+  dist = params(5)
 
   Call getDocument().beginUndoGroup("Transform Component")
   Call view.getSlice().moveInALine(-length_core/2)
 
-  For i=1 to num_coils-1
-    Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding_name),1),slot_pitch*i, 0, 0, 1)
+  For i=1 to numcoils
+    Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding1),1),dist*i, 0, 0, 1)
     copy_component = ids_o.get_copy_components()(0)
-    copy_keyword = ids_o.subtract_strings(ids_o.get_winding_keyword+"#1",copy_component)
-    component_name = Replace(winding_name,"1",i+1)
+    'Print(winding1)
+    component_name = Replace(winding1,"1#1.1","1#"&(i+1)&".1")
     Call getDocument().renameObject(copy_component,component_name)
+
+    Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding2),1),dist*i, 0, 0, 1)
+    copy_component = ids_o.get_copy_components()(0)
+    component_name = Replace(winding2,"1#1.2","1#"&(i+1)&".2")
+    Call getDocument().renameObject(copy_component,component_name)
+
+    Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding3),1),dist*i, 0, 0, 1)
+    copy_component = ids_o.get_copy_components()(0)
+    component_name = Replace(winding3,"2#1.1","2#"&(i+1)&".1")
+    Call getDocument().renameObject(copy_component,component_name)
+
+    Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding4),1),dist*i, 0, 0, 1)
+    copy_component = ids_o.get_copy_components()(0)
+    component_name = Replace(winding4,"2#1.2","2#"&(i+1)&".2")
+    Call getDocument().renameObject(copy_component,component_name)
+
   Next
   Call getDocument().endUndoGroup()
-  Call clear_construction_lines()
+  Call view.getSlice().moveInALine(length_core/2)
+  'Call clear_construction_lines()
 End Function
 
 Function make_single_side_coils()
@@ -303,8 +496,6 @@ Function make_single_side_coils()
   Set re = new RegExp
   re.Pattern = "[^\d]"
   re.Global = True
-
-  Call get_coil_cross_section_coords(lx1,rx1,by1,ty1,lx2,rx2,by2,ty2)
 
   For i=0 to UBound(match)
     coil_path = match(i)
@@ -316,142 +507,45 @@ Function make_single_side_coils()
     excitaiton_normal = Array(0,0,1)
     excitation_volume = Array(coil_path)
 
+    Call getDocument().getView().selectObject(coil_path, infoSetSelection)
+    Call getDocument().makeSimpleCoil(1, Array(coil_path))
+
     If(coil_num Mod 2=0) Then
       excitation_normal = Array(0,0,1)
     Else
       excitation_normal = Array(0,0,-1)
     End If
-    Call getDocument().makeCurrentFlowSurfaceCoil(1,coil_path,excitation_center,excitation_normal,excitation_volume)
   Next
   Call getDocument.endUndoGroup()
 End Function
 
-Function make_track(SHOW_FORBIDDEN_AIR,SHOW_FULL_GEOMETRY,BUILD_WITH_SYMMETRY)
-  If SHOW_FORBIDDEN_AIR Then
-  	Call generate_forbidden_zones()
-  End If
+Function make_track()
+  Call view.getSlice().moveInALine(-rail_height/2)
+  Call view.newLine(-track_length,-web_thickness/2,-track_length,web_thickness/2)
+  Call view.newLine(track_length,-web_thickness/2,track_length,web_thickness/2)
+  Call view.newLine(-track_length,web_thickness/2,track_length,web_thickness/2)
+  Call view.newLine(-track_length,-web_thickness/2,track_length,-web_thickness/2)
 
-  If BUILD_WITH_SYMMETRY Then
-  	If SHOW_FULL_GEOMETRY Then
-  		Call view.newLine(-rail_width/2.0, 0, 0, 0)
-  		Call view.newLine(0, 0, 0, rail_height)
-  		Call view.newLine(0, rail_height, -rail_width/2.0, rail_height)
-  		Call view.newLine(-rail_width/2.0, rail_height, -rail_width/2.0, rail_height - flange_thickness)
-  		Call view.newLine(-rail_width/2.0, rail_height - flange_thickness, -web_thickness/2.0, rail_height - flange_thickness)
-  		Call view.newLine(-web_thickness/2.0, rail_height - flange_thickness, -web_thickness/2.0, flange_thickness)
-  		Call view.newLine(-web_thickness/2.0, flange_thickness, -rail_width/2.0, flange_thickness)
-  		Call view.newLine(-rail_width/2.0, flange_thickness, -rail_width/2.0, 0)
-  	Else
-  		Call view.newLine(-web_thickness/2.0, plate_thickness, 0, plate_thickness)
-  		Call view.newLine(0, plate_thickness, 0, rail_height - flange_thickness)
-  		Call view.newLine(0, rail_height - flange_thickness, -web_thickness/2.0, rail_height - flange_thickness)
-  		Call view.newLine(-web_thickness/2.0, rail_height - flange_thickness, -web_thickness/2.0, plate_thickness)
-  	End If
-  Else
-  	If SHOW_FULL_GEOMETRY Then
-  		Call view.newLine(-rail_width/2.0, 0, rail_width/2.0, 0)
-  		Call view.newLine(rail_width/2.0, 0, rail_width/2.0, flange_thickness)
-  		Call view.newLine(rail_width/2.0, flange_thickness, web_thickness/2.0, flange_thickness)
-  		Call view.newLine(web_thickness/2.0, flange_thickness, web_thickness/2.0, rail_height - flange_thickness)
-  		Call view.newLine(web_thickness/2.0, rail_height - flange_thickness, rail_width/2.0, rail_height - flange_thickness)
-  		Call view.newLine(rail_width/2.0, rail_height - flange_thickness, rail_width/2.0, rail_height)
-  		Call view.newLine(rail_width/2.0, rail_height, -rail_width/2.0, rail_height)
-  		Call view.newLine(-rail_width/2.0, rail_height, -rail_width/2.0, rail_height - flange_thickness)
-  		Call view.newLine(-rail_width/2.0, rail_height - flange_thickness, -web_thickness/2.0, rail_height - flange_thickness)
-  		Call view.newLine(-web_thickness/2.0, rail_height - flange_thickness, -web_thickness/2.0, flange_thickness)
-  		Call view.newLine(-web_thickness/2.0, flange_thickness, -rail_width/2.0, flange_thickness)
-  		Call view.newLine(-rail_width/2.0, flange_thickness, -rail_width/2.0, 0)
-  	Else
-  		Call view.newLine(-web_thickness/2.0, plate_thickness, web_thickness/2.0, plate_thickness)
-  		Call view.newLine(web_thickness/2.0, plate_thickness, web_thickness/2.0, rail_height - flange_thickness)
-  		Call view.newLine(web_thickness/2.0, rail_height - flange_thickness, -web_thickness/2.0, rail_height - flange_thickness)
-  		Call view.newLine(-web_thickness/2.0, rail_height - flange_thickness, -web_thickness/2.0, plate_thickness)
-  	End If
-  End If
+  Call view.selectAt(0, 0, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInALine(rail_height, Array(ids_o.get_track_keyword), format_material(track_material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call getDocument().setMaxElementSize(ids_o.get_track_keyword, aluminium_resolution)
 
-  rail = "Track"
-  p1 = "Plate 1"
-  p2 = "Plate 2"
-
-  rm1 = "Track Remesh"
-
-  Call generate_two_sided_component(rail,track_material,0,rail_height/2.0,z_min,z_max+motion_length,aluminium_resolution)
-  'Call getDocument().setMaxElementSize(rail, aluminiumResolution)
-
-  Call view.newLine(-x_max, 0, -rail_width/2.0 - plate_gap, 0)
-  Call view.newLine(-rail_width/2.0 - plate_gap, 0, -rail_width/2.0 - plate_gap, plate_thickness)
-  Call view.newLine(-rail_width/2.0 - plate_gap, plate_thickness, -x_max, plate_thickness)
-  Call view.newLine(-x_max, plate_thickness, -x_max, 0)
-
-  'Call generate_two_sided_component(p1,track_material,-rail_width/2.0-plate_gap-10,plate_thickness/2.0,z_min,z_max+motion_length,aluminium_resolution)
-  'Call getDocument().setMaxElementSize(p1, aluminiumResolution)
-
-  If NOT(BUILD_WITH_SYMMETRY) Then
-  	Call view.newLine(x_max, 0, rail_width/2.0 + plate_gap, 0)
-  	Call view.newLine(rail_width/2.0 + plate_gap, 0, rail_width/2.0 + plate_gap, plate_thickness)
-  	Call view.newLine(rail_width/2.0 + plate_gap, plate_thickness, x_max, plate_thickness)
-  	Call view.newLine(x_max, plate_thickness, x_max, 0)
-
-    'Call generate_two_sided_component(p2,track_material,rail_width/2.0+plate_gap+10,plate_thickness/2.0,z_min,z_max+motion_length,aluminium_resolution)
-  	'Call getDocument().setMaxElementSize(p2, aluminiumResolution)
-  End If
-
-  Call clear_construction_lines()
-
-  If NOT(BUILD_STATIC) Then
-    Call view.newLine(-web_thickness/2.0-remesh_padding, plate_thickness-remesh_padding, web_thickness/2.0+remesh_padding, plate_thickness-remesh_padding)
-    Call view.newLine(web_thickness/2.0+remesh_padding, plate_thickness-remesh_padding, web_thickness/2.0+remesh_padding, rail_height - flange_thickness + remesh_padding)
-    Call view.newLine(web_thickness/2.0+remesh_padding, rail_height - flange_thickness + remesh_padding, -web_thickness/2.0-remesh_padding, rail_height - flange_thickness + remesh_padding)
-    Call view.newLine(-web_thickness/2.0-remesh_padding, rail_height - flange_thickness + remesh_padding, -web_thickness/2.0-remesh_padding, plate_thickness-remesh_padding)
-    Call generate_two_sided_component(rm1,air_material,0,rail_height/2.0,z_min-motion_length,z_max+motion_length+airbox_padding/2,air_resolution)
-    Call clear_construction_lines()
-  End If
+  Call view.getSlice().moveInALine(rail_height/2)
 End Function
 
-Function generate_forbidden_zones()
-  Call view.newLine(-rail_width/2.0 - plate_gap, 0, -rail_width/2.0 - plate_gap, bottom_forbidden_height)
-  Call view.newLine(-rail_width/2.0 - plate_gap, bottom_forbidden_height, rail_width/2.0 + plate_gap, bottom_forbidden_height)
-  Call view.newLine(rail_width/2.0 + plate_gap, bottom_forbidden_height, rail_width/2.0 + plate_gap, 0)
-  Call view.newLine(rail_width/2.0 + plate_gap, 0, -rail_width/2.0 - plate_gap, 0)
+Function make_airbox()
+  Call view.getSlice().moveInALine(-rail_height/2-z_padding)
 
-  Call view.newLine(-top_forbidden_width/2.0, rail_height - flange_thickness - top_forbidden_height, -top_forbidden_width/2.0, rail_height - flange_thickness)
-  Call view.newLine(-top_forbidden_width/2.0, rail_height - flange_thickness, top_forbidden_width/2.0, rail_height - flange_thickness)
-  Call view.newLine(top_forbidden_width/2.0, rail_height - flange_thickness, top_forbidden_width/2.0, rail_height - flange_thickness - top_forbidden_height)
-  Call view.newLine(top_forbidden_width/2.0, rail_height - flange_thickness - top_forbidden_height, -top_forbidden_width/2.0, rail_height - flange_thickness - top_forbidden_height)
+  airbox = ids_o.get_airbox_keyword()
 
-  fa_name_1 = "Forbidden Air 1"
-  fa_name_2 = "Forbidden Air 2"
-
-  Call generate_two_sided_component(fa_name_1,air_material,0,bottom_forbidden_height/2.0,z_min,z_max,air_resolution)
-  'Call getDocument().setMaxElementSize(fa_name_1, airResolution)
-  Call getDocument().setComponentColor(fa_name_1, RGB(255, 0, 0), 50)
-
-  Call generate_two_sided_component(fa_name_2,air_material,0,rail_height-flange_thickness-top_forbidden_height/2.0,z_min,z_max,air_resolution)
-  'Call getDocument().setMaxElementSize("Forbidden Air 2", airResolution)
-  Call getDocument().setComponentColor(fa_name_2, RGB(255, 0, 0), 50)
-
-  Call clear_construction_lines()
-End Function
-
-Function make_airbox(BUILD_WITH_SYMMETRY)
-  airbox = "AirBox"
-  If BUILD_WITH_SYMMETRY Then
-    Call draw_square(x_min,-x_max,y_min,y_max)
-  Else
-    Call draw_square(-x_max-airbox_padding,x_max+airbox_padding,y_min-airbox_padding,y_max+airbox_padding)
-  End If
-  Call generate_two_sided_component(airbox,air_material,-x_max+1,y_max-1,z_min-airbox_padding-motion_length,z_max+airbox_padding+motion_length,air_resolution)
+  Call draw_square(-track_length-x_padding,track_length+x_padding,-(r2*2+air_gap/2+y_padding),(r2*2+air_gap/2+y_padding))
+  Call view.selectAt(0, (length_core+r2*2)/2+air_gap+y_padding, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInALine(rail_height+2*z_padding, Array(ids_o.get_airbox_keyword), format_material(air_material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
   Call getDocument().setMaxElementSize(airbox, air_resolution)
   Call getDocument().getView().setObjectVisible(airbox, False)
 
-  Call view.selectAll(infoSetSelection, Array(infoSliceLine))
-  Call view.deleteSelection()
-  If BUILD_WITH_SYMMETRY Then
-    airbox_comp = ids_o.get_spec_paths(Array(airbox))
-    temp = Array(airbox_comp(0)+",Face#3")
-    Call getDocument().createBoundaryCondition(temp, "BoundaryCondition#1")
-    Call getDocument().setMagneticFieldNormal("BoundaryCondition#1")
-  End If
+  Call view.getSlice().moveInALine(rail_height/2+z_padding)
+
 End Function
 
 
@@ -463,12 +557,18 @@ Class ids
   Private a_postfix
   Private b_postfix
   Private copper_keyword
+  Private magnet_keyword
+  Private track_keyword
+  Private airbox_keyword
   Private cores
 
   'Constructor
   Public Default Function init()
     copper_keyword = "CoilGeometry"
-    core_matches = Array("Core",copper_keyword)
+    magnet_keyword = "Magnet"
+    track_keyword = "Track"
+    airbox_keyword = "AirBox"
+    core_matches = Array("Core",copper_keyword,magnet_keyword)
     remove_strings = Array(",","Body#1")
     copy_replace_strings = Array("Copy#1","Copy#9")
 
@@ -640,6 +740,18 @@ Class ids
     get_winding_keyword = copper_keyword
   End Property
 
+  Public Property Get get_magnet_keyword()
+    get_magnet_keyword = magnet_keyword
+  End Property
+
+  Public Property Get get_track_keyword()
+    get_track_keyword = track_keyword
+  End Property
+
+  Public Property Get get_airbox_keyword()
+    get_airbox_keyword = airbox_keyword
+  End Property
+
 End Class
 
 
@@ -664,7 +776,6 @@ Class build
 
   Public Function update()
     temp_comps = up_complist()
-    Call print(temp_comps)
   End Function
 
   Public Function union_all()
@@ -750,19 +861,41 @@ Class power
   End Function
 
   Public Function draw_circuit()
-    For i=1 to num_coils
+    circuit_t()
+  End Function
 
-      Call draw_single_winding(i)
+  Public Function circuit_t()
+    For i=0 to num_coils-1
+      base = int(i/8)
+      'Print(base)
+      phase_num = (base mod phase)
+      coil_orientation = -2*int(i/(96/2))+1
+      Call draw_single_winding(i+1,phase_num,coil_orientation)
     Next
   End Function
 
-  Public Function draw_single_winding(i)
+  'unused (old code)'
+  'might be useful for distributed winding simulations'
+  Public Function circuit_d()
+    For i=1 to num_coils
+      phase_num = 120*((i-1) mod phase)
+      coil_orientation = 1
+      Call draw_single_winding(i,phase_num,coil_orientation)
+    Next
+  End Function
+
+  Public Function draw_single_winding(i,phase_num,coil_orientation)
     Set circ = getDocument().getCircuit()
-    Call circ.insertCoil("Coil#"&i, start_x, start_y+i*offset_y)
-    Call circ.insertCurrentSource(start_x+offset_x, start_y+i*offset_y)
 
     coil_name = "Coil#"&i
     source_name = "I"&i
+
+    If(coil_orientation=-1) Then
+      flip_coil_direction(coil_name)
+    End If
+
+    Call circ.insertCoil(coil_name, start_x, start_y+i*offset_y)
+    Call circ.insertCurrentSource(start_x+offset_x, start_y+i*offset_y)
 
     DIM ctx,cty,vstx,vsty
     Call circ.getPositionOfTerminal(coil_name&",T2",ctx,cty)
@@ -778,11 +911,11 @@ Class power
     Call circ.insertConnection(xconn, yconn)
 
     Call getDocument().beginUndoGroup("Set V Source Properties", true)
-    phase_ang = 120*((i-1) mod phase)
+
+    phase_ang = phase_num*120 'phase_num is an integer [1,2,3]'
     props = Array(0,v_max,freq,0,0,phase_ang)
 
     If(nt > 1) Then
-      'Call print(copperdiam)
       Call getDocument().setCoilType(coil_name, infoStrandedCoil)
       Call getDocument().setCoilNumberOfTurns(coil_name, nt)
       Call getDocument().setParameter(coil_name, "StrandArea", CStr(copperarea/(1000^2)), infoNumberParameter)
@@ -792,6 +925,10 @@ Class power
     'Call getDocument().setParameter(source_name, "WaveFormValues", "[0, %sourceSteps, 15, 1, 0, 0]", infoArrayParameter)
     'Call getDocument().setParameter(source_name, "WaveFormValues", "[0, %sourceSteps,"&freq&", 0, 0, 0, "&phase_ang&"]", infoArrayParameter)
     Call getDocument().endUndoGroup()
+  End Function
+
+  Public Function flip_coil_direction(coil_name)
+    Call getDocument().reverseCoilDirection(coil_name)
   End Function
 
 End Class
@@ -849,15 +986,8 @@ End Function
 
 'UTIL FUNCTIONS'
 
-
 Function format_material(material)
   format_material = "Name="+material
-End Function
-
-Function clear_construction_lines()
-  Set view = getDocument().getView()
-  Call view.selectAll(infoSetSelection, Array(infoSliceLine, infoSliceArc))
-  Call view.deleteSelection()
 End Function
 
 Function draw_square(x1,x2,y1,y2)
@@ -931,73 +1061,8 @@ Function mirror_components(components,normal)
   Call getDocument().endUndoGroup()
 End Function
 
-Function generate_two_sided_component(component_name,material,selection_x,selection_y,neg_val,pos_val,resolution)
-  Call view.selectAt(selection_x, selection_y, infoSetSelection, Array(infoSliceSurface))
-  Call view.makeComponentInALine(neg_val, Array(component_name+"p1"),format_material(material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
-  Call view.selectAt(selection_x, selection_y, infoSetSelection, Array(infoSliceSurface))
-  Call view.makeComponentInALine(pos_val, Array(component_name+"p2"),format_material(material), infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
-  Call union_and_rename(component_name+"p1",component_name+"p2",component_name)
-  Call getDocument().setMaxElementSize(component_name,resolution)
-End Function
-
-Function orient_core_a()
-  Call select_a_components()
-  Call getDocument().beginUndoGroup("Rotate Core Component")
-  core_components = ids_o.get_a_components()
-  Call getDocument().rotateComponent(core_components, 0, 0, 0, 0, 1, 0, 90, 1)
-  Call getDocument().rotateComponent(core_components, 0, 0, 0, 0, 0, 1, 90, 1)
-  Call getDocument().endUndoGroup()
-End Function
-
-Function orient_core_b()
-  Call select_b_components()
-  Call getDocument().beginUndoGroup("Rotate Core Component")
-  core_components = ids_o.get_b_components()
-  Call getDocument().rotateComponent(core_components, 0, 0, 0, 0, 1, 0, 90, 1)
-  Call getDocument().rotateComponent(core_components, 0, 0, 0, 0, 0, 1, -90, 1)
-  Call getDocument().endUndoGroup()
-End Function
-
-Function move_core_to_midtrack(core_components)
-  Call getDocument().beginUndoGroup("Transform Component")
-  Call getDocument().shiftComponent(core_components, 0, rail_height/2, 0, 1)
-  Call getDocument().endUndoGroup()
-End Function
-
-Function insert_core_airgap(core_components,direction)
-  Call getDocument().beginUndoGroup("Translate Core Component")
-  Call getDocument().shiftComponent(core_components,direction*-air_gap/2, 0, 0, 1)
-  Call getDocument().endUndoGroup()
-End Function
-
-Function select_core_components()
-  components = ids_o.get_core_components()
-  select_components(components)
-End Function
-
-Function select_components(arr)
-  Call getDocument().getView().selectObject(arr(0),infoSetSelection)
-  For i=0 to UBound(arr)
-    Call getDocument().getView().selectObject(arr(i),infoAddToSelection)
-  Next
-End Function
-
-Function kphTomps(val)
-  kphTomps = val/3.6
-End Function
-
 Function unselect()
   Call getDocument().getView().unselectAll()
-End Function
-
-Function select_a_components()
-  components = ids_o.get_a_components()
-  Call select_components(components)
-End Function
-
-Function select_b_components()
-  components = ids_o.get_b_components()
-  Call select_components(components)
 End Function
 
 Function print_arr(input_arr)
@@ -1024,21 +1089,4 @@ Function get_global(local_x,local_y)
   Dim global_points(2)
   Call view.getSlice().convertLocalToGlobal(local_x,local_y,global_points(0),global_points(1),global_points(2))
   get_global = global_points
-End Function
-
-Function get_local(global_x,global_y)
-  Set view = getDocument().getView()
-  Dim local_points(1)
-  Call view.getSlice().convertGlobalToLocal(global_x,global_y,local_points(0),local_points(1))
-  get_local = local_points
-End Function
-
-Function get_origin_from_local()
-  get_origin_from_local = get_global(0,0)
-End Function
-
-Function reset_local()
-  'This doesn't work
-  unit_z_vec = Array(0,0,1)
-  CALL getDocument().getView().getSlice().moveToAPlane(0, 0, 0, 0, 0, 1, 0, 0, -1)
 End Function

@@ -46,10 +46,9 @@ Weight = Volume*coreMaterialDensity*2; %Weight of DLIM Core in g
 
 %Simulation counter/duration Variables
 totalTimeElapsed = 0;
-
+tic
 parfor angle=1:90
   singleSimTimeElapsed = 0;
-  tic
 
   [losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC,flA,flB,flC] = DLIMSimulations(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,COIL_PITCH,END_EXT,SPAN_EXT,SEG_ANGLE,angle*2);
   outputWSTForcex(angle)=wstforcex; %Weighted Stress Tensor Force on Track, x direction
@@ -74,9 +73,7 @@ parfor angle=1:90
   outputResultY(angle)=lforcey/Weight;%Force/Weight Ratio (y-direction)
 
   %save('transient_results.mat');
-  singleSimTimeElapsed=toc;
-  disp(append("Simulation at angle ",num2str(angle)," completed in ",num2str(singleSimTimeElapsed)," seconds"))
-  totalTimeElapsed = totalTimeElapsed+singleSimTimeElapsed;
+  disp(append("Simulation at angle ",num2str(angle)," completed."))
 end
-
+totalTimeElapsed = toc;
 disp(append("Total Simulation Time: ",num2str(totalTimeElapsed),"seconds"))
