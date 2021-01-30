@@ -120,10 +120,10 @@ Set ids_o = new ids.init()
 Call make_airbox()
 Call make_track()
 Call make_core_component()
-Call make_single_side_windings(make_single_t_winding())
-Call make_single_side_coils()
-Call make_ee_compensator()
-Set drive = new power.init()
+Call make_single_side_windings(make_single_d_winding())
+'Call make_single_side_coils()
+'Call make_ee_compensator()
+'Set drive = new power.init()
 
 'Call setup_parameters()
 
@@ -364,7 +364,7 @@ Function make_single_d_winding()
   Call unselect()
   windings(3) = coilbuild_d.end_component_build()
 
-  make_single_d_winding = Array(windings(0),windings(1),windings(2),windings(3),num_coils,dist)
+  make_single_d_winding = Array(windings(0),windings(1),windings(2),windings(3),numcoils,dist)
   Call view.getSlice().moveInALine(length_core/2)
 End Function
 
@@ -430,7 +430,57 @@ Function make_single_t_winding()
   Call unselect()
   windings(3) = coilbuild_d.end_component_build()
 
-  make_single_t_winding = Array(windings(0),windings(1),windings(2),windings(3),num_coils,dist)
+  make_single_t_winding = Array(windings(0),windings(1),windings(2),windings(3),numcoils,dist)
+  Call view.getSlice().moveInALine(length_core/2)
+
+End Function
+
+'MAKE SLOT COIL WINDING'
+'returns:
+'winding A component name
+'winding B component name
+'winding C component name
+'winding D component name
+'number of duplicates down core length
+'duplicate distance'
+Function make_single_s_winding()
+  Call view.getSlice().moveInALine(-length_core/2)
+
+  y_offset = air_gap/2
+
+  lx1 = -slot_teeth_width/2+coil_core_separation_x
+  rx1 = -slot_teeth_width/2+coil_core_separation_x+coil_width
+  by1 = coil_core_separation_y
+  ty1 = coil_core_separation_y+slot_height
+
+  numcoils = slots-1
+  dist = slot_pitch
+
+  For i = 0 To numcoils
+    Call draw_square(lx1+i*dist,rx1+i*dist,by1+y_offset,ty1+y_offset)
+    Call draw_square(lx1+i*dist,rx1+i*dist,-by1-y_offset,-ty1-y_offset)
+  Next
+
+  Dim windings(3)
+
+  Set coilbuild_a = new build.init(ids_o.get_winding_keyword()+"1#1.1")
+  Call view.selectAt((lx1+rx1)/2,(ty1+by1)/2+y_offset, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInALine(length_core,Array(coilbuild_a.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call coilbuild_a.increment_component_num()
+  Call unselect()
+  windings(0) = coilbuild_a.end_component_build()
+
+  Set coilbuild_b = new build.init(ids_o.get_winding_keyword()+"2#1.1")
+  Call view.selectAt((lx1+rx1)/2,-(ty1+by1)/2-y_offset, infoSetSelection, Array(infoSliceSurface))
+  Call view.makeComponentInALine(length_core,Array(coilbuild_b.component_name()),format_material(coil_material),infoMakeComponentUnionSurfaces Or infoMakeComponentRemoveVertices)
+  Call coilbuild_b.increment_component_num()
+  Call unselect()
+  windings(2) = coilbuild_b.end_component_build()
+
+  windings(1) = ""
+  windings(3) = ""
+
+  make_single_s_winding = Array(windings(0),windings(1),windings(2),windings(3),numcoils,dist)
   Call view.getSlice().moveInALine(length_core/2)
 
 End Function
@@ -462,26 +512,34 @@ Function make_single_side_windings(params)
   Call view.getSlice().moveInALine(-length_core/2)
 
   For i=1 to numcoils
-    Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding1),1),dist*i, 0, 0, 1)
-    copy_component = ids_o.get_copy_components()(0)
-    'Print(winding1)
-    component_name = Replace(winding1,"1#1.1","1#"&(i+1)&".1")
-    Call getDocument().renameObject(copy_component,component_name)
+    If(winding1<>"") Then
+      Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding1),1),dist*i, 0, 0, 1)
+      copy_component = ids_o.get_copy_components()(0)
+      'Print(winding1)
+      component_name = Replace(winding1,"1#1.1","1#"&(i+2)&".1")
+      Call getDocument().renameObject(copy_component,component_name)
+    End If
 
-    Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding2),1),dist*i, 0, 0, 1)
-    copy_component = ids_o.get_copy_components()(0)
-    component_name = Replace(winding2,"1#1.2","1#"&(i+1)&".2")
-    Call getDocument().renameObject(copy_component,component_name)
+    If(winding2<>"") Then
+      Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding2),1),dist*i, 0, 0, 1)
+      copy_component = ids_o.get_copy_components()(0)
+      component_name = Replace(winding2,"1#1.2","1#"&(i+2)&".2")
+      Call getDocument().renameObject(copy_component,component_name)
+    End If
 
-    Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding3),1),dist*i, 0, 0, 1)
-    copy_component = ids_o.get_copy_components()(0)
-    component_name = Replace(winding3,"2#1.1","2#"&(i+1)&".1")
-    Call getDocument().renameObject(copy_component,component_name)
+    If(winding3<>"") Then
+      Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding3),1),dist*i, 0, 0, 1)
+      copy_component = ids_o.get_copy_components()(0)
+      component_name = Replace(winding3,"2#1.1","2#"&(i+2)&".1")
+      Call getDocument().renameObject(copy_component,component_name)
+    End If
 
-    Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding4),1),dist*i, 0, 0, 1)
-    copy_component = ids_o.get_copy_components()(0)
-    component_name = Replace(winding4,"2#1.2","2#"&(i+1)&".2")
-    Call getDocument().renameObject(copy_component,component_name)
+    If(winding4<>"") Then
+      Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding4),1),dist*i, 0, 0, 1)
+      copy_component = ids_o.get_copy_components()(0)
+      component_name = Replace(winding4,"2#1.2","2#"&(i+2)&".2")
+      Call getDocument().renameObject(copy_component,component_name)
+    End If
 
   Next
   Call getDocument().endUndoGroup()
@@ -869,7 +927,7 @@ Class power
       base = int(i/8)
       'Print(base)
       phase_num = (base mod phase)
-      coil_orientation = -2*int(i/(96/2))+1
+      coil_orientation = -2*(base mod 2)+1
       Call draw_single_winding(i+1,phase_num,coil_orientation)
     Next
   End Function
