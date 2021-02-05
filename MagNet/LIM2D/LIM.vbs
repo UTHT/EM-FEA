@@ -25,7 +25,7 @@ time_step = 50       'Time step in ms'
 const SHOW_FORBIDDEN_AIR = False	  	' Show forbidden zones for design purposes (as red air regions)
 const SHOW_FULL_GEOMETRY = False	   	' Build with flanges of track
 const BUILD_WITH_SYMMETRY = False   	' Build only half of the track and one wheel, with symmetry conditions
-const BUILD_WITH_CIRCUIT = True       ' Build simulation with drive circuitry (useful to turn off for debugging)'
+const BUILD_WITH_CIRCUIT = False       ' Build simulation with drive circuitry (useful to turn off for debugging)'
 const BUILD_STATIC = False            ' Build simulation with no motion components
 const AUTO_RUN = False                ' Run simulation as soon as problam definition is complete
 const RECORD_TRANSIENT_POWER = True   ' Run simulation with transient average power loss'
@@ -35,7 +35,7 @@ coil_core_separation_x = 0  'minimum separation between core and coil (one-sided
 coil_core_separation_y = 0  'minimum separation between core and coil (one-sided, y-direction)'
 distribute_distance = 2     'distributed winding distance, in # of slots'
 v_max = 120                 'input voltage'
-freq = 15                   'source frequency'
+freq = 100                   'source frequency'
 awg = 20                    'winding gauge'
 nt = 50                     'number of coil turns (set nt=1 for solid winding)'
 
@@ -120,10 +120,10 @@ Set ids_o = new ids.init()
 Call make_airbox()
 Call make_track()
 Call make_core_component()
-Call make_single_side_windings(make_single_d_winding())
-'Call make_single_side_coils()
-'Call make_ee_compensator()
-'Set drive = new power.init()
+Call make_single_side_windings(make_single_s_winding())
+Call make_single_side_coils()
+Call make_ee_compensator()
+Set drive = new power.init()
 
 'Call setup_parameters()
 
@@ -239,19 +239,20 @@ Function make_ee_compensator()
   	Magnets(i - 1) = ids_o.get_magnet_keyword()&"1#" & i
   Next
 
-  Call getDocument().makeMotionComponent(Magnets)
-  Call getDocument().setMotionSourceType("Motion#1", infoVelocityDriven)
-  Call getDocument().setMotionRotaryCenter("Motion#1", Array(x_offset, y_offset, 0))
-  Call getDocument().setMotionRotaryAxis("Motion#1",rotation_axis)
+  if not (BUILD_STATIC) then
+    Call getDocument().makeMotionComponent(Magnets)
+    Call getDocument().setMotionSourceType("Motion#1", infoVelocityDriven)
+    Call getDocument().setMotionRotaryCenter("Motion#1", Array(x_offset, y_offset, 0))
+    Call getDocument().setMotionRotaryAxis("Motion#1",rotation_axis)
 
-  Call getDocument().setMotionPositionAtStartup("Motion#1", 0)
-  Call getDocument().setMotionSpeedAtStartup("Motion#1", 0)
-  REDIM ArrayOfValues1(0)
-  ArrayOfValues1(0)= 0
-  REDIM ArrayOfValues2(0)
-  ArrayOfValues2(0)= rpm*6.0
-  Call getDocument().setMotionSpeedVsTime("Motion#1", ArrayOfValues1, ArrayOfValues2)
-
+    Call getDocument().setMotionPositionAtStartup("Motion#1", 0)
+    Call getDocument().setMotionSpeedAtStartup("Motion#1", 0)
+    REDIM ArrayOfValues1(0)
+    ArrayOfValues1(0)= 0
+    REDIM ArrayOfValues2(0)
+    ArrayOfValues2(0)= rpm*6.0
+    Call getDocument().setMotionSpeedVsTime("Motion#1", ArrayOfValues1, ArrayOfValues2)
+  end if
   'Magnet 2'
   Call view.newCircle(x_offset, -y_offset, r1)
   Call view.newCircle(x_offset, -y_offset, r2)
@@ -285,19 +286,20 @@ Function make_ee_compensator()
   	Magnets(i - 1) = ids_o.get_magnet_keyword()&"2#" & i
   Next
 
-  Call getDocument().makeMotionComponent(Magnets)
-  Call getDocument().setMotionSourceType("Motion#2", infoVelocityDriven)
-  Call getDocument().setMotionRotaryCenter("Motion#2", Array(x_offset, -y_offset, 0))
-  Call getDocument().setMotionRotaryAxis("Motion#2",rotation_axis)
+  if not (BUILD_STATIC) then
+    Call getDocument().makeMotionComponent(Magnets)
+    Call getDocument().setMotionSourceType("Motion#2", infoVelocityDriven)
+    Call getDocument().setMotionRotaryCenter("Motion#2", Array(x_offset, -y_offset, 0))
+    Call getDocument().setMotionRotaryAxis("Motion#2",rotation_axis)
 
-  Call getDocument().setMotionPositionAtStartup("Motion#2", 0)
-  Call getDocument().setMotionSpeedAtStartup("Motion#2", 0)
-  REDIM ArrayOfValues1(0)
-  ArrayOfValues1(0)= 0
-  REDIM ArrayOfValues2(0)
-  ArrayOfValues2(0)= -rpm*6.0
-  Call getDocument().setMotionSpeedVsTime("Motion#2", ArrayOfValues1, ArrayOfValues2)
-
+    Call getDocument().setMotionPositionAtStartup("Motion#2", 0)
+    Call getDocument().setMotionSpeedAtStartup("Motion#2", 0)
+    REDIM ArrayOfValues1(0)
+    ArrayOfValues1(0)= 0
+    REDIM ArrayOfValues2(0)
+    ArrayOfValues2(0)= -rpm*6.0
+    Call getDocument().setMotionSpeedVsTime("Motion#2", ArrayOfValues1, ArrayOfValues2)
+  end if
 
   Call view.getSlice().moveInALine(z_offset)
 End Function
@@ -515,7 +517,6 @@ Function make_single_side_windings(params)
     If(winding1<>"") Then
       Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding1),1),dist*i, 0, 0, 1)
       copy_component = ids_o.get_copy_components()(0)
-      'Print(winding1)
       component_name = Replace(winding1,"1#1.1","1#"&(i+2)&".1")
       Call getDocument().renameObject(copy_component,component_name)
     End If
@@ -551,6 +552,7 @@ Function make_single_side_coils()
   Call getDocument.beginUndoGroup("Create Coils")
   match = ids_o.get_winding_paths()
   match = ids_o.find_with_not_match(match,Array("A"))
+
   Set re = new RegExp
   re.Pattern = "[^\d]"
   re.Global = True
@@ -562,17 +564,10 @@ Function make_single_side_coils()
     coil_side = Right(coil_name,1)
 
     excitation_center = get_global((lx1+rx1)/2+slot_pitch*i,(by1+ty1)/2)
-    excitaiton_normal = Array(0,0,1)
     excitation_volume = Array(coil_path)
 
     Call getDocument().getView().selectObject(coil_path, infoSetSelection)
     Call getDocument().makeSimpleCoil(1, Array(coil_path))
-
-    If(coil_num Mod 2=0) Then
-      excitation_normal = Array(0,0,1)
-    Else
-      excitation_normal = Array(0,0,-1)
-    End If
   Next
   Call getDocument.endUndoGroup()
 End Function
@@ -721,6 +716,12 @@ Class ids
   'Gets component names for B side'
   Public Function get_b_components()
     get_b_components = find_all_components_with_match_replace(Array(b_postfix))
+  End Function
+
+  Public Function get_num_coils()
+    match = ids_o.get_winding_paths()
+    match = ids_o.find_with_not_match(match,Array("A"))
+    get_num_coils = UBound(match)+1
   End Function
 
   'Gets component names for all coil elements'
@@ -912,9 +913,10 @@ Class power
     offset_x = 100
     connection_offset = 25
 
-    Call getDocument().newCircuitWindow()
-    draw_circuit()
-
+    if(BUILD_WITH_CIRCUIT) then
+      Call getDocument().newCircuitWindow()
+      draw_circuit()
+    end if
     Set init = Me
   End Function
 
@@ -1005,25 +1007,7 @@ Function setup_motion(time_steps,vel_steps)
   ' Call getDocument().setMotionSpeedAtStartup(m1, speed)
   Call getDocument().setMotionSpeedVsTime(m1,time_steps,vel_steps)
 
-  If(False) Then
-    Call getDocument().makeMotionComponent(Array("Plate 1,Body#1"))
-    Call getDocument().setMotionSourceType(m2, infoVelocityDriven)
-    Call getDocument().setMotionType(m2, infoLinear)
-    Call getDocument().setMotionLinearDirection(m2, Array(0, 0, -1))
-    Call getDocument().setMotionPositionAtStartup(m2, 0)
-    ' Call getDocument().setMotionSpeedAtStartup(m2, speed)
-    Call getDocument().setMotionSpeedVsTime(m2, Array(0,sim_time), Array(0,speed))
 
-    If NOT(BUILD_WITH_SYMMETRY) Then
-      Call getDocument().makeMotionComponent(Array("Plate 2,Body#1"))
-      Call getDocument().setMotionSourceType(m3, infoVelocityDriven)
-      Call getDocument().setMotionType(m3, infoLinear)
-      Call getDocument().setMotionLinearDirection(m3, Array(0, 0, -1))
-      Call getDocument().setMotionPositionAtStartup(m3, 0)
-      ' Call getDocument().setMotionSpeedAtStartup(m3, speed)
-      Call getDocument().setMotionSpeedVsTime(m3, Array(0,sim_time), Array(0,speed))
-    End If
-  End If
 End Function
 
 Function setup_sim()
@@ -1044,10 +1028,12 @@ End Function
 
 'UTIL FUNCTIONS'
 
+'Format material name to match that of MagNet magnet parameters'
 Function format_material(material)
   format_material = "Name="+material
 End Function
 
+'Draw a square with opposing nodes (x1,y1) (x2,y2)'
 Function draw_square(x1,x2,y1,y2)
   tx1 = x1
   tx2 = x2
@@ -1069,6 +1055,7 @@ Function draw_square(x1,x2,y1,y2)
   Call view.newLine(tx2,ty1,tx2,ty2)
 End Function
 
+'Combines two contacting components into 1'
 Function union_components(component_1,component_2)
   parts = Array(component_1,component_2)
   Call getDocument().beginUndoGroup("Union Components")
@@ -1085,18 +1072,21 @@ Function union_components(component_1,component_2)
   Call getDocument().endUndoGroup()
 End Function
 
+'Renames a component with given name'
 Function rename_components(component,name)
   Call getDocument().beginUndoGroup("Rename Component", true)
   Call getDocument().renameObject(component,name)
   Call getDocument().endUndoGroup()
 End Function
 
+'Performs a union on two components, and then renames to given name'
 Function union_and_rename(component_1,component_2,name)
   Call union_components(component_1,component_2)
   union_name = component_1+"+"+component_2+" Union#1"
   Call rename_components(union_name,name)
 End Function
 
+'Renames a substring to a new substring in a components name'
 Function rename_copies(components,substr,newsubstr)
   temp = components
   For i=0 to num_coils-1
@@ -1106,6 +1096,10 @@ Function rename_copies(components,substr,newsubstr)
   Next
 End Function
 
+'Mirrors components accross a plane WITH copy'
+'params:'
+'name of the components in object window'
+'normal vector of the mirror plane'
 Function mirror_components_copy(components,normal)
   Call getDocument().beginUndoGroup("Mirror Component")
   Call getDocument().copyComponent(components, 1)
@@ -1113,16 +1107,24 @@ Function mirror_components_copy(components,normal)
   Call getDocument().endUndoGroup()
 End Function
 
+'Mirrors components accross a plane WITHOUT copy'
+'params:'
+'name of the components in object window'
+'normal vector of the mirror plane'
 Function mirror_components(components,normal)
   Call getDocument().beginUndoGroup("Mirror Component")
   Call getDocument().mirrorComponent(components,0,0,0,normal(0),normal(1),normal(2),1)
   Call getDocument().endUndoGroup()
 End Function
 
+'Unselects currently selected components'
 Function unselect()
   Call getDocument().getView().unselectAll()
 End Function
 
+'Prints an input array'
+'params:'
+'(Array) Array to be printed'
 Function print_arr(input_arr)
   Dim output_str
   output_str = output_str&"["
@@ -1132,6 +1134,10 @@ Function print_arr(input_arr)
   print_arr = output_str&"]"
 End Function
 
+'Prints a given variable'
+'Supports integer, string, and array'
+'params:'
+'(Array, int, string)' variable to be printed
 Function print(input)
   If(IsArray(input)) Then
     Call app.MsgBox(print_arr(input))
@@ -1142,6 +1148,10 @@ Function print(input)
   End If
 End Function
 
+'Returns the value of local (x,y) coordinate pair with respect to the global coordinate plane'
+'params:'
+'(int) coordinate x'
+'(int) coordinate y'
 Function get_global(local_x,local_y)
   Set view = getDocument().getView()
   Dim global_points(2)
