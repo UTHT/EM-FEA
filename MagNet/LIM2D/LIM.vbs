@@ -31,6 +31,7 @@ const AUTO_RUN = False                ' Run simulation as soon as problam defini
 const RECORD_TRANSIENT_POWER = True   ' Run simulation with transient average power loss'
 
 'Winding Setup'
+winding_configuration = "t"
 coil_core_separation_x = 0  'minimum separation between core and coil (one-sided, x-direction)'
 coil_core_separation_y = 0  'minimum separation between core and coil (one-sided, y-direction)'
 distribute_distance = 2     'distributed winding distance, in # of slots'
@@ -120,9 +121,9 @@ Set ids_o = new ids.init()
 Call make_airbox()
 Call make_track()
 Call make_core_component()
-Call make_single_side_windings(make_single_s_winding())
+Call make_single_side_windings()
 Call make_single_side_coils()
-Call make_ee_compensator()
+'Call make_ee_compensator()
 Set drive = new power.init()
 
 'Call setup_parameters()
@@ -499,7 +500,18 @@ Function make_single_g_winding()
 
 End Function
 
-Function make_single_side_windings(params)
+Function make_single_side_windings()
+
+  If(winding_configuration = "d") Then
+    params = make_single_d_winding()
+  ElseIf(winding_configuration = "g") Then
+    params = make_single_g_winding()
+  ElseIf(winding_configuration = "t") Then
+    params = make_single_t_winding()
+  ElseIf(winding_configuration = "s") Then
+    params = make_single_s_winding()
+  End If
+
   Dim component_name
   copy_keyword = " Copy#1"
 
@@ -541,8 +553,8 @@ Function make_single_side_windings(params)
       component_name = Replace(winding4,"2#1.2","2#"&(i+2)&".2")
       Call getDocument().renameObject(copy_component,component_name)
     End If
-
   Next
+
   Call getDocument().endUndoGroup()
   Call view.getSlice().moveInALine(length_core/2)
   'Call clear_construction_lines()
@@ -921,7 +933,15 @@ Class power
   End Function
 
   Public Function draw_circuit()
-    circuit_t()
+    If(winding_configuration = "d") Then
+      circuit_d()
+    ElseIf(winding_configuration = "g") Then
+      circuit_d()
+    ElseIf(winding_configuration = "t") Then
+      circuit_t()
+    ElseIf(winding_configuration = "s") Then
+      circuit_d()
+    End If
   End Function
 
   Public Function circuit_t()
