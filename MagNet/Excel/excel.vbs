@@ -2,6 +2,7 @@ Set app = getDocument().getApplication()
 Set exc_o = new export_data.init()
 
 exc_o.save()
+Call exc_o.wr("testing",1,2)
 
 mydt = now()
 
@@ -43,6 +44,14 @@ Class export_data
 
     'close()
     Set init = me
+  End Function
+
+  'Write data function'
+  'params:'
+  '(Any) Value to be printed'
+  '(int,int) row, col values to enter the value into excel sheet'
+  Public Function wr(value,row,col)
+    excel_obj.cells(row,col).Value = CStr(value)
   End Function
 
   'Default save: Save with current timestamp'
