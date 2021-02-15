@@ -1,7 +1,7 @@
 const PI = 3.141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825342117067
 
 'Geometry Parameters Setup'
-width_core = 860      'core width (motion direction)
+width_core = 900      'core width (motion direction)
 thick_core = 60       'core thickness (away from track)
 length_core = 50      'core length (into the page)
 core_endlengths = 30  'core end width
@@ -25,20 +25,25 @@ time_step = 50       'Time step in ms'
 const SHOW_FORBIDDEN_AIR = False	  	' Show forbidden zones for design purposes (as red air regions)
 const SHOW_FULL_GEOMETRY = False	   	' Build with flanges of track
 const BUILD_WITH_SYMMETRY = False   	' Build only half of the track and one wheel, with symmetry conditions
-const BUILD_WITH_CIRCUIT = False       ' Build simulation with drive circuitry (useful to turn off for debugging)'
+const BUILD_WITH_CIRCUIT = True       ' Build simulation with drive circuitry (useful to turn off for debugging)'
 const BUILD_STATIC = False            ' Build simulation with no motion components
+const BUILD_WITH_EECOMP = False
 const AUTO_RUN = False                ' Run simulation as soon as problam definition is complete
 const RECORD_TRANSIENT_POWER = True   ' Run simulation with transient average power loss'
 
 'Winding Setup'
-winding_configuration = "t"
+winding_configuration = "s2"
 coil_core_separation_x = 0  'minimum separation between core and coil (one-sided, x-direction)'
 coil_core_separation_y = 0  'minimum separation between core and coil (one-sided, y-direction)'
 distribute_distance = 2     'distributed winding distance, in # of slots'
 v_max = 120                 'input voltage'
-freq = 100                   'source frequency'
+freq = 15                   'source frequency'
 awg = 20                    'winding gauge'
 nt = 50                     'number of coil turns (set nt=1 for solid winding)'
+
+'Motion Setup'
+motion_driver = "load"      'options: "load" or "vel", for load or velocity driven. Numbers below only apply if the motion is velocity driven'
+
 
 'Material Setup'
 core_material = "M330-35A"
@@ -98,7 +103,7 @@ rpm = 2*pi*freq
 core_separation = 5
 
 'Problem Bounds'
-x_padding = 10
+x_padding = 1000
 y_padding = 10
 z_padding = 5
 
@@ -114,18 +119,16 @@ Set ids_o = new ids.init()
 
 
 
-
-
-
 'Main Code'
+
 Call make_airbox()
 Call make_track()
 Call make_core_component()
 Call make_single_side_windings()
 Call make_single_side_coils()
-'Call make_ee_compensator()
+Call make_ee_compensator()
 Set drive = new power.init()
-
+Call setup_motion()
 'Call setup_parameters()
 
 'end main'
@@ -194,115 +197,117 @@ End Function
 
 Function make_ee_compensator()
 
-  y_offset = r2+air_gap/2
-  x_offset = width_core/2+r2+core_separation+core_endlengths
-  z_offset = (thickness-length_core)/2+length_core/2
+  If(BUILD_WITH_EECOMP) Then
+    y_offset = r2+air_gap/2
+    x_offset = width_core/2+r2+core_separation+core_endlengths
+    z_offset = (thickness-length_core)/2+length_core/2
 
-  rotation_axis = Array(0,0,-1)
+    rotation_axis = Array(0,0,-1)
 
-  Call view.getSlice().moveInALine(-z_offset)
+    Call view.getSlice().moveInALine(-z_offset)
 
-  'Magnet 1'
-  Dim x_hat
-  Dim y_hat
-  Call view.newCircle(x_offset, y_offset, r1)
-  Call view.newCircle(x_offset, y_offset, r2)
+    'Magnet 1'
+    Dim x_hat
+    Dim y_hat
+    Call view.newCircle(x_offset, y_offset, r1)
+    Call view.newCircle(x_offset, y_offset, r2)
 
-  For i = 1 To n
-  	x_hat = Sin(PI * 2.0 * (i + 0.5) / n)
-  	y_hat = Cos(PI * 2.0 * (i + 0.5) / n)
+    For i = 1 To n
+    	x_hat = Sin(PI * 2.0 * (i + 0.5) / n)
+    	y_hat = Cos(PI * 2.0 * (i + 0.5) / n)
 
-  	Call view.newLine(x_offset + x_hat*r1, y_hat*r1+y_offset, x_offset + x_hat*r2, y_hat*r2+y_offset)
-  Next
+    	Call view.newLine(x_offset + x_hat*r1, y_hat*r1+y_offset, x_offset + x_hat*r2, y_hat*r2+y_offset)
+    Next
 
-  ReDim Magnets(n - 1)
-  Dim mid
-  Dim direction
+    ReDim Magnets(n - 1)
+    Dim mid
+    Dim direction
 
-  For i = 1 To n
-  	x_hat = Sin(PI * 2.0 * i / n)
-  	y_hat = Cos(PI * 2.0 * i / n)
-  	mid = (r1 + r2) / 2.0
+    For i = 1 To n
+    	x_hat = Sin(PI * 2.0 * i / n)
+    	y_hat = Cos(PI * 2.0 * i / n)
+    	mid = (r1 + r2) / 2.0
 
-  	Call view.selectAt(x_offset + x_hat*mid, y_hat*mid+y_offset, infoSetSelection, Array(infoSliceSurface))
+    	Call view.selectAt(x_offset + x_hat*mid, y_hat*mid+y_offset, infoSetSelection, Array(infoSliceSurface))
 
-  	x_hat = Sin(PI * 2.0 * i / n - i * ra)
-  	y_hat = Cos(PI * 2.0 * i / n - i * ra)
+    	x_hat = Sin(PI * 2.0 * i / n - i * ra)
+    	y_hat = Cos(PI * 2.0 * i / n - i * ra)
 
-  	direction = "[" & x_hat & "," & y_hat & ",0]"
+    	direction = "[" & x_hat & "," & y_hat & ",0]"
 
-  	REDIM ArrayOfValues(0)
-  	ArrayOfValues(0)= ids_o.get_magnet_keyword()&"1#" & i
-  	Call view.makeComponentInALine(thickness, ArrayOfValues, "Name=N50;Type=Uniform;Direction=" & direction, True)
+    	REDIM ArrayOfValues(0)
+    	ArrayOfValues(0)= ids_o.get_magnet_keyword()&"1#" & i
+    	Call view.makeComponentInALine(thickness, ArrayOfValues, "Name=N50;Type=Uniform;Direction=" & direction, True)
 
-  	Call getDocument().setMaxElementSize(ids_o.get_magnet_keyword()&"1#" & i, 1)
+    	Call getDocument().setMaxElementSize(ids_o.get_magnet_keyword()&"1#" & i, 1)
 
-  	Magnets(i - 1) = ids_o.get_magnet_keyword()&"1#" & i
-  Next
+    	Magnets(i - 1) = ids_o.get_magnet_keyword()&"1#" & i
+    Next
 
-  if not (BUILD_STATIC) then
-    Call getDocument().makeMotionComponent(Magnets)
-    Call getDocument().setMotionSourceType("Motion#1", infoVelocityDriven)
-    Call getDocument().setMotionRotaryCenter("Motion#1", Array(x_offset, y_offset, 0))
-    Call getDocument().setMotionRotaryAxis("Motion#1",rotation_axis)
+    if not (BUILD_STATIC) then
+      Call getDocument().makeMotionComponent(Magnets)
+      Call getDocument().setMotionSourceType("Motion#1", infoVelocityDriven)
+      Call getDocument().setMotionRotaryCenter("Motion#1", Array(x_offset, y_offset, 0))
+      Call getDocument().setMotionRotaryAxis("Motion#1",rotation_axis)
 
-    Call getDocument().setMotionPositionAtStartup("Motion#1", 0)
-    Call getDocument().setMotionSpeedAtStartup("Motion#1", 0)
-    REDIM ArrayOfValues1(0)
-    ArrayOfValues1(0)= 0
-    REDIM ArrayOfValues2(0)
-    ArrayOfValues2(0)= rpm*6.0
-    Call getDocument().setMotionSpeedVsTime("Motion#1", ArrayOfValues1, ArrayOfValues2)
-  end if
-  'Magnet 2'
-  Call view.newCircle(x_offset, -y_offset, r1)
-  Call view.newCircle(x_offset, -y_offset, r2)
+      Call getDocument().setMotionPositionAtStartup("Motion#1", 0)
+      Call getDocument().setMotionSpeedAtStartup("Motion#1", 0)
+      REDIM ArrayOfValues1(0)
+      ArrayOfValues1(0)= 0
+      REDIM ArrayOfValues2(0)
+      ArrayOfValues2(0)= rpm*6.0
+      Call getDocument().setMotionSpeedVsTime("Motion#1", ArrayOfValues1, ArrayOfValues2)
+    end if
+    'Magnet 2'
+    Call view.newCircle(x_offset, -y_offset, r1)
+    Call view.newCircle(x_offset, -y_offset, r2)
 
-  For i = 1 To n
-  	x_hat = Sin(PI * 2.0 * (i + 0.5) / n)
-  	y_hat = Cos(PI * 2.0 * (i + 0.5) / n)
+    For i = 1 To n
+    	x_hat = Sin(PI * 2.0 * (i + 0.5) / n)
+    	y_hat = Cos(PI * 2.0 * (i + 0.5) / n)
 
-  	Call view.newLine(x_offset + x_hat*r1,y_hat*r1-y_offset, x_offset + x_hat*r2,y_hat*r2-y_offset)
-  Next
+    	Call view.newLine(x_offset + x_hat*r1,y_hat*r1-y_offset, x_offset + x_hat*r2,y_hat*r2-y_offset)
+    Next
 
-  ReDim Magnets(n - 1)
-  For i = 1 To n
-  	x_hat = Sin(PI * 2.0 * i / n)
-  	y_hat = Cos(PI * 2.0 * i / n)
-  	mid = (r1 + r2) / 2.0
+    ReDim Magnets(n - 1)
+    For i = 1 To n
+    	x_hat = Sin(PI * 2.0 * i / n)
+    	y_hat = Cos(PI * 2.0 * i / n)
+    	mid = (r1 + r2) / 2.0
 
-  	Call view.selectAt(x_offset + x_hat*mid,y_hat*mid-y_offset, infoSetSelection, Array(infoSliceSurface))
+    	Call view.selectAt(x_offset + x_hat*mid,y_hat*mid-y_offset, infoSetSelection, Array(infoSliceSurface))
 
-    x_hat = Sin(PI * 2.0 * i / n - i * ra - PI)
-  	y_hat = Cos(PI * 2.0 * i / n - i * ra - PI)
+      x_hat = Sin(PI * 2.0 * i / n - i * ra - PI)
+    	y_hat = Cos(PI * 2.0 * i / n - i * ra - PI)
 
-  	direction = "[" & x_hat & "," & y_hat & ",0]"
+    	direction = "[" & x_hat & "," & y_hat & ",0]"
 
-  	REDIM ArrayOfValues(0)
-  	ArrayOfValues(0)= ids_o.get_magnet_keyword()&"2#" & i
-  	Call view.makeComponentInALine(thickness, ArrayOfValues, "Name=N50;Type=Uniform;Direction=" & direction, True)
+    	REDIM ArrayOfValues(0)
+    	ArrayOfValues(0)= ids_o.get_magnet_keyword()&"2#" & i
+    	Call view.makeComponentInALine(thickness, ArrayOfValues, "Name=N50;Type=Uniform;Direction=" & direction, True)
 
-  	Call getDocument().setMaxElementSize(ids_o.get_magnet_keyword()&"2#" & i, 1)
+    	Call getDocument().setMaxElementSize(ids_o.get_magnet_keyword()&"2#" & i, 1)
 
-  	Magnets(i - 1) = ids_o.get_magnet_keyword()&"2#" & i
-  Next
+    	Magnets(i - 1) = ids_o.get_magnet_keyword()&"2#" & i
+    Next
 
-  if not (BUILD_STATIC) then
-    Call getDocument().makeMotionComponent(Magnets)
-    Call getDocument().setMotionSourceType("Motion#2", infoVelocityDriven)
-    Call getDocument().setMotionRotaryCenter("Motion#2", Array(x_offset, -y_offset, 0))
-    Call getDocument().setMotionRotaryAxis("Motion#2",rotation_axis)
+    if not (BUILD_STATIC) then
+      Call getDocument().makeMotionComponent(Magnets)
+      Call getDocument().setMotionSourceType("Motion#2", infoVelocityDriven)
+      Call getDocument().setMotionRotaryCenter("Motion#2", Array(x_offset, -y_offset, 0))
+      Call getDocument().setMotionRotaryAxis("Motion#2",rotation_axis)
 
-    Call getDocument().setMotionPositionAtStartup("Motion#2", 0)
-    Call getDocument().setMotionSpeedAtStartup("Motion#2", 0)
-    REDIM ArrayOfValues1(0)
-    ArrayOfValues1(0)= 0
-    REDIM ArrayOfValues2(0)
-    ArrayOfValues2(0)= -rpm*6.0
-    Call getDocument().setMotionSpeedVsTime("Motion#2", ArrayOfValues1, ArrayOfValues2)
-  end if
+      Call getDocument().setMotionPositionAtStartup("Motion#2", 0)
+      Call getDocument().setMotionSpeedAtStartup("Motion#2", 0)
+      REDIM ArrayOfValues1(0)
+      ArrayOfValues1(0)= 0
+      REDIM ArrayOfValues2(0)
+      ArrayOfValues2(0)= -rpm*6.0
+      Call getDocument().setMotionSpeedVsTime("Motion#2", ArrayOfValues1, ArrayOfValues2)
+    end if
 
-  Call view.getSlice().moveInALine(z_offset)
+    Call view.getSlice().moveInALine(z_offset)
+  End If
 End Function
 
 'MAKE DISTRIBUTED WINDING'
@@ -509,6 +514,8 @@ Function make_single_side_windings()
   ElseIf(winding_configuration = "t") Then
     params = make_single_t_winding()
   ElseIf(winding_configuration = "s") Then
+    params = make_single_s_winding()
+  ElseIf(winding_configuration = "s2") Then
     params = make_single_s_winding()
   End If
 
@@ -938,18 +945,31 @@ Class power
     ElseIf(winding_configuration = "g") Then
       circuit_d()
     ElseIf(winding_configuration = "t") Then
-      circuit_t()
+      circuit_s()
     ElseIf(winding_configuration = "s") Then
-      circuit_d()
+      circuit_s()
+    ElseIf(winding_configuration = "s2") Then
+      circuit_s2()
     End If
   End Function
 
-  Public Function circuit_t()
+  Public Function circuit_s()
     For i=0 to num_coils-1
       base = int(i/8)
       'Print(base)
       phase_num = (base mod phase)
       coil_orientation = -2*(base mod 2)+1
+      Call draw_single_winding(i+1,phase_num,coil_orientation)
+    Next
+  End Function
+
+  Public Function circuit_s2()
+    For i=0 to num_coils-1
+      base = int(i/4)
+      'Print(base)
+      phase_num = (base mod phase)
+      'coil_orientation = -2*(base mod 2)+1
+      coil_orientation = 1
       Call draw_single_winding(i+1,phase_num,coil_orientation)
     Next
   End Function
@@ -1015,18 +1035,39 @@ End Class
 
 'MOTION SETUP'
 
-Function setup_motion(time_steps,vel_steps)
-  m1 = "Motion#1"
-  m2 = "Motion#2"
-  m3 = "Motion#3"
-  Call getDocument().makeMotionComponent(Array("Track,Body#1"))
-  Call getDocument().setMotionSourceType(m1, infoVelocityDriven)
-  Call getDocument().setMotionType(m1, infoLinear)
-  Call getDocument().setMotionLinearDirection(m1, Array(0, 0, -1))
-  Call getDocument().setMotionPositionAtStartup(m1, 0)
-  ' Call getDocument().setMotionSpeedAtStartup(m1, speed)
-  Call getDocument().setMotionSpeedVsTime(m1,time_steps,vel_steps)
+Function setup_motion()
+  m = ""
+  tm = "TrackMotion"
+  if(BUILD_WITH_EECOMP) Then
+    m = "Motion#3"
+  else
+    m = "Motion#1"
+  end if
 
+  target_speed = 750 'kmph'
+  target_speed_mps = target_speed/3.6
+  accel = 9.8 'm/s^2'
+  sim_time = (target_speed_mps)/accel
+  time_steps = Array(0)
+  vel_steps = Array(1)
+
+  if not (BUILD_STATIC) then
+    Call getDocument().makeMotionComponent(Array("Track"))
+    Call getDocument().renameObject(m, tm)
+
+    If(motion_driver = "load") then
+      Call getDocument().setMotionSourceType(tm, infoLoadDriven)
+      Call getDocument().setMotionType(tm, infoLinear)
+      Call getDocument().setMotionLinearDirection(tm, Array(1, 0, 0))
+    ElseIf(motion_driver = "vel") then
+      Call getDocument().setMotionSourceType(tm, infoVelocityDriven)
+      Call getDocument().setMotionType(tm, infoLinear)
+      Call getDocument().setMotionLinearDirection(tm, Array(1, 0, 0))
+      Call getDocument().setMotionPositionAtStartup(tm, 0)
+      ' Call getDocument().setMotionSpeedAtStartup(m1, speed)
+      Call getDocument().setMotionSpeedVsTime(tm,time_steps,vel_steps)
+    End If
+  End If
 
 End Function
 
