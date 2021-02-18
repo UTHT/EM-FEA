@@ -6,5 +6,7 @@
 *.jpg
 *.mn
 *.ban
+*.csv
+*.xlsx
 .vs/*
 !requirements.txt
