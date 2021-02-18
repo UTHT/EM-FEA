@@ -18,6 +18,7 @@ v_r = 25            'Relative speed of pod'
 motion_length = 1   'track_length (in meters)'
 phase = 3           'Number of phases'
 speed = 1           'Speed of pod'
+time_start = 0      'Starting time (default: 0)'
 sim_time = 300      'Simulation time in ms'
 time_step = 50       'Time step in ms'
 
@@ -30,6 +31,19 @@ const BUILD_STATIC = False            ' Build simulation with no motion componen
 const BUILD_WITH_EECOMP = False
 const AUTO_RUN = False                ' Run simulation as soon as problam definition is complete
 const RECORD_TRANSIENT_POWER = True   ' Run simulation with transient average power loss'
+
+'Save Flags'
+'Note: Save flags match result tabs in Simcenter MagNet (open the results window and look at top bar)'
+const SAVE_ENERGY = True             ' Save the Magnetic Energy/Coenergy'
+const SAVE_BODY_FORCE = True          ' Save body force results'
+const SAVE_COMPONENT_FORCE = True    ' Save component force results'
+const SAVE_FLUX_LINKAGE = True        ' Save flux linkage results'
+const SAVE_OHMIC_LOSS = True          ' Save ohmic loss (winding loss) results'
+const SAVE_IRON_LOSS = True           ' Save iron loss (core loss) results'
+const SAVE_CURRENT = True             ' Save current results'
+const SAVE_VOLTAGE = True             ' Save voltage results'
+const SAVE_TEMPERATURE = True        ' Save temperature results'
+const SAVE_MOTION = True              ' Save motion results'
 
 'Winding Setup'
 winding_configuration = "s2"
@@ -89,7 +103,6 @@ remesh_padding = 0.25
 airbox_padding = 1
 copperdiam = 0.127*92^((36-awg)/39)
 copperarea = PI*(copperdiam/2)^2
-time_start = 0
 
 'End Effect Compensator Variables'
 n = 32
@@ -129,6 +142,7 @@ Call make_single_side_coils()
 Call make_ee_compensator()
 Set drive = new power.init()
 Call setup_motion()
+Call setup_sim()
 'Call setup_parameters()
 
 'end main'
@@ -1071,6 +1085,82 @@ Function setup_motion()
 
 End Function
 
+
+'DATA EXPORTING SETUP'
+
+'exports the data as .csv files in a new directory with name current timestamp'
+'params:'
+'(int) current simulation number. Use 0 for single run simulations'
+Function export_data(num)
+  'Create file system object directory'
+  Set fso = CreateObject("Scripting.FileSystemObject")
+
+
+  cur_location = fso.GetAbsolutePathName(".")
+  cur_time = get_current_timestamp()
+
+  save_path = cur_location+"\"+cur_time+"\"
+
+  save_postfix = "_"+num+".csv"
+
+  'Create a new folder with timestamp as name if does not exist'
+  If Not fso.FolderExists(save_path) Then
+    fso.CreateFolder(save_path)
+  End If
+
+  'Save data'
+  If(SAVE_ENERGY) Then
+    Call getGlobalResultsView().exportData(infoDataEnergy,save_path+"energy"+save_postfix,infoDataFormatLocaleListSeparatorDelimitedLocaleDecimal)
+  End If
+
+  If(SAVE_BODY_FORCE) Then
+    Call getGlobalResultsView().exportData(infoDataForce,save_path+"force"+save_postfix,infoDataFormatLocaleListSeparatorDelimitedLocaleDecimal)
+  End If
+
+  If(SAVE_COMPONENT_FORCE) Then
+    Call getGlobalResultsView().exportData(infoDataComponentForce,save_path+"component_force"+save_postfix,infoDataFormatLocaleListSeparatorDelimitedLocaleDecimal)
+  End If
+
+  If(SAVE_FLUX_LINKAGE) Then
+    Call getGlobalResultsView().exportData(infoDataFluxLinkage,save_path+"flux_linkage"+save_postfix,infoDataFormatLocaleListSeparatorDelimitedLocaleDecimal)
+  End If
+
+  If(SAVE_OHMIC_LOSS) Then
+    Call getGlobalResultsView().exportData(infoDataOhmicLoss,save_path+"ohmic_loss"+save_postfix,infoDataFormatLocaleListSeparatorDelimitedLocaleDecimal)
+  End If
+
+  If(SAVE_IRON_LOSS) Then
+    Call getGlobalResultsView().exportData(infoDataIronLoss,save_path+"iron_loss"+save_postfix,infoDataFormatLocaleListSeparatorDelimitedLocaleDecimal)
+  End If
+
+  If(SAVE_CURRENT) Then
+    Call getGlobalResultsView().exportData(infoDataCurrent,save_path+"current"+save_postfix,infoDataFormatLocaleListSeparatorDelimitedLocaleDecimal)
+  End If
+
+  If(SAVE_VOLTAGE) Then
+    Call getGlobalResultsView().exportData(infoDataVoltage,save_path+"voltage"+save_postfix,infoDataFormatLocaleListSeparatorDelimitedLocaleDecimal)
+  End If
+
+  If(SAVE_TEMPERATURE) Then
+    Call getGlobalResultsView().exportData(infoDataTemperature,save_path+"temperature"+save_postfix,infoDataFormatLocaleListSeparatorDelimitedLocaleDecimal)
+  End If
+
+  If(SAVE_MOTION) Then
+    Call getGlobalResultsView().exportData(infoDataMotion,save_path+"motion"+save_postfix,infoDataFormatLocaleListSeparatorDelimitedLocaleDecimal)
+  End If
+
+End Function
+
+
+
+'SIMULATION RUN SETUP'
+
+Function test_sim()
+
+
+End Function
+
+
 Function setup_sim()
   Call getDocument().beginUndoGroup("Set Transient Options", true)
   Call getDocument().setFixedIntervalTimeSteps(time_start, sim_time, time_step)
@@ -1218,4 +1308,16 @@ Function get_global(local_x,local_y)
   Dim global_points(2)
   Call view.getSlice().convertLocalToGlobal(local_x,local_y,global_points(0),global_points(1),global_points(2))
   get_global = global_points
+End Function
+
+'Returns the current time in yyyyMMddhhmmss format'
+Function get_current_timestamp()
+  get_current_time = sprintf("{0:yyyyMMddhhmmss}", Array(now()))
+End Function
+
+'sprintf function, like in C'
+Function sprintf(sFmt, aData)
+   sb.AppendFormat_4 sFmt, (aData)
+   sprintf = sb.ToString()
+   sb.Length = 0
 End Function
