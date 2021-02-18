@@ -1086,6 +1086,33 @@ Function setup_motion()
 End Function
 
 
+
+'SIMULATION RUN SETUP'
+
+Function test_sim()
+
+
+End Function
+
+
+Function setup_sim()
+  Call getDocument().beginUndoGroup("Set Transient Options", true)
+  Call getDocument().setFixedIntervalTimeSteps(time_start, sim_time, time_step)
+  Call getDocument().deleteTimeStepMaximumDelta()
+  Call getDocument().setParameter("", "TransientAveragePowerLossStartTime", CStr(time_start)&"%ms", infoNumberParameter)
+  Call getDocument().setParameter("", "TransientAveragePowerLossStopTime", CStr(sim_time)&"%ms", infoNumberParameter)
+  Call getDocument().endUndoGroup()
+End Function
+
+'DOCUMENT PARAMETER SETUP'
+
+Function setup_parameters()
+  Call getDocument().setParameter("", "sourceSteps", v_max&", "&v_max*2&", "&v_max*3, infoNumber)
+End Function
+
+
+
+
 'DATA EXPORTING SETUP'
 
 'exports the data as .csv files in a new directory with name current timestamp'
@@ -1150,32 +1177,6 @@ Function export_data(num)
   End If
 
 End Function
-
-
-
-'SIMULATION RUN SETUP'
-
-Function test_sim()
-
-
-End Function
-
-
-Function setup_sim()
-  Call getDocument().beginUndoGroup("Set Transient Options", true)
-  Call getDocument().setFixedIntervalTimeSteps(time_start, sim_time, time_step)
-  Call getDocument().deleteTimeStepMaximumDelta()
-  Call getDocument().setParameter("", "TransientAveragePowerLossStartTime", CStr(time_start)&"%ms", infoNumberParameter)
-  Call getDocument().setParameter("", "TransientAveragePowerLossStopTime", CStr(sim_time)&"%ms", infoNumberParameter)
-  Call getDocument().endUndoGroup()
-End Function
-
-'DOCUMENT PARAMETER SETUP'
-
-Function setup_parameters()
-  Call getDocument().setParameter("", "sourceSteps", v_max&", "&v_max*2&", "&v_max*3, infoNumber)
-End Function
-
 
 'UTIL FUNCTIONS'
 
