@@ -20,7 +20,7 @@ phase = 3           'Number of phases'
 speed = 1           'Speed of pod'
 time_start = 0      'Starting time (default: 0)'
 sim_time = 300      'Simulation time in ms'
-time_step = 50       'Time step in ms'
+time_step = 2       'Time step in ms'
 
 'Build Flags'
 const SHOW_FORBIDDEN_AIR = False	  	' Show forbidden zones for design purposes (as red air regions)
@@ -1061,7 +1061,7 @@ Function setup_motion()
   target_speed = 750 'kmph'
   target_speed_mps = target_speed/3.6
   accel = 9.8 'm/s^2'
-  sim_time = (target_speed_mps)/accel
+  sim_time_motion = (target_speed_mps)/accel
   time_steps = Array(0)
   vel_steps = Array(1)
 
