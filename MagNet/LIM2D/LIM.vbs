@@ -45,6 +45,11 @@ const SAVE_VOLTAGE = True             ' Save voltage results'
 const SAVE_TEMPERATURE = True        ' Save temperature results'
 const SAVE_MOTION = True              ' Save motion results'
 
+'Run Flags'
+'Describe the simulation type'
+const RUN_TRANSIENT = True
+const RUN_MOTION = True
+
 'Winding Setup'
 winding_configuration = "s2"
 coil_core_separation_x = 0  'minimum separation between core and coil (one-sided, x-direction)'
@@ -143,6 +148,7 @@ Call make_ee_compensator()
 Set drive = new power.init()
 Call setup_motion()
 Call setup_sim()
+Call run_sim()
 'Call setup_parameters()
 
 'end main'
@@ -1102,6 +1108,16 @@ Function setup_sim()
   Call getDocument().setParameter("", "TransientAveragePowerLossStartTime", CStr(time_start)&"%ms", infoNumberParameter)
   Call getDocument().setParameter("", "TransientAveragePowerLossStopTime", CStr(sim_time)&"%ms", infoNumberParameter)
   Call getDocument().endUndoGroup()
+End Function
+
+Function run_sim()
+  if(RUN_MOTION) then
+    Call getDocument().solveTransient2dWithMotion()
+  elseif (RUN_TRANSIENT) then
+    Call getDocument().solveTransient2D()
+  else
+    Call getDocument().solveStatic2D()
+  end if
 End Function
 
 'DOCUMENT PARAMETER SETUP'
