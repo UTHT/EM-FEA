@@ -47,11 +47,12 @@ const SAVE_MOTION = True              ' Save motion results'
 
 'Run Flags'
 'Describe the simulation type'
-const RUN_TRANSIENT = True
-const RUN_MOTION = True
+const RUN_UPON_BUILD = False          ' Run the simulation when MagNet finishes building script'
+const RUN_TRANSIENT = True            ' Run 2D simulation (Transient)'
+const RUN_MOTION = True               ' Run 2D simulation (Transient with Motion)'
 
 'Winding Setup'
-winding_configuration = "s2"
+winding_configuration = "s"
 coil_core_separation_x = 0  'minimum separation between core and coil (one-sided, x-direction)'
 coil_core_separation_y = 0  'minimum separation between core and coil (one-sided, y-direction)'
 distribute_distance = 2     'distributed winding distance, in # of slots'
@@ -148,7 +149,7 @@ Call make_ee_compensator()
 Set drive = new power.init()
 Call setup_motion()
 Call setup_sim()
-Call run_sim()
+'Call run_sim()
 'Call setup_parameters()
 
 'end main'
@@ -1111,12 +1112,14 @@ Function setup_sim()
 End Function
 
 Function run_sim()
-  if(RUN_MOTION) then
-    Call getDocument().solveTransient2dWithMotion()
-  elseif (RUN_TRANSIENT) then
-    Call getDocument().solveTransient2D()
-  else
-    Call getDocument().solveStatic2D()
+  if(RUN_UPON_BUILD) then
+    if(RUN_MOTION) then
+      Call getDocument().solveTransient2dWithMotion()
+    elseif (RUN_TRANSIENT) then
+      Call getDocument().solveTransient2D()
+    else
+      Call getDocument().solveStatic2D()
+    end if
   end if
 End Function
 
