@@ -57,6 +57,7 @@ coil_core_separation_x = 0  'minimum separation between core and coil (one-sided
 coil_core_separation_y = 0  'minimum separation between core and coil (one-sided, y-direction)'
 distribute_distance = 2     'distributed winding distance, in # of slots'
 v_max = 120                 'input voltage'
+a_max = 120                 'input amplitude (use ONE of a_max or v_max, check power class for which one)'
 freq = 15                   'source frequency'
 awg = 20                    'winding gauge'
 nt = 50                     'number of coil turns (set nt=1 for solid winding)'
@@ -146,7 +147,7 @@ Call make_core_component()
 Call make_single_side_windings()
 Call make_single_side_coils()
 Call make_ee_compensator()
-Set drive = new power.init()
+Set drive = new power2.init()
 Call setup_motion()
 Call setup_sim()
 'Call run_sim()
@@ -1050,6 +1051,175 @@ Class power
 
   Public Function flip_coil_direction(coil_name)
     Call getDocument().reverseCoilDirection(coil_name)
+  End Function
+
+End Class
+
+Class power2
+
+  Private coil_comps
+  Private num_coils
+  Private start_x
+  Private start_y
+  Private offset_x
+  Private offset_y
+  Private current_x
+  Private current_y
+  Private connection_offset
+
+  Public Default Function init()
+    coil_comps = ids_o.get_coil_components()
+    num_coils = CInt(UBound(coil_comps)+1)
+
+    start_x = 500
+    start_y = 100
+    offset_y = 150
+    offset_x = 250
+    current_x = start_x
+    current_y = start_y
+    connection_offset = 25
+
+    if(BUILD_WITH_CIRCUIT) then
+      Call getDocument().newCircuitWindow()
+      draw_circuit()
+    end if
+    Set init = Me
+  End Function
+
+  Public Function draw_circuit()
+    Call setup_coils()
+    Call make_winding()
+  End Function
+
+  Public Function increment_y()
+    current_y = current_y+offset_y
+    increment_y = current_y
+  End Function
+
+  Public Function reset_y()
+    current_y = start_y
+  End Function
+
+  Public Function flip_coil_direction(coil_name)
+    Call getDocument().reverseCoilDirection(coil_name)
+  End Function
+
+  Private Function setup_coils()
+    If(nt > 1) Then
+      For i=0 to num_coils-1
+        coil_name = "Coil#"&(i+1)
+
+        base = int(i/8)
+        coil_orientation = -2*(base mod 2)+1
+
+        If(coil_orientation=-1) Then
+          flip_coil_direction(coil_name)
+        End If
+
+        Call getDocument().setCoilType(coil_name, infoStrandedCoil)
+        Call getDocument().setCoilNumberOfTurns(coil_name, nt)
+        Call getDocument().setParameter(coil_name, "StrandArea", CStr(copperarea/(1000^2)), infoNumberParameter)
+      Next
+    End If
+  End Function
+
+  Private Function make_winding()
+    Set circ = getDocument().getCircuit()
+
+    If(winding_configuration = "s") Then
+
+      'Make three phase coil windings'
+      LIM_1_U = getDocument().makeWinding(Array("Coil#1","Coil#3","Coil#5","Coil#7","Coil#25","Coil#27","Coil#29","Coil#31"))
+      LIM_1_V = getDocument().makeWinding(Array("Coil#9","Coil#11","Coil#13","Coil#15","Coil#33","Coil#35","Coil#37","Coil#39"))
+      LIM_1_W = getDocument().makeWinding(Array("Coil#17","Coil#19","Coil#21","Coil#23","Coil#41","Coil#43","Coil#45","Coil#47"))
+      LIM_2_U = getDocument().makeWinding(Array("Coil#2","Coil#4","Coil#6","Coil#8","Coil#26","Coil#28","Coil#30","Coil#32"))
+      LIM_2_V = getDocument().makeWinding(Array("Coil#10","Coil#12","Coil#14","Coil#16","Coil#34","Coil#36","Coil#38","Coil#40"))
+      LIM_2_W = getDocument().makeWinding(Array("Coil#18","Coil#20","Coil#22","Coil#24","Coil#42","Coil#44","Coil#46","Coil#48"))
+
+      'Insert winding U1 (Phase 1, Core 1) and current source'
+      Call circ.insertSubCircuit(LIM_1_U, start_x, increment_y())
+      Call circ.insertCurrentSource(start_x-offset_x, current_y)
+
+      'Insert winding V1 (Phase 2, Core 1) and current source'
+      Call circ.insertSubCircuit(LIM_1_V, start_x, increment_y())
+      Call circ.insertCurrentSource(start_x-offset_x, current_y)
+
+      'Insert star/wye ground for Core 1 windings'
+      Call circ.insertGround(start_x+offset_x,current_y)
+
+      'Insert winding W1 (Phase 3, Core 1) and current source'
+      Call circ.insertSubCircuit(LIM_1_W, start_x, increment_y())
+      Call circ.insertCurrentSource(start_x-offset_x, current_y)
+
+      'Insert winding U2 (Phase 1, Core 2) and current source'
+      Call circ.insertSubCircuit(LIM_2_U, start_x, increment_y())
+      Call circ.insertCurrentSource(start_x-offset_x, current_y)
+
+      'Insert winding V2 (Phase 2, Core 2) and current source'
+      Call circ.insertSubCircuit(LIM_2_V, start_x, increment_y())
+      Call circ.insertCurrentSource(start_x-offset_x, current_y)
+
+      'Insert star/wye ground for Core 2 windings'
+      Call circ.insertGround(start_x+offset_x,current_y)
+
+      'Insert winding W2 (Phase 3, Core 2) and current source'
+      Call circ.insertSubCircuit(LIM_2_W, start_x, increment_y())
+      Call circ.insertCurrentSource(start_x-offset_x, current_y)
+
+      reset_y()
+
+      ' Get x,y coordinates for ground nodes'
+      DIM g1_node_x, g1_node_y, g2_node_x, g2_node_y
+
+      Call circ.getPositionOfTerminal("G1,T1", g1_node_x, g1_node_y)
+      Call circ.getPositionOfTerminal("G1,T1", g2_node_x, g2_node_y)
+
+      ' Set current source values and perform wiring'
+      For i=0 to 5
+
+        DIM gtx,gty,vstx,vsty,wtx,wty
+
+        winding_name = "Winding#"&(i+1)
+        source_name = "I"&(i+1)
+        ground_name = "G"&(i+3)
+
+        'Set current source amplitude, freq, phase angle'
+        phase_ang = (i mod phase)*120
+        props = Array(0,v_max,freq,0,0,phase_ang)
+        Call getDocument().setSourceWaveform(source_name,"SIN", props)
+
+        ' Create grounds for current sources'
+        Call circ.insertGround(start_x-offset_x-connection_offset, start_y+offset_y*(i+1))
+
+        ' Create connection between source terminal 1 and ground'
+        Call circ.getPositionOfTerminal(ground_name&",T1",gtx,gty)
+        Call circ.getPositionOfTerminal(source_name&",T1",vstx,vsty)
+        xconn = Array(gtx,vstx)
+        yconn = Array(gty,vsty)
+        Call circ.insertConnection(xconn,yconn)
+
+        ' Create connection between source terminal 2 and winding terminal 1'
+        Call circ.getPositionOfTerminal(source_name&",T2",vstx,vsty)
+        Call circ.getPositionOfTerminal(winding_name&",T1,T2",wtx,wty)
+        xconn = Array(vstx,wtx)
+        yconn = Array(vsty,wty)
+        Call circ.insertConnection(xconn,yconn)
+
+        ' Create connection between winding terminal 2 and common ground'
+        Call circ.getPositionOfTerminal(winding_name&",T2,T2",wtx,wty)
+        Call print("G"&(int(i/3)+1))
+        Call circ.getPositionOfTerminal("G"&(int(i/3)+1)&",T1",gtx,gty)
+        xconn = Array(wtx,gtx)
+        yconn = Array(wty,gty)
+        Call circ.insertConnection(xconn,yconn)
+
+        'Perform wiring'
+        Call circ.getPositionOfTerminal(source_name&",T2",vstx,vsty)
+        Call circ.getPositionOfTerminal(source_name&",T1",vstx,vsty)
+
+      Next
+
+    End If
   End Function
 
 End Class
