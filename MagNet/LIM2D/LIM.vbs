@@ -1,26 +1,26 @@
 const PI = 3.141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825342117067
 
 'Geometry Parameters Setup'
-width_core = 900      'core width (motion direction)
-thick_core = 60       'core thickness (away from track)
+width_core = 920      'core width (motion direction)
+thick_core = 120       'core thickness (away from track)
 length_core = 50      'core length (into the page)
 core_endlengths = 30  'core end width
 slots = 24            'number of slots
 slot_pitch = 40       'slot pitch
 slot_gap = 10         'slot gap width (teeth_width is generated with slot_pitch and slot_gap)
-slot_height = 40      'slot height
+slot_height = 75      'slot height
 end_ext = 15          'one sided winding extension value (TODO: replace with dynamic sizing)
 air_gap = 14          'distance between DLIM cores
 
 'Problem Variables'
 slip = 0.01         'Per unit slip'
 v_r = 25            'Relative speed of pod'
-motion_length = 1   'track_length (in meters)'
+motion_length = 2   'track_length (in meters)'
 phase = 3           'Number of phases'
 speed = 1           'Speed of pod'
 time_start = 0      'Starting time (default: 0)'
-sim_time = 300      'Simulation time in ms'
-time_step = 2       'Time step in ms'
+sim_time = 150      'Simulation time in ms'
+time_step = 5       'Time step in ms'
 
 'Build Flags'
 const SHOW_FORBIDDEN_AIR = False	  	' Show forbidden zones for design purposes (as red air regions)
@@ -58,12 +58,12 @@ coil_core_separation_y = 0  'minimum separation between core and coil (one-sided
 distribute_distance = 2     'distributed winding distance, in # of slots'
 v_max = 120                 'input voltage'
 a_max = 120                 'input amplitude (use ONE of a_max or v_max, check power class for which one)'
-freq = 15                   'source frequency'
+freq = 60                   'source frequency'
 awg = 20                    'winding gauge'
 nt = 50                     'number of coil turns (set nt=1 for solid winding)'
 
 'Motion Setup'
-motion_driver = "load"      'options: "load" or "vel", for load or velocity driven. Numbers below only apply if the motion is velocity driven'
+motion_driver = "vel"      'options: "load" or "vel", for load or velocity driven. Numbers below only apply if the motion is velocity driven'
 
 
 'Material Setup'
@@ -1207,7 +1207,7 @@ Class power2
 
         ' Create connection between winding terminal 2 and common ground'
         Call circ.getPositionOfTerminal(winding_name&",T2,T2",wtx,wty)
-        Call print("G"&(int(i/3)+1))
+        'Call print("G"&(int(i/3)+1))
         Call circ.getPositionOfTerminal("G"&(int(i/3)+1)&",T1",gtx,gty)
         xconn = Array(wtx,gtx)
         yconn = Array(wty,gty)
@@ -1255,7 +1255,7 @@ Function setup_motion()
       Call getDocument().setMotionType(tm, infoLinear)
       Call getDocument().setMotionLinearDirection(tm, Array(1, 0, 0))
       Call getDocument().setMotionPositionAtStartup(tm, 0)
-      ' Call getDocument().setMotionSpeedAtStartup(m1, speed)
+      'Call getDocument().setMotionSpeedAtStartup(m1, speed)
       Call getDocument().setMotionSpeedVsTime(tm,time_steps,vel_steps)
     End If
   End If
