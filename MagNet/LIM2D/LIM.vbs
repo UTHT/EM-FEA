@@ -133,6 +133,7 @@ Call SetLocale("en-us")
 Call getDocument().setDefaultLengthUnit("Millimeters")
 Set view = getDocument().getView()
 Set app = getDocument().getApplication()
+cur_time = get_current_timestamp()
 
 'Ids Class Setup
 Set ids_o = new ids.init()
@@ -1315,8 +1316,8 @@ Function export_data(num)
 
 
   cur_location = fso.GetAbsolutePathName(".")
-  cur_time = get_current_timestamp()
 
+  'cur_time defined at simulation/parameter sweep startup'
   save_path = cur_location+"\"+cur_time+"\"
 
   save_postfix = "-"+CStr(num)+".csv"
@@ -1505,12 +1506,11 @@ End Function
 
 'Returns the current time in yyyyMMddhhmmss format'
 Function get_current_timestamp()
-  get_current_time = sprintf("{0:yyyyMMddhhmmss}", Array(now()))
+  get_current_timestamp = sprintf("{0:yyyyMMddhhmmss}", Array(now()))
 End Function
 
 'sprintf function, like in C'
 Function sprintf(sFmt, aData)
-   Dim sb
    Set sb = CreateObject("System.Text.StringBuilder")
    sb.AppendFormat_4 sFmt, (aData)
    sprintf = sb.ToString()
