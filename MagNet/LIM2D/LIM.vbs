@@ -47,7 +47,7 @@ const SAVE_MOTION = True              ' Save motion results'
 
 'Run Flags'
 'Describe the simulation type'
-const RUN_UPON_BUILD = False          ' Run the simulation when MagNet finishes building script'
+const RUN_UPON_BUILD = True          ' Run the simulation when MagNet finishes building script'
 const RUN_TRANSIENT = True            ' Run 2D simulation (Transient)'
 const RUN_MOTION = True               ' Run 2D simulation (Transient with Motion)'
 
@@ -150,7 +150,8 @@ Call make_ee_compensator()
 Set drive = new power2.init()
 Call setup_motion()
 Call setup_sim()
-'Call run_sim()
+Call run_sim()
+Call export_data(0)
 'Call setup_parameters()
 
 'end main'
@@ -1282,6 +1283,7 @@ Function setup_sim()
 End Function
 
 Function run_sim()
+  Call getDocument().setNumberOfMultiCoreSolveThreads(16)
   if(RUN_UPON_BUILD) then
     if(RUN_MOTION) then
       Call getDocument().solveTransient2dWithMotion()
@@ -1317,7 +1319,8 @@ Function export_data(num)
 
   save_path = cur_location+"\"+cur_time+"\"
 
-  save_postfix = "_"+num+".csv"
+  save_postfix = "-"+CStr(num)+".csv"
+  'print(save_postfix)
 
   'Create a new folder with timestamp as name if does not exist'
   If Not fso.FolderExists(save_path) Then
@@ -1507,6 +1510,8 @@ End Function
 
 'sprintf function, like in C'
 Function sprintf(sFmt, aData)
+   Dim sb
+   Set sb = CreateObject("System.Text.StringBuilder")
    sb.AppendFormat_4 sFmt, (aData)
    sprintf = sb.ToString()
    sb.Length = 0
