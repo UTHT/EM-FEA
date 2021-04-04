@@ -31,7 +31,7 @@ create_core(width_core,end_ext,thick_core,slot_pitch,slots,slotTeethWidth,slotGa
 [phaseA,phaseB,phaseC] = define_excitations_td(inputCurrent,freq,0);
 
 %Define winding arrangement
-define_windings_2ladw(slots,slot_pitch,copperMaterial,Air,coilTurns,slotGap,slotTeethWidth,Hs2);
+define_windings_ETH_Zurich_thesis(slots,slot_pitch,copperMaterial,Air,coilTurns,slotGap,slotTeethWidth,Hs2);
 
 %Select LIM Geometry and set to group 1
 mi_selectrectangle(width_core/-2-end_ext,0,width_core/2+end_ext,thick_core,4);
