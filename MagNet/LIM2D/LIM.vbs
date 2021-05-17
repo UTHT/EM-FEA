@@ -139,20 +139,40 @@ cur_time = get_current_timestamp()
 Set ids_o = new ids.init()
 
 
+'Parameter Sweep'
+'change parameter name and value according the "Geometry Parameters Setup" (line 3)'
+'"Step #" is not required if incrementing by 1'
+'input to export_data function should be same as parameter name'
+
+For air_gap = 12 to 16 Step 2
+  Call make_airbox()
+  Call make_track()
+  Call make_core_component()
+  Call make_single_side_windings()
+  Call make_single_side_coils()
+  Call make_ee_compensator()
+  Set drive = new power2.init()
+  Call setup_motion()
+  Call setup_sim()
+  Call run_sim()
+  Call export_data(air_gap)
+  'Call setup_parameters()
+Next
+
 
 'Main Code'
 
-Call make_airbox()
-Call make_track()
-Call make_core_component()
-Call make_single_side_windings()
-Call make_single_side_coils()
-Call make_ee_compensator()
-Set drive = new power2.init()
-Call setup_motion()
-Call setup_sim()
-Call run_sim()
-Call export_data(0)
+'Call make_airbox()
+'Call make_track()
+'Call make_core_component()
+'Call make_single_side_windings()
+'Call make_single_side_coils()
+'Call make_ee_compensator()
+'Set drive = new power2.init()
+'Call setup_motion()
+'Call setup_sim()
+'Call run_sim()
+'Call export_data(0)
 'Call setup_parameters()
 
 'end main'
