@@ -18,10 +18,12 @@ coil_pitch = 2; %Coil Pitch measured in slots
 end_ext = 20; %One-sided winding end extended length
 SPAN_EXT = 20; %Core endlength
 SEG_ANGLE = 15; %Deviation angle for slot arches
+CORE_OFFSET = 0; %DLIM core midline deviation from track
 
 %Simulation Flags
 SAVE_BITMAP = false;
 RUN_SIM = true;
+HIDE_WINDOW = true; % only applies if SAVE_BITMAP = false
 
 %Define Simulation Default Parameters
 inputCurrent = 10;
@@ -41,4 +43,4 @@ coilArea = slotGap*Hs2/2; %Area of coil for a single phase
 %Update rules for LIM core parameters
 SLOT_PITCH=(WIDTH_CORE)/SLOTS
 
-[losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC,flA,flB,flC] = run_simulation(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,coil_pitch,end_ext,SAVE_BITMAP,RUN_SIM);
+[losses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,vA,vB,vC,cA,cB,cC,flA,flB,flC] = run_simulation(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,WIDTH_CORE,THICK_CORE,LENGTH,GAP,SLOT_PITCH,SLOTS,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,coil_pitch,end_ext,SAVE_BITMAP,RUN_SIM,HIDE_WINDOW);

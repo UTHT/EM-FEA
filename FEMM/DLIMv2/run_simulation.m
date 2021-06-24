@@ -1,13 +1,21 @@
-function [hysteresisLosses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,phaseAvol,phaseBvol,phaseCvol,phaseAcur,phaseBcur,phaseCcur,phaseAfl,phaseBfl,phaseCfl] = run_simulation(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,width_core,thick_core,length,gap,slot_pitch,slots,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,coil_pitch,end_ext,SAVE_BITMAP,RUN_SIM)
+function [hysteresisLosses,totalLosses,lforcex,lforcey,wstforcex,wstforcey,phaseAvol,phaseBvol,phaseCvol,phaseAcur,phaseBcur,phaseCcur,phaseAfl,phaseBfl,phaseCfl] = run_simulation(inputCurrent,freq,coilTurns,trackThickness,copperMaterial,coreMaterial,trackMaterial,width_core,thick_core,length,gap,slot_pitch,slots,Hs0,Hs01,Hs1,Hs2,Bs0,Bs1,Bs2,Rs,Layers,coil_pitch,end_ext,SAVE_BITMAP,RUN_SIM,HIDE_WINDOW)
 
 %Define simulation/modeller units
 unit = 'millimeters';
 
+%Create new document and define problem solution
+document_mode = 0;
+if(~SAVE_BITMAP)
+  if(HIDE_WINDOW)
+    disp("here");
+    document_mode = 1;
+  end
+end
+
 %Open FEMM and resize window
-openfemm(0);
+openfemm(document_mode);
 main_resize(1000,590);
 
-%Create new document and define problem solution
 newdocument(0);
 
 %Define problem setup
