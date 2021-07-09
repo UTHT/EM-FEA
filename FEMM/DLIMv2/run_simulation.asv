@@ -81,12 +81,8 @@ create_track(width_core,end_ext,trackThickness,trackMaterial);
 
 if(RUN_SIM)
   %Final Adjustments and solve
-  if(simulationNumber==-1)
-    solve(thick_core,Air,append('DLIMSimulations.fem'));
-  else 
-    solve(thick_core,Air,append('..\SimulationData\temp_',num2str(simulationNumber),'.fem'));
-  end
-    
+  solve(thick_core,Air,append('..\SimulationData\temp_',num2str(simulationNumber),'.fem'));
+
   %Analyze results
   mi_loadsolution;
 

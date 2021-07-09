@@ -21,6 +21,7 @@ speed = 1           'Speed of pod'
 time_start = 0      'Starting time (default: 0)'
 sim_time = 150      'Simulation time in ms'
 time_step = 5       'Time step in ms'
+core_offset = 0     'Offset distance between '
 
 'Build Flags'
 const SHOW_FORBIDDEN_AIR = False	  	' Show forbidden zones for design purposes (as red air regions)
@@ -52,7 +53,7 @@ const RUN_TRANSIENT = True            ' Run 2D simulation (Transient)'
 const RUN_MOTION = True               ' Run 2D simulation (Transient with Motion)'
 
 'Winding Setup'
-winding_configuration = "s"
+winding_configuration = "d"
 coil_core_separation_x = 0  'minimum separation between core and coil (one-sided, x-direction)'
 coil_core_separation_y = 0  'minimum separation between core and coil (one-sided, y-direction)'
 distribute_distance = 2     'distributed winding distance, in # of slots'
@@ -144,36 +145,36 @@ Set ids_o = new ids.init()
 '"Step #" is not required if incrementing by 1'
 'input to export_data function should be same as parameter name'
 
-For air_gap = 12 to 16 Step 2
-  Call make_airbox()
-  Call make_track()
-  Call make_core_component()
-  Call make_single_side_windings()
-  Call make_single_side_coils()
-  Call make_ee_compensator()
-  Set drive = new power2.init()
-  Call setup_motion()
-  Call setup_sim()
-  Call run_sim()
-  Call export_data(air_gap)
-  'Call setup_parameters()
-Next
+' For air_gap = 12 to 16 Step 2
+'   Call make_airbox()
+'   Call make_track()
+'   Call make_core_component()
+'   Call make_single_side_windings()
+'   Call make_single_side_coils()
+'   Call make_ee_compensator()
+'   Set drive = new power2.init()
+'   Call setup_motion()
+'   Call setup_sim()
+'   Call run_sim()
+'   Call export_data(air_gap)
+'   'Call setup_parameters()
+' Next
 
 
 'Main Code'
 
-'Call make_airbox()
-'Call make_track()
-'Call make_core_component()
-'Call make_single_side_windings()
-'Call make_single_side_coils()
-'Call make_ee_compensator()
-'Set drive = new power2.init()
-'Call setup_motion()
-'Call setup_sim()
-'Call run_sim()
-'Call export_data(0)
-'Call setup_parameters()
+Call make_airbox()
+Call make_track()
+Call make_core_component()
+Call make_single_side_windings()
+' Call make_single_side_coils()
+' Call make_ee_compensator()
+' Set drive = new power2.init()
+' Call setup_motion()
+' Call setup_sim()
+' Call run_sim()
+' Call export_data(0)
+' Call setup_parameters()
 
 'end main'
 
@@ -563,51 +564,51 @@ Function make_single_side_windings()
     params = make_single_s_winding()
   End If
 
-  Dim component_name
-  copy_keyword = " Copy#1"
-
-  winding1 = params(0)
-  winding2 = params(1)
-  winding3 = params(2)
-  winding4 = params(3)
-  numcoils = params(4)
-  dist = params(5)
-
-  Call getDocument().beginUndoGroup("Transform Component")
-  Call view.getSlice().moveInALine(-length_core/2)
-
-  For i=1 to numcoils
-    If(winding1<>"") Then
-      Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding1),1),dist*i, 0, 0, 1)
-      copy_component = ids_o.get_copy_components()(0)
-      component_name = Replace(winding1,"1#1.1","1#"&(i+2)&".1")
-      Call getDocument().renameObject(copy_component,component_name)
-    End If
-
-    If(winding2<>"") Then
-      Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding2),1),dist*i, 0, 0, 1)
-      copy_component = ids_o.get_copy_components()(0)
-      component_name = Replace(winding2,"1#1.2","1#"&(i+2)&".2")
-      Call getDocument().renameObject(copy_component,component_name)
-    End If
-
-    If(winding3<>"") Then
-      Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding3),1),dist*i, 0, 0, 1)
-      copy_component = ids_o.get_copy_components()(0)
-      component_name = Replace(winding3,"2#1.1","2#"&(i+2)&".1")
-      Call getDocument().renameObject(copy_component,component_name)
-    End If
-
-    If(winding4<>"") Then
-      Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding4),1),dist*i, 0, 0, 1)
-      copy_component = ids_o.get_copy_components()(0)
-      component_name = Replace(winding4,"2#1.2","2#"&(i+2)&".2")
-      Call getDocument().renameObject(copy_component,component_name)
-    End If
-  Next
-
-  Call getDocument().endUndoGroup()
-  Call view.getSlice().moveInALine(length_core/2)
+  ' Dim component_name
+  ' copy_keyword = " Copy#1"
+  '
+  ' winding1 = params(0)
+  ' winding2 = params(1)
+  ' winding3 = params(2)
+  ' winding4 = params(3)
+  ' numcoils = params(4)
+  ' dist = params(5)
+  '
+  ' Call getDocument().beginUndoGroup("Transform Component")
+  ' Call view.getSlice().moveInALine(-length_core/2)
+  '
+  ' For i=1 to numcoils
+  '   If(winding1<>"") Then
+  '     Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding1),1),dist*i, 0, 0, 1)
+  '     copy_component = ids_o.get_copy_components()(0)
+  '     component_name = Replace(winding1,"1#1.1","1#"&(i+2)&".1")
+  '     Call getDocument().renameObject(copy_component,component_name)
+  '   End If
+  '
+  '   If(winding2<>"") Then
+  '     Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding2),1),dist*i, 0, 0, 1)
+  '     copy_component = ids_o.get_copy_components()(0)
+  '     component_name = Replace(winding2,"1#1.2","1#"&(i+2)&".2")
+  '     Call getDocument().renameObject(copy_component,component_name)
+  '   End If
+  '
+  '   If(winding3<>"") Then
+  '     Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding3),1),dist*i, 0, 0, 1)
+  '     copy_component = ids_o.get_copy_components()(0)
+  '     component_name = Replace(winding3,"2#1.1","2#"&(i+2)&".1")
+  '     Call getDocument().renameObject(copy_component,component_name)
+  '   End If
+  '
+  '   If(winding4<>"") Then
+  '     Call getDocument().shiftComponent(getDocument().copyComponent(Array(winding4),1),dist*i, 0, 0, 1)
+  '     copy_component = ids_o.get_copy_components()(0)
+  '     component_name = Replace(winding4,"2#1.2","2#"&(i+2)&".2")
+  '     Call getDocument().renameObject(copy_component,component_name)
+  '   End If
+  ' Next
+  '
+  ' Call getDocument().endUndoGroup()
+  ' Call view.getSlice().moveInALine(length_core/2)
   'Call clear_construction_lines()
 End Function
 
