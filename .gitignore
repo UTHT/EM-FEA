@@ -6,5 +6,8 @@
 *.jpg
 *.mn
 *.ban
+*.csv
+*.avi
+*.xlsx
 .vs/*
 !requirements.txt
