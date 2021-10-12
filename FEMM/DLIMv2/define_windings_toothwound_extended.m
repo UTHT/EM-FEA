@@ -1,5 +1,8 @@
 function define_windings_toothwound_extended(SLOTS,SLOT_PITCH,copperMaterial,mediumMaterial,coilTurns,slotGap,slotTeethWidth,Hs2)
 
+core_extension = 0;
+width_core = 370;
+
 for i=0:SLOTS-1
    delta=SLOT_PITCH*i;
 
@@ -19,20 +22,18 @@ for i=0:SLOTS-1
 
    %disp(bPhase)
 
-   mi_drawline(-slotTeethWidth/2+delta+slotGap,Hs2/2,-slotTeethWidth/2+slotGap+delta,Hs2/2);
-
+   mi_drawline(-slotTeethWidth/2+delta+slotGap/2,0,-slotTeethWidth/2+delta+slotGap/2,Hs2);
+    
 end
 
-%Removed code that puts air gaps
-% mi_addblocklabel(-slotTeethWidth/2+slotGap/2,Hs2*3/4);
-% mi_selectlabel(-slotTeethWidth/2+slotGap/2,Hs2*3/4);
-% mi_addblocklabel(-slotTeethWidth/2+slotGap/2+SLOT_PITCH,Hs2*3/4);
-% mi_selectlabel(-slotTeethWidth/2+slotGap/2+SLOT_PITCH,Hs2*3/4);
-% % 
-% mi_addblocklabel(slotTeethWidth/2-slotGap/2,Hs2*1/4);
-% mi_selectlabel(slotTeethWidth/2-slotGap/2,Hs2*1/4);
-% mi_addblocklabel(slotTeethWidth/2-slotGap/2-SLOT_PITCH,Hs2*1/4);
-% mi_selectlabel(slotTeethWidth/2-slotGap/2-SLOT_PITCH,Hs2*1/4);
+mi_drawline(-(width_core/2+core_extension+slotGap/2),0,-(width_core/2+core_extension+slotGap/2),Hs2);
+mi_drawline(-(width_core/2+core_extension+slotGap/2),0,-(width_core/2+core_extension),0);
+mi_drawline(-(width_core/2+core_extension+slotGap/2),Hs2,-(width_core/2+core_extension),Hs2);
+
+mi_drawline((width_core/2+core_extension+slotGap/2),0,(width_core/2+core_extension+slotGap/2),Hs2);
+mi_drawline((width_core/2+core_extension+slotGap/2),0,(width_core/2+core_extension),0);
+mi_drawline((width_core/2+core_extension+slotGap/2),Hs2,(width_core/2+core_extension),Hs2);
+
 
 mi_setblockprop(mediumMaterial,1,0,'<None>',0,0,0);
 mi_clearselected;
