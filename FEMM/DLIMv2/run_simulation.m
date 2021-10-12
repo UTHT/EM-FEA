@@ -29,7 +29,7 @@ sumSlotTeeth = slots*2+1;
 slotGap = Bs2;
 teethThickness = slot_pitch-Bs2;
 slotTeethWidth = (slots-1)*slot_pitch+slotGap;
-end_ext=end_ext-(width_core-slotTeethWidth)/2; 
+
 
 %Define LIM Core Geometry
 create_core(width_core,end_ext,thick_core,slot_pitch,slots,slotTeethWidth,slotGap,Hs2);
@@ -38,10 +38,10 @@ create_core(width_core,end_ext,thick_core,slot_pitch,slots,slotTeethWidth,slotGa
 [phaseA,phaseB,phaseC] = define_excitations_td(inputCurrent,freq,0);
 
 %Define winding arrangement
-define_windings_ETH_Zurich_thesis(slots,slot_pitch,copperMaterial,Air,coilTurns,slotGap,slotTeethWidth,Hs2);
+define_windings_toothwound_extended(slots,slot_pitch,copperMaterial,Air,coilTurns,slotGap,slotTeethWidth,Hs2);
 
 %Select LIM Geometry and set to group 1
-mi_selectrectangle(width_core/-2-end_ext,0,width_core/2+end_ext,thick_core,4);
+mi_selectrectangle(width_core/-2-end_ext-slotGap,0,width_core/2+end_ext+slotGap,thick_core,4);
 mi_setgroup(1);
 
 %Label LIM Geometry
