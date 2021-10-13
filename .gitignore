@@ -9,5 +9,6 @@
 *.csv
 *.avi
 *.xlsx
+*.asv
 .vs/*
 !requirements.txt
