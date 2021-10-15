@@ -15,6 +15,8 @@ for i=0:SLOTS-1
     delta = SLOT_PITCH*i;
     mi_drawline(-slotTeethWidth/2+delta,0,-slotTeethWidth/2+delta,Hs2);
     mi_drawline(-slotTeethWidth/2+slotGap+delta,0,-slotTeethWidth/2+slotGap+delta,Hs2);
+    %This line draws a horizontal across the very top and bottom of the
+    %core. Since we are only working with one layer, we don't need it.
     mi_addsegment(-slotTeethWidth/2+delta,Hs2,-slotTeethWidth/2+delta+slotGap,Hs2);
 end
 

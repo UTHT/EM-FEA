@@ -29,7 +29,7 @@ sumSlotTeeth = slots*2+1;
 slotGap = Bs2;
 teethThickness = slot_pitch-Bs2;
 slotTeethWidth = (slots-1)*slot_pitch+slotGap;
-
+end_ext=end_ext-(width_core-slotTeethWidth)/2; 
 
 %Define LIM Core Geometry
 create_core(width_core,end_ext,thick_core,slot_pitch,slots,slotTeethWidth,slotGap,Hs2);

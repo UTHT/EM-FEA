@@ -19,6 +19,7 @@ END_EXT = 30; %One-sided winding end extended length
 SPAN_EXT = 20; %Axial length of winding end span
 SEG_ANGLE = 15; %Deviation angle for slot arches
 
+
 %Define Simulation Default Parameters
 inputCurrent = 10;
 freq = 15;
